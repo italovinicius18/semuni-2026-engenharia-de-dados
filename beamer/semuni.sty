@@ -1,0 +1,252 @@
+% ---------------------------------------------------------------------------
+% semuni.sty — tema da aula "Quem recebeu o dinheiro da cota parlamentar?"
+% SEMUNI 2026 · UnB · Seminário em Cloud
+%
+% A estética é a da "proposta 2": papel de engenharia quadriculado para o
+% raciocínio e os diagramas, janela de terminal escura para as telas de prova.
+%
+% Compila com pdfLaTeX. Não precisa de fonte instalada: sourcesanspro e
+% sourcecodepro já vêm no TeX Live do Overleaf.
+% ---------------------------------------------------------------------------
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{semuni}[2026/09/18 tema SEMUNI 2026]
+
+\RequirePackage[T1]{fontenc}
+\RequirePackage{sourcesanspro}
+\RequirePackage[scale=0.92]{sourcecodepro}
+\RequirePackage{tikz}
+\RequirePackage{tcolorbox}
+\RequirePackage{xcolor}
+\RequirePackage{ragged2e}
+\RequirePackage{etoolbox}
+
+\usetikzlibrary{calc,positioning,arrows.meta,backgrounds,fit}
+\tcbuselibrary{skins,breakable}
+
+% ---------------------------------------------------------------- cores
+% papel de engenharia
+\definecolor{papel}{HTML}{F4F5F7}
+\definecolor{grade}{HTML}{DDE1E8}
+\definecolor{tinta}{HTML}{0F2547}
+\definecolor{laranja}{HTML}{D6541F}
+\definecolor{verde}{HTML}{1B7A55}
+% terminal
+\definecolor{fumaca}{HTML}{151A22}
+\definecolor{barra}{HTML}{1C222C}
+\definecolor{linhat}{HTML}{232B36}
+\definecolor{brancot}{HTML}{E8ECF2}
+\definecolor{tverde}{HTML}{3DDC84}
+\definecolor{tambar}{HTML}{FFB020}
+\definecolor{tvermelho}{HTML}{FF5C57}
+
+% opacidade falsa: o fundo é sólido, então misturar com o papel imita alpha
+\newcommand{\tintaSessenta}{tinta!62!papel}
+\newcommand{\tintaTrintaOito}{tinta!40!papel}
+
+% ---------------------------------------------------------------- beamer base
+\usetheme{default}
+\usecolortheme{default}
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{background canvas}{bg=papel}
+\setbeamercolor{normal text}{fg=tinta}
+\setbeamercolor{structure}{fg=laranja}
+\setbeamerfont{frametitle}{size=\Large,series=\bfseries}
+\setbeamertemplate{itemize items}{\textcolor{verde}{\footnotesize$\bullet$}}
+\setbeamertemplate{itemize item}{\textcolor{verde}{\footnotesize$\bullet$}}
+\setlength{\parskip}{0pt}
+
+% ---------------------------------------------------------------- papel quadriculado
+% 40px numa tela de 1280px viram 5mm numa página de 160mm.
+\newcommand{\semuni@grade}{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[papel] (current page.south west) rectangle (current page.north east);
+    \draw[grade,line width=.25pt,step=5mm]
+      (current page.south west) grid (current page.north east);
+  \end{tikzpicture}%
+}
+\setbeamertemplate{background}{\semuni@grade}
+
+% ---------------------------------------------------------------- rodapé fino
+% Numeração automática: some ou aparece slide sem você contar na mão.
+\setbeamertemplate{footline}{%
+  \hbox{\begin{beamercolorbox}[wd=\paperwidth,ht=4.2mm,dp=3.2mm,leftskip=9mm,rightskip=9mm]{}%
+    \ttfamily\fontsize{5.4}{6}\selectfont\color{\tintaTrintaOito}%
+    \insertframenumber/\inserttotalframenumber\hfill
+    COTA PARLAMENTAR 2025 \quad SEMUNI 2026 --- UnB%
+  \end{beamercolorbox}}%
+}
+
+% margem lateral igual à do deck HTML
+\setbeamersize{text margin left=9mm,text margin right=9mm}
+
+% ---------------------------------------------------------------- tipografia
+% rótulo laranja em versalete mono, o "kicker" de cada slide
+\newcommand{\rotulo}[1]{%
+  {\ttfamily\fontsize{7}{9}\selectfont\color{laranja}%
+   \MakeUppercase{#1}\par\vspace{3.2mm}}%
+}
+
+% título grande de abertura
+\newcommand{\titulao}[1]{%
+  {\bfseries\fontsize{25}{27}\selectfont\color{tinta}\RaggedRight #1\par}%
+}
+
+% título de seção, o "h2"
+\newcommand{\subtitulo}[1]{%
+  {\bfseries\fontsize{17}{20}\selectfont\color{tinta}\RaggedRight #1\par}%
+}
+
+% texto corrido
+\newcommand{\corpo}[1]{%
+  {\fontsize{9.4}{13.6}\selectfont\color{\tintaSessenta}\RaggedRight #1\par}%
+}
+\newcommand{\destaque}[1]{{\bfseries\color{tinta}#1}}
+
+% código inline, com a caixinha cinza do deck HTML
+\newcommand{\cod}[1]{%
+  \tikz[baseline=(x.base)]{\node[inner xsep=2pt,inner ysep=1pt,rounded corners=1.2pt,
+    fill=tinta!12!papel](x){\ttfamily\small #1};}%
+}
+
+% número gigante + legenda
+\newcommand{\gigante}[2]{%
+  {\ttfamily\bfseries\fontsize{48}{50}\selectfont\color{#1}#2\par}%
+}
+\newcommand{\legendanum}[1]{%
+  {\ttfamily\fontsize{9}{11}\selectfont\color{\tintaSessenta}#1\par}%
+}
+
+% carimbo ERRADO, girado, no canto superior direito
+\newcommand{\carimbo}[1]{%
+  \begin{tikzpicture}[remember picture,overlay]
+    \node[rotate=-8,draw=laranja,line width=1.4pt,inner xsep=4mm,inner ysep=2.6mm,
+          text=laranja,font=\ttfamily\bfseries\fontsize{19}{21}\selectfont]
+      at ($(current page.north east)+(-3.4cm,-3.2cm)$) {#1};
+  \end{tikzpicture}%
+}
+
+% frase de tela cheia, em tinta cheia.
+% Esta macro existe por um motivo so, e nao e estetico: um frame que COMECA com
+% `{` faz o Beamer ler a chave como titulo do frame e estourar com "Paragraph
+% ended before \beamer@inlineframetitle was complete", apontando para o
+% \end{frame} — sete linhas depois do erro de verdade. Envolver em \frase nao
+% muda um pixel; so impede que a chave seja a primeira coisa da linha.
+\newcommand{\frase}[1]{%
+  {\bfseries\fontsize{20}{24}\selectfont\color{tinta}\RaggedRight #1\par}%
+}
+
+% frase de fecho, em tinta cheia
+\newcommand{\fecho}[1]{%
+  {\fontsize{9.2}{13}\selectfont\color{tinta}\RaggedRight #1\par}%
+}
+
+% ---------------------------------------------------------------- janela de terminal
+% As três bolinhas são desenhadas no overlay do tcolorbox, não são imagem.
+\newtcolorbox{terminal}[1][]{%
+  enhanced,
+  colback=fumaca,
+  colframe=linhat,
+  boxrule=.4pt,
+  arc=2.2pt,
+  left=5mm,right=4mm,top=8.4mm,bottom=3.4mm,
+  boxsep=0pt,
+  width=\linewidth,
+  overlay={%
+    \begin{tcbclipinterior}
+      \fill[barra] (frame.north west) rectangle ([yshift=-6.2mm]frame.north east);
+      \draw[linhat,line width=.4pt] ([yshift=-6.2mm]frame.north west)
+        -- ([yshift=-6.2mm]frame.north east);
+    \end{tcbclipinterior}
+    \fill[tvermelho] ([shift={(3.4mm,-3.1mm)}]frame.north west) circle (.72mm);
+    \fill[tambar]    ([shift={(6.0mm,-3.1mm)}]frame.north west) circle (.72mm);
+    \fill[tverde]    ([shift={(8.6mm,-3.1mm)}]frame.north west) circle (.72mm);
+    \node[anchor=west,text=brancot!55,font=\ttfamily\fontsize{6.2}{7}\selectfont]
+      at ([shift={(11.6mm,-3.1mm)}]frame.north west) {#1};
+  },
+}
+
+% linha de terminal: prompt verde + comando
+\newcommand{\shell}[1]{{\color{tverde}\$}~#1}
+\newcommand{\sql}[1]{{\color{tverde}spark-sql>}~#1}
+\newcommand{\saida}[1]{{\color{brancot}#1}}
+\newcommand{\comentario}[1]{{\color{brancot!42}#1}}
+\newcommand{\ambar}[1]{{\color{tambar}#1}}
+\newcommand{\vermelho}[1]{{\color{tvermelho}#1}}
+
+% ambiente para o miolo do terminal, com entrelinha de console
+\newenvironment{tela}{%
+  \ttfamily\fontsize{7.6}{11.4}\selectfont\color{brancot}\raggedright
+}{\par}
+
+% legenda que vem embaixo da janela
+\newcommand{\legenda}[1]{%
+  \vspace{3.2mm}{\fontsize{8.8}{12}\selectfont\color{\tintaSessenta}\RaggedRight #1\par}%
+}
+
+% ---------------------------------------------------------------- coluna de comparação
+% Usada no slide neutro "quando cada um faz sentido". Os dois lados usam
+% exatamente o mesmo estilo de propósito: nenhum é o lado "certo".
+\newtcolorbox{lado}[1]{%
+  enhanced,
+  colback=white!62!papel,
+  colframe=tinta!16!papel,
+  boxrule=1pt,
+  arc=2pt,
+  left=3.6mm,right=3.6mm,top=3.2mm,bottom=3.2mm,
+  title=\relax,
+  fonttitle=\relax,
+  attach boxed title to top left={xshift=0mm,yshift=0mm},
+  before upper={%
+    {\ttfamily\fontsize{6.4}{8}\selectfont\color{laranja}\MakeUppercase{#1}\par
+     \vspace{1.6mm}}%
+  },
+}
+\newenvironment{beneficios}{%
+  \begin{itemize}\setlength{\itemsep}{1.7mm}\setlength{\leftmargini}{4.2mm}
+  \fontsize{8.4}{10.6}\selectfont\color{\tintaSessenta}
+}{\end{itemize}}
+
+% ---------------------------------------------------------------- diagrama
+% Estilos dos blocos da arquitetura. Um "slab" é uma camada (processamento ou
+% armazenamento); uma "cx" é um container dentro dela.
+\tikzset{
+  cx/.style={draw=tinta,line width=.7pt,fill=white,rounded corners=1pt,
+             minimum height=9mm,inner sep=0pt},
+  cxq/.style={draw=laranja,line width=.7pt,dash pattern=on 1.6pt off 1.3pt,
+              fill=white,rounded corners=1pt,minimum height=9mm,inner sep=0pt},
+  slab/.style={draw=tinta!40!papel,line width=.6pt,dash pattern=on 2pt off 1.4pt,
+               fill=tinta!5!papel,rounded corners=1.4pt},
+  tt/.style={font=\ttfamily\bfseries\fontsize{7.4}{8.6}\selectfont,text=tinta,
+             anchor=north west,inner sep=0pt},
+  ttq/.style={tt,text=laranja},
+  tp/.style={font=\ttfamily\fontsize{5.6}{7}\selectfont,text=tinta!62!papel,
+             anchor=north west,inner sep=0pt},
+  tpq/.style={tp,text=laranja},
+  ts/.style={font=\ttfamily\bfseries\fontsize{6}{7.4}\selectfont,text=laranja,
+             anchor=north west,inner sep=0pt},
+  tn/.style={font=\ttfamily\bfseries\fontsize{6.6}{8}\selectfont,text=verde,
+             anchor=north west,inner sep=0pt},
+  seta/.style={draw=tinta,line width=.7pt,-{Straight Barb[length=1.5mm,width=1.5mm]}},
+  cano/.style={draw=laranja,line width=1pt,-{Straight Barb[length=1.8mm,width=1.9mm]}},
+}
+
+% Um bloco do diagrama: caixa + título + subtítulo, tudo em mm.
+% \bloco{x}{y do topo}{largura}{estilo}{título}{subtítulo}
+\newcommand{\bloco}[6]{%
+  \node[#4,minimum width=#3mm,anchor=north west] (semunibloco) at (#1mm,#2mm) {};
+  \node[tt] at ([shift={(2.4mm,-2.4mm)}]semunibloco.north west) {#5};
+  \node[tp] at ([shift={(2.4mm,-6.0mm)}]semunibloco.north west) {#6};
+}
+% idem, com a cor laranja do "ainda não existe"
+\newcommand{\blocoq}[5]{%
+  \node[cxq,minimum width=#3mm,anchor=north west] (semunibloco) at (#1mm,#2mm) {};
+  \node[ttq] at ([shift={(2.4mm,-2.4mm)}]semunibloco.north west) {#4};
+  \node[tpq] at ([shift={(2.4mm,-6.0mm)}]semunibloco.north west) {#5};
+}
+
+% crase literal, para as consultas em SQL do Delta
+\newcommand{\bt}{\textasciigrave}
+% dois hifens que não viram travessão dentro de \ttfamily
+\newcommand{\dd}{-{}-}
+
+\endinput

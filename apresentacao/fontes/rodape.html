@@ -1,0 +1,101 @@
+</div>
+<div id="notas"><strong style="font-family:var(--mono);letter-spacing:.1em;font-size:13px;opacity:.6">NOTA DO APRESENTADOR</strong><div id="nota-txt" style="margin-top:8px"></div></div>
+<div id="ajuda">&larr;&rarr; navega &nbsp; f tela cheia &nbsp; n notas &nbsp; t relógio</div>
+<div id="relogio"></div>
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var slides=[].slice.call(stage.querySelectorAll('.slide'));
+  var total=String(slides.length).padStart(2,'0');
+
+  // rodape fino: numero do slide, injetado para nao numerar na mao
+  slides.forEach(function(s,k){
+    var rod=document.createElement('div'); rod.className='rodape';
+    rod.innerHTML='<span>'+String(k+1).padStart(2,'0')+'/'+total+'</span>'
+                 +'<span>COTA PARLAMENTAR 2025 &nbsp;·&nbsp; SEMUNI 2026 — UnB</span>';
+    s.appendChild(rod);
+  });
+
+  var i=0, f=0;
+  var notaTxt=document.getElementById('nota-txt');
+  function frags(){ return [].slice.call(slides[i].querySelectorAll('.frag')); }
+  function render(){
+    slides.forEach(function(s,k){ s.classList.toggle('is-active', k===i); });
+    frags().forEach(function(el,k){ el.classList.toggle('on', k<f); });
+    notaTxt.textContent = 'minuto '+(slides[i].getAttribute('data-min')||'?')+' — '
+      +(slides[i].getAttribute('data-nota') || '—');
+    pintar();
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1)+(f?'.'+f:''));
+  }
+  function next(){ var n=frags().length; if(f<n){f++;} else if(i<slides.length-1){i++;f=0;} else return; render(); }
+  function prev(){ if(f>0){f--;} else if(i>0){i--; f=frags().length;} else return; render(); }
+  function ir(k){ i=Math.max(0,Math.min(slides.length-1,k)); f=0; render(); }
+
+  // relogio de palco: t liga e pausa, T zera. mostra o minuto-alvo do slide atual,
+  // porque o corte da professora e duro em 35 e a deriva so aparece se voce ve ela.
+  var relogio=document.getElementById('relogio'), t0=null, acum=0, batida=null;
+  function mmss(ms){ var s=Math.max(0,Math.round(ms/1000));
+    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  function decorrido(){ return acum + (t0 ? Date.now()-t0 : 0); }
+  function pintar(){
+    if(!relogio.classList.contains('on')) return;
+    var alvo=parseInt(slides[i].getAttribute('data-min'),10)||0;
+    var atrasado = decorrido()/60000 - alvo > 2;
+    relogio.innerHTML = (t0?'':'‖ ')+mmss(decorrido())
+      +' <span class="'+(atrasado?'atraso':'')+'">alvo '+alvo+"'</span>";
+  }
+  function relogioToggle(){
+    if(!relogio.classList.contains('on')){ relogio.classList.add('on'); t0=Date.now(); }
+    else if(t0){ acum=decorrido(); t0=null; }
+    else { t0=Date.now(); }
+    if(!batida) batida=setInterval(pintar,1000);
+    pintar();
+  }
+  function relogioZera(){ acum=0; t0=null; pintar(); }
+
+  // O palco e 1280x720 posicionado em top:50% com margin-top:-360px, e so
+  // depois escalado. Com transform-origin no topo (50% 0) a escala cresce para
+  // baixo: em 1920x1080 o topo ficava em 180px e os ultimos 180px do slide
+  // saiam da tela, rodape junto. Com a origem no centro (50% 50%) o centro da
+  // caixa fica cravado em innerHeight/2 e a escala cresce para os dois lados.
+  function fit(){
+    var notas = document.body.classList.contains('notas');
+    var h = notas ? innerHeight*0.64 : innerHeight;
+    var s = Math.min(innerWidth/1280, h/720);
+    stage.style.transform='scale('+s+')';
+    // em modo notas o palco centra na faixa de cima, nao na tela inteira
+    stage.style.marginTop = notas ? (h/2 - innerHeight/2 - 360)+'px' : '-360px';
+    // a grade do fundo acompanha a escala e a posicao do palco, senao a emenda
+    // do letterbox aparece como dois quadriculados de tamanhos diferentes
+    var b = stage.getBoundingClientRect();
+    document.body.style.backgroundSize = (40*s)+'px '+(40*s)+'px';
+    document.body.style.backgroundPosition = b.left+'px '+b.top+'px';
+  }
+
+  addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '||k==='Enter'){ e.preventDefault(); next(); }
+    else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){ e.preventDefault(); prev(); }
+    else if(k==='Home'){ ir(0); }
+    else if(k==='End'){ ir(slides.length-1); }
+    else if(k==='f'||k==='F'){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+    else if(k==='n'||k==='N'){ document.body.classList.toggle('notas'); fit(); }
+    else if(k==='t'){ relogioToggle(); }
+    else if(k==='T'){ relogioZera(); }
+  });
+  stage.addEventListener('click', function(e){ e.shiftKey ? prev() : next(); });
+  addEventListener('resize', fit);
+
+  var partes=(location.hash||'').replace('#','').split('.');
+  var ajuda=document.getElementById('ajuda'), timer;
+  function piscarAjuda(){ ajuda.classList.remove('sumiu'); clearTimeout(timer); timer=setTimeout(function(){ajuda.classList.add('sumiu');},4000); }
+  addEventListener('mousemove', piscarAjuda); ajuda.classList.add('sumiu');
+
+  var h=parseInt(partes[0],10);
+  if(h>0 && h<=slides.length){ i=h-1; f=parseInt(partes[1],10)||0; }
+  fit(); render();
+})();
+</script>
+</body>
+</html>

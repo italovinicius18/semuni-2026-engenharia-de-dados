@@ -1,0 +1,108 @@
+# A sala de maquinas da aula.
+#
+# Tres coisas separadas de proposito, porque a separacao E a aula:
+#   minio         guarda o dado          (o S3 da sua casa)
+#   spark-master  reparte o trabalho     (o EMR da sua casa)
+#   spark-worker  faz o trabalho         (escalavel: --scale spark-worker=3)
+#
+# O Spark so fala com o MinIO por s3a://. Ele nao tem o dado no disco dele.
+# Derruba o Spark inteiro e o dado continua la. Esse e o ponto.
+
+name: semuni
+
+services:
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: semuni-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: semuni
+      MINIO_ROOT_PASSWORD: semuni2026
+    ports:
+      - "9000:9000"   # API do S3
+      - "9001:9001"   # console web, para projetar na aula
+    volumes:
+      - minio-dados:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # cria o bucket e sai. so existe para o stack subir pronto.
+  criar-bucket:
+    image: quay.io/minio/mc:latest
+    container_name: semuni-criar-bucket
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 semuni semuni2026 &&
+      mc mb --ignore-existing local/lake &&
+      mc anonymous set download local/lake &&
+      echo 'bucket lake pronto'
+      "
+
+  spark-master:
+    build:
+      context: .
+      dockerfile: docker/spark.Dockerfile
+    image: semuni/spark:3.5.0
+    container_name: semuni-spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
+    ports:
+      - "8080:8080"   # UI do master, para projetar quando subir worker ao vivo
+      - "7077:7077"
+    volumes:
+      - ./jars:/opt/jars:ro
+      - ./src:/opt/src:ro
+      - ./config:/opt/config:ro
+      - ./testes:/opt/testes:ro
+
+  spark-worker:
+    image: semuni/spark:3.5.0
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      SPARK_NO_DAEMONIZE: "true"
+      SPARK_WORKER_CORES: "2"
+      SPARK_WORKER_MEMORY: "2g"
+    depends_on:
+      - spark-master
+    volumes:
+      - ./jars:/opt/jars:ro
+      - ./src:/opt/src:ro
+      - ./config:/opt/config:ro
+    deploy:
+      replicas: 2
+
+  notebook:
+    image: quay.io/jupyter/pyspark-notebook:spark-3.5.0
+    container_name: semuni-notebook
+    user: root
+    environment:
+      JUPYTER_TOKEN: semuni
+      GRANT_SUDO: "yes"
+      NB_UID: "1000"
+      NB_GID: "1000"
+      # o notebook importa o mesmo pacote que o pipeline usa: a analise no
+      # fim da aula nao reimplementa a regra, ela le a gold que o pipeline fez
+      PYTHONPATH: /opt/src
+      S3_ENDPOINT: http://minio:9000
+    ports:
+      - "8888:8888"
+      - "4040:4040"   # UI da aplicacao Spark durante a consulta
+    depends_on:
+      - spark-master
+      - minio
+    volumes:
+      - ./jars:/opt/jars:ro
+      - ./src:/opt/src:ro
+      - ./config:/opt/config:ro
+      - ./analise:/home/jovyan/work
+      - ./dados:/home/jovyan/dados:ro
+
+volumes:
+  minio-dados:

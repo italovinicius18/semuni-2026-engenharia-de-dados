@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quem recebeu o dinheiro da cota parlamentar? — SEMUNI 2026</title>
+<style>
+:root{
+  /* papel de engenharia */
+  --papel:#F4F5F7; --grade:#DDE1E8;
+  --tinta:#0F2547; --tinta-60:rgba(15,37,71,.60); --tinta-38:rgba(15,37,71,.38);
+  --tinta-12:rgba(15,37,71,.12);
+  --laranja:#D6541F; --verde:#1B7A55;
+  /* terminal */
+  --preto:#0B0E13; --fumaca:#151A22; --linha:#232B36;
+  --branco:#E8ECF2; --cinza:rgba(232,236,242,.55); --cinza2:rgba(232,236,242,.32);
+  --t-verde:#3DDC84; --t-ambar:#FFB020; --t-vermelho:#FF5C57;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+/* o papel continua fora do palco: numa tela que nao e 16:9 o letterbox vira
+   mais papel quadriculado em vez de uma moldura cinza */
+html,body{height:100%;overflow:hidden;
+  background:var(--papel);
+  background-image:linear-gradient(var(--grade) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--grade) 1px,transparent 1px);
+  background-size:40px 40px}
+body.notas{overflow:auto;background:var(--papel);background-image:none}
+
+#stage{
+  position:absolute;left:50%;top:50%;width:1280px;height:720px;
+  margin-left:-640px;margin-top:-360px;
+  /* origem no centro: com 50% 0 a escala crescia so para baixo e cortava os
+     ultimos 180px do slide numa tela 1920x1080. Ver fit() no fim do arquivo. */
+  transform-origin:50% 50%;
+  background:var(--papel);
+  background-image:linear-gradient(var(--grade) 1px,transparent 1px),
+                   linear-gradient(90deg,var(--grade) 1px,transparent 1px);
+  background-size:40px 40px;
+  color:var(--tinta);font-family:var(--sans);
+  overflow:hidden;
+}
+.slide{
+  position:absolute;inset:0;padding:54px 74px;
+  display:none;flex-direction:column;justify-content:center;
+}
+.slide.is-active{display:flex}
+.slide.topo{justify-content:flex-start}
+.slide.justo{padding:36px 54px}
+
+/* rodape fino, sem cromo de cupom */
+.rodape{
+  position:absolute;left:74px;right:74px;bottom:22px;
+  display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--tinta-38);
+}
+.slide.justo .rodape{left:54px;right:54px;bottom:16px}
+
+.rotulo{font-family:var(--mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--laranja);margin-bottom:20px}
+h1{font-size:72px;line-height:1.05;letter-spacing:-.03em;font-weight:700;max-width:19ch}
+h2{font-size:44px;line-height:1.12;letter-spacing:-.02em;font-weight:700;max-width:24ch}
+h3{font-size:30px;line-height:1.2;letter-spacing:-.015em;font-weight:700}
+p{font-size:23px;line-height:1.5;color:var(--tinta-60);max-width:60ch;margin-top:20px}
+p b{color:var(--tinta);font-weight:600}
+code{font-family:var(--mono);font-size:.92em;background:var(--tinta-12);
+  padding:2px 7px;border-radius:4px;color:var(--tinta)}
+
+/* numero gigante */
+.gigante{font-family:var(--mono);font-weight:700;font-size:140px;letter-spacing:-.05em;line-height:1}
+.gigante.errado{color:var(--laranja)}
+.gigante.certo{color:var(--verde)}
+.sub{font-family:var(--mono);font-size:25px;letter-spacing:.1em;color:var(--tinta-60);margin-top:10px}
+.carimbo{position:absolute;right:110px;top:190px;font-family:var(--mono);font-weight:700;
+  font-size:50px;letter-spacing:.18em;color:var(--laranja);border:5px solid var(--laranja);
+  padding:12px 26px;transform:rotate(-8deg)}
+
+/* as 70 grafias virando uma */
+.grafias{display:flex;flex-wrap:wrap;gap:5px;max-width:1040px;margin-top:8px}
+.grafias i{display:block;height:11px;width:58px;background:var(--tinta-38);border-radius:2px}
+.grafias i:nth-child(7n){width:86px}
+.grafias i:nth-child(5n){width:40px}
+.uma{margin-top:26px;display:flex;align-items:center;gap:18px}
+.uma b{display:block;height:22px;width:330px;background:var(--verde);border-radius:3px}
+.uma span{font-family:var(--mono);font-size:24px;font-weight:700}
+
+/* janela de terminal, escura, sobre o papel claro */
+.janela{background:var(--fumaca);border:1px solid var(--linha);border-radius:9px;overflow:hidden;
+  box-shadow:0 26px 60px rgba(15,37,71,.30);font-family:var(--mono)}
+.barra{display:flex;align-items:center;gap:9px;padding:10px 16px;background:#1C222C;
+  border-bottom:1px solid var(--linha)}
+.barra i{width:11px;height:11px;border-radius:50%;display:block}
+.barra i:nth-child(1){background:#FF5C57}.barra i:nth-child(2){background:#FFBD2E}.barra i:nth-child(3){background:#28C840}
+.barra span{margin-left:10px;font-size:13px;color:var(--cinza);letter-spacing:.06em}
+.corpo{padding:20px 24px;font-size:18px;line-height:1.6;color:var(--branco)}
+.corpo .p{color:var(--t-verde)}
+.corpo .c{color:var(--cinza2)}
+.corpo .a{color:var(--t-ambar)}
+.corpo .v{color:var(--t-vermelho)}
+.corpo b{font-weight:600}
+.corpo table{border-collapse:collapse;width:100%;font-size:17px}
+.corpo th{text-align:left;font-size:12px;letter-spacing:.16em;color:var(--cinza2);
+  padding:0 14px 9px 0;border-bottom:1px solid var(--linha)}
+.corpo td{padding:10px 14px 10px 0;border-bottom:1px solid rgba(35,43,54,.6);color:var(--cinza)}
+.corpo td.d{color:var(--branco);font-weight:600}
+.legenda{margin-top:22px;font-size:21px;line-height:1.45;color:var(--tinta-60);max-width:66ch}
+.legenda b{color:var(--tinta);font-weight:600}
+
+/* comparacao neutra: dois lados, os dois com beneficio */
+.dois{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
+.col{border:2px solid var(--tinta-12);border-radius:8px;padding:22px 24px;background:rgba(255,255,255,.66)}
+.col h3{font-size:26px;margin-bottom:4px}
+.col .onde{font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--laranja);margin-bottom:14px}
+.col ul{list-style:none}
+.col li{font-size:19px;line-height:1.38;color:var(--tinta-60);padding:9px 0 9px 26px;position:relative}
+.col li::before{content:'';position:absolute;left:0;top:15px;width:11px;height:11px;
+  border-radius:50%;background:var(--verde);opacity:.75}
+.fecho{margin-top:20px;font-size:22px;line-height:1.45;color:var(--tinta);max-width:82ch}
+.fecho b{font-weight:700}
+
+/* diagrama */
+svg{display:block}
+.cx{fill:#fff;stroke:var(--tinta);stroke-width:2.5}
+.cx.q{fill:#fff;stroke:var(--laranja);stroke-dasharray:6 5}
+.slab{fill:rgba(15,37,71,.05);stroke:var(--tinta-38);stroke-width:2;stroke-dasharray:7 5}
+.tt{font-family:var(--mono);font-size:17px;fill:var(--tinta);font-weight:600}
+.tp{font-family:var(--mono);font-size:13px;fill:var(--tinta-60);letter-spacing:.09em}
+.ts{font-family:var(--mono);font-size:14px;fill:var(--laranja);letter-spacing:.14em;font-weight:600}
+.tn{font-family:var(--mono);font-size:15px;fill:var(--verde);font-weight:600}
+.seta{stroke:var(--tinta);stroke-width:2.5;fill:none;marker-end:url(#p)}
+.cano{stroke:var(--laranja);stroke-width:3.5;fill:none;marker-end:url(#po)}
+
+/* fragmentos */
+.frag{opacity:0;transition:opacity .16s ease}
+.frag.on{opacity:1}
+
+/* notas, ajuda, relogio */
+#notas{display:none;position:absolute;left:0;right:0;top:calc(64vh + 8px);
+  padding:20px 26px;font-family:var(--sans);font-size:19px;line-height:1.5;color:#1F2A3A}
+body.notas #notas{display:block}
+#ajuda{position:fixed;right:14px;bottom:12px;z-index:10;font-family:var(--mono);font-size:12px;
+  letter-spacing:.1em;color:rgba(15,37,71,.42);transition:opacity .4s}
+#ajuda.sumiu{opacity:0}
+#relogio{position:fixed;left:14px;bottom:12px;z-index:10;display:none;
+  font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--tinta-60)}
+#relogio.on{display:block}
+#relogio .atraso{color:var(--laranja)}
+</style>
+</head>
+<body>
+<div id="stage">
+<!-- 01 -->
+<section class="slide" data-min="0" data-nota="Não se apresente: a professora já leu a minibio. Comece pela pergunta e diga que ela vai ser respondida errado antes de ser respondida certo.">
+  <div class="rotulo">semuni 2026 · seminário em cloud</div>
+  <h1>Quem recebeu o dinheiro da cota parlamentar?</h1>
+  <p>Um arquivo público, 209 mil linhas, ninguém limpou nada. Vamos responder duas vezes: primeiro errado, depois certo. A diferença entre as duas respostas é a aula inteira.</p>
+</section>
+
+<!-- 02 -->
+<section class="slide" data-min="1" data-nota="CEAP = Cota para o Exercício da Atividade Parlamentar. Cada deputado tem uma verba mensal e presta contas. A Câmara publica tudo. Não é vazamento: é transparência ativa.">
+  <div class="rotulo">o dado</div>
+  <h2>Uma nota fiscal por linha.</h2>
+  <p><b>CEAP</b> — Cota para o Exercício da Atividade Parlamentar. Cada deputado tem uma verba mensal, gasta, e presta contas. A Câmara publica o arquivo inteiro.</p>
+  <p><code>Ano-2025.csv</code> &nbsp;·&nbsp; 74,5 MB &nbsp;·&nbsp; 32 colunas &nbsp;·&nbsp; 209.066 lançamentos &nbsp;·&nbsp; domínio público.</p>
+</section>
+
+<!-- 03 -->
+<section class="slide" data-min="3" data-nota="Deixe o número na tela em silêncio por uns segundos antes de avançar o carimbo. A plateia precisa acreditar no número antes de você derrubá-lo.">
+  <div class="rotulo">a resposta ingênua</div>
+  <div class="gigante errado">R$ 16,4 mi</div>
+  <div class="sub">TAM LINHAS AÉREAS</div>
+  <div class="carimbo frag">ERRADO</div>
+  <p class="frag" style="margin-top:36px">Uma <code>GROUP BY</code> honesta, num dado honesto, que produz uma resposta falsa.</p>
+</section>
+
+<!-- 04 -->
+<section class="slide" data-min="4" data-nota="SIGEPA é o sistema de passagens da Câmara. A companhia aérea aparece como fornecedora porque o bilhete foi emitido por lá, não porque um deputado contratou a TAM.">
+  <div class="rotulo">por que a resposta é falsa</div>
+  <h2>Companhia aérea não é fornecedora de deputado.</h2>
+  <p>É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara. O bilhete sai por lá e a companhia entra na planilha. O dado não mentiu — <b>a pergunta é que foi mal feita.</b></p>
+</section>
+
+<!-- 05 -->
+<section class="slide" data-min="6" data-nota="Esta é a frase-chave da aula. Diga devagar. Tudo depois disso é consequência dela.">
+  <h2 style="font-size:52px;max-width:20ch">O dado sujo não avisa que está sujo. Ele só responde.</h2>
+  <p>Três defeitos neste arquivo. Nenhum é bug. Todos são o mundo real chegando sem aviso.</p>
+</section>
+
+<!-- 06 -->
+<section class="slide" data-min="7" data-nota="Estorno = devolução. Valor líquido negativo. Se você soma tudo junto, o estorno abate o gasto de quem não gastou. Não apague: marque numa coluna.">
+  <div class="rotulo">defeito 1 de 3</div>
+  <h2>Oito mil linhas com valor negativo.</h2>
+  <div class="gigante certo" style="font-size:104px;margin-top:14px">8.017</div>
+  <div class="sub">ESTORNOS — DEVOLUÇÕES DE DESPESA</div>
+  <p class="frag"><b>Não apague.</b> Um estorno é informação: alguém devolveu dinheiro. Ele vira uma coluna <code>eh_estorno</code>, e cada pergunta decide se quer contar com ele ou sem.</p>
+</section>
+
+<!-- 07 -->
+<section class="slide" data-min="9" data-nota="Sem CNPJ você não consegue juntar a empresa com nada de fora do arquivo. Quase todas são passagem aérea emitida pela Câmara.">
+  <div class="rotulo">defeito 2 de 3</div>
+  <h2>Trinta e sete mil linhas sem CNPJ.</h2>
+  <div class="gigante certo" style="font-size:104px;margin-top:14px">37.934</div>
+  <div class="sub">SEM DOCUMENTO DO FORNECEDOR</div>
+  <p class="frag">Sem CNPJ não existe <b>chave natural</b>: você não consegue ligar essa linha a nenhuma informação de fora do arquivo. Vira a coluna <code>via_sigepa</code>.</p>
+</section>
+
+<!-- 08 -->
+<section class="slide" data-min="10" data-nota="Cada barrinha é uma grafia diferente do mesmo posto de gasolina. Avance o fragmento e mostre as 70 virando uma. A raiz do CNPJ (8 primeiros dígitos) é o que une.">
+  <div class="rotulo">defeito 3 de 3</div>
+  <h2>Setenta fornecedores que são um só.</h2>
+  <div class="grafias" style="margin-top:22px">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="uma frag"><b></b><span>CASCOL — R$ 1.067.822 — mesma raiz de CNPJ</span></div>
+  <p class="frag">Nenhum pedaço era grande o bastante para aparecer sozinho. Juntos, mudam o pódio.</p>
+</section>
+
+<!-- 09 -->
+<section class="slide justo" data-min="12" data-nota="Construa o desenho no ritmo da fala. f0 é só o CSV. Depois entra o armazenamento, depois as três tabelas Delta. Não avance antes de terminar a frase.">
+  <div class="rotulo">o conserto precisa de um lugar para morar</div>
+  <svg viewBox="0 0 1160 470" width="1160" height="470">
+    <defs>
+      <marker id="p" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#0F2547"/></marker>
+      <marker id="po" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#D6541F"/></marker>
+    </defs>
+    <g>
+      <rect class="cx" x="10" y="180" width="185" height="82" rx="4"/>
+      <text class="tt" x="30" y="212">Ano-2025.csv</text>
+      <text class="tp" x="30" y="236">74,5 MB · 32 COLUNAS</text>
+      <text class="tp" x="30" y="254">CAMARA.LEG.BR</text>
+    </g>
+    <g class="frag">
+      <path class="seta" d="M200 221 H 258"/>
+      <rect class="slab" x="270" y="150" width="880" height="140" rx="6"/>
+      <text class="ts" x="290" y="176">ARMAZENAMENTO · CONTAINER minio</text>
+      <rect class="cx" x="290" y="190" width="230" height="78" rx="4"/>
+      <text class="tt" x="308" y="220">MinIO</text>
+      <text class="tp" x="308" y="244">s3a://lake</text>
+    </g>
+    <g class="frag">
+      <rect class="cx" x="548" y="190" width="180" height="78" rx="4"/>
+      <text class="tt" x="566" y="220">bronze</text>
+      <text class="tp" x="566" y="244">COMO VEIO</text>
+      <rect class="cx" x="748" y="190" width="180" height="78" rx="4"/>
+      <text class="tt" x="766" y="220">silver</text>
+      <text class="tp" x="766" y="244">CONSERTADO</text>
+      <rect class="cx" x="948" y="190" width="180" height="78" rx="4"/>
+      <text class="tt" x="966" y="220">gold</text>
+      <text class="tp" x="966" y="244">A RESPOSTA</text>
+      <text class="tn" x="548" y="316">três tabelas Delta — arquivo Parquet + um log de transações</text>
+    </g>
+  </svg>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-min="14" data-nota="Esta tela é real: é o mc ls do MinIO depois do ETL. Aponte para o _delta_log. É o que transforma uma pasta de Parquet numa tabela.">
+  <div class="rotulo">tela 1 · o que uma tabela Delta é por dentro</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>mc ls — container minio · s3a://lake</span></div>
+    <div class="corpo">
+<div><span class="p">$</span> mc ls --recursive local/lake/</div>
+<div>&nbsp;</div>
+<div><span class="a">bronze/</span> _delta_log/00000000000000000000.json <span class="c">2.1 KiB</span></div>
+<div><span class="a">bronze/</span> part-00000-....snappy.parquet <span class="c">17 MiB</span></div>
+<div><span class="a">silver/</span> _delta_log/00000000000000000000.json <span class="c">3.4 KiB</span></div>
+<div><span class="a">silver/</span> part-00000-....snappy.parquet <span class="c">6.1 MiB</span></div>
+<div><span class="a">gold/</span>&nbsp;&nbsp; _delta_log/00000000000000000000.json <span class="c">1.7 KiB</span></div>
+<div><span class="a">gold/</span>&nbsp;&nbsp; part-00000-....snappy.parquet <span class="c">1.2 MiB</span></div>
+    </div>
+  </div>
+  <div class="legenda frag">Uma pasta de Parquet mais <b>um log de transações</b>. É esse log que dá à pasta as coisas que você espera de uma tabela: escrita atômica, leitura consistente e histórico.</div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-min="16" data-nota="Medalhão. O ponto que importa: o bronze existe porque a sua regra de limpeza vai estar errada uma hora, e aí você precisa do original.">
+  <div class="rotulo">por que três camadas e não uma</div>
+  <div class="dois" style="grid-template-columns:1fr 1fr 1fr;gap:18px">
+    <div class="col"><div class="onde">CAMADA 1</div><h3>bronze</h3>
+      <p style="font-size:19px;margin-top:10px">Como a Câmara publicou. Tudo texto. Nada consertado.</p></div>
+    <div class="col"><div class="onde">CAMADA 2</div><h3>silver</h3>
+      <p style="font-size:19px;margin-top:10px">Tipos certos, defeitos marcados em colunas. Nada apagado.</p></div>
+    <div class="col"><div class="onde">CAMADA 3</div><h3>gold</h3>
+      <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 19.441 empresas, uma linha cada.</p></div>
+  </div>
+  <div class="fecho frag" style="margin-top:26px">O bronze não é desperdício: é o seguro. <b>Sua regra de limpeza vai estar errada uma hora</b> — e aí o bronze é o único jeito de refazer sem pedir o arquivo de novo.</div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-min="18" data-nota="A mesma pergunta, nas duas pontas. Rode isso ao vivo se a internet deixar; o screencast é o plano B.">
+  <div class="rotulo">tela 2 · a mesma pergunta, nas duas pontas</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>spark-sql — container spark-master</span></div>
+    <div class="corpo">
+<div><span class="p">spark-sql&gt;</span> SELECT txtFornecedor, sum(vlrDocumento) t</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="v">bronze</span>` GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
+<div class="v">TAM 16.402.463,26 &nbsp; GOL 6.052.550,88 &nbsp; AZUL 4.696.245,04</div>
+<div>&nbsp;</div>
+<div><span class="p">spark-sql&gt;</span> SELECT fornecedor, total</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="a">gold</span>` ORDER BY total DESC LIMIT 3;</div>
+<div class="a">FACEBOOK 3.251.951,87 &nbsp; PANTANAL 3.227.314,77 &nbsp; TELEFÔNICA 1.591.715,84</div>
+    </div>
+  </div>
+  <div class="legenda frag">Mesmo arquivo. Mesma pergunta. <b>Nenhum nome se repete entre as duas listas.</b></div>
+</section>
+
+<!-- 13 -->
+<section class="slide" data-min="20" data-nota="Este é o clímax. Silêncio antes do fragmento. Não foi o dado que mudou — foi o cuidado.">
+  <div class="rotulo">a resposta, depois das três camadas</div>
+  <div class="gigante certo">R$ 3,25 mi</div>
+  <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
+  <p class="frag" style="margin-top:36px">Não foi o dado que mudou. <b>Foi o cuidado.</b></p>
+</section>
+
+<!-- 14 -->
+<section class="slide" data-min="22" data-nota="Aconteceu de verdade montando esta aula. DuckDB achou 209.066, Spark achou 209.079. Nenhum dos dois com bug: multiLine é false no Spark e true no DuckDB.">
+  <div class="rotulo">um erro que eu cometi montando esta aula</div>
+  <h2>Dois motores, o mesmo arquivo, contagens diferentes.</h2>
+  <div class="dois" style="margin-top:20px">
+    <div class="col"><div class="onde">DUCKDB</div><h3 style="font-family:var(--mono)">209.066</h3>
+      <p style="font-size:19px;margin-top:8px"><code>multiLine</code> é <b>true</b> por padrão</p></div>
+    <div class="col"><div class="onde">APACHE SPARK</div>
+      <h3 style="font-family:var(--mono);color:var(--laranja)">209.079</h3>
+      <p style="font-size:19px;margin-top:8px"><code>multiLine</code> é <b>false</b> por padrão</p></div>
+  </div>
+  <div class="fecho frag">13 registros têm quebra de linha <b>dentro</b> de um campo entre aspas. Nenhum motor está com defeito: os padrões é que são diferentes. <b>“O dado está certo” não é propriedade do arquivo — é do arquivo mais de quem lê.</b></div>
+</section>
+
+<!-- 15 -->
+<section class="slide" data-min="24" data-nota="A v0 da tabela guardou o erro. Consulte-a ao vivo. É o argumento de guardar o bronze cru, demonstrado em vez de afirmado.">
+  <div class="rotulo">tela 3 · o erro continua consultável</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>spark-sql — DESCRIBE HISTORY</span></div>
+    <div class="corpo" style="padding-bottom:8px">
+      <table>
+        <tr><th>VERSÃO</th><th>OPERAÇÃO</th><th>LINHAS</th><th>O QUE ERA</th></tr>
+        <tr><td class="d">0</td><td>WRITE</td><td class="v">209.079</td><td>sem multiLine — 13 linhas partidas</td></tr>
+        <tr><td class="d">1</td><td>WRITE</td><td class="a">209.066</td><td>com multiLine — correto</td></tr>
+      </table>
+      <div style="margin-top:14px"><span class="p">spark-sql&gt;</span> SELECT count(*) FROM delta.`s3a://lake/bronze` <b>VERSION AS OF 0</b>;</div>
+      <div class="v">209079</div>
+    </div>
+  </div>
+  <div class="legenda frag">O erro não foi apagado — <b>ele virou uma versão</b>. Errou a limpeza? Volta, compara, conserta. E ninguém precisa baixar 74 MB da Câmara de novo.</div>
+</section>
+
+<!-- 16 -->
+<section class="slide justo" data-min="26" data-nota="Agora o desenho completo. O worker 3 nasce tracejado de propósito: ele vai subir de verdade no próximo slide.">
+  <div class="rotulo">a arquitetura inteira — tudo em containers</div>
+  <svg viewBox="0 0 1160 480" width="1160" height="480">
+    <defs>
+      <marker id="p2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#0F2547"/></marker>
+      <marker id="po2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#D6541F"/></marker>
+    </defs>
+    <rect class="slab" x="10" y="20" width="1140" height="150" rx="6"/>
+    <text class="ts" x="30" y="46">PROCESSAMENTO · CONTAINERS spark</text>
+    <rect class="cx" x="30" y="60" width="240" height="78" rx="4"/>
+    <text class="tt" x="48" y="90">spark-master</text>
+    <text class="tp" x="48" y="114">REPARTE O TRABALHO</text>
+    <rect class="cx" x="296" y="60" width="200" height="78" rx="4"/>
+    <text class="tt" x="314" y="90">worker 1</text>
+    <text class="tp" x="314" y="114">2 CORES · 2 GB</text>
+    <rect class="cx" x="522" y="60" width="200" height="78" rx="4"/>
+    <text class="tt" x="540" y="90">worker 2</text>
+    <text class="tp" x="540" y="114">2 CORES · 2 GB</text>
+    <rect class="cx q" x="748" y="60" width="200" height="78" rx="4"/>
+    <text class="tt" x="766" y="90" fill="#D6541F">worker 3</text>
+    <text class="tp" x="766" y="114" fill="#D6541F">SOBE AO VIVO</text>
+
+    <path class="cano" style="marker-end:url(#po2)" d="M600 182 V 250"/>
+    <path class="cano" style="marker-end:url(#po2)" d="M540 250 V 182"/>
+    <text class="ts" x="640" y="206">s3a:// — A MESMA API DO AMAZON S3</text>
+    <text class="tp" x="640" y="228">TROCA O ENDPOINT E O MESMO CÓDIGO RODA NA AWS</text>
+
+    <rect class="slab" x="10" y="262" width="1140" height="150" rx="6"/>
+    <text class="ts" x="30" y="288">ARMAZENAMENTO · CONTAINER minio</text>
+    <rect class="cx" x="30" y="302" width="240" height="78" rx="4"/>
+    <text class="tt" x="48" y="332">MinIO</text>
+    <text class="tp" x="48" y="356">BUCKET lake</text>
+    <rect class="cx" x="296" y="302" width="200" height="78" rx="4"/>
+    <text class="tt" x="314" y="332">bronze</text>
+    <text class="tp" x="314" y="356">209.066 LINHAS</text>
+    <rect class="cx" x="522" y="302" width="200" height="78" rx="4"/>
+    <text class="tt" x="540" y="332">silver</text>
+    <text class="tp" x="540" y="356">DEFEITOS MARCADOS</text>
+    <rect class="cx" x="748" y="302" width="200" height="78" rx="4"/>
+    <text class="tt" x="766" y="332">gold</text>
+    <text class="tp" x="766" y="356">19.441 EMPRESAS</text>
+    <text class="tn" x="30" y="446">o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.</text>
+  </svg>
+</section>
+
+<!-- 17 -->
+<section class="slide" data-min="28" data-nota="RODE DE VERDADE. Deixe o Spark UI (localhost:8080) aberto numa aba e mostre passar de 2 para 3. Se a demo falhar, o screencast está em deck/.">
+  <div class="rotulo">tela 4 · mais máquina, sem tocar no dado</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>docker compose — ao vivo</span></div>
+    <div class="corpo">
+<div><span class="p">$</span> docker compose up -d --scale spark-worker=3</div>
+<div class="c"> ✔ Container semuni-spark-worker-3  Started   0.9s</div>
+<div>&nbsp;</div>
+<div><span class="p">$</span> curl -s localhost:8080 | grep -c "ALIVE"</div>
+<div class="a">3</div>
+    </div>
+  </div>
+  <div class="legenda frag">Uma linha, um worker novo, <b>e o dado não se mexeu.</b> Isso só é possível porque o dado nunca esteve dentro do Spark. É essa separação que faz o resto funcionar.</div>
+</section>
+
+<!-- 18 -->
+<section class="slide justo" data-min="30" data-nota="Tom neutro aqui. Não é laptop contra nuvem. É o mesmo software, rodando em dois lugares. O código não muda.">
+  <div class="rotulo">o mesmo desenho, com o nome que ele tem na nuvem</div>
+  <svg viewBox="0 0 1160 430" width="1160" height="430">
+    <rect class="slab" x="10" y="20" width="1140" height="140" rx="6"/>
+    <text class="ts" x="30" y="46">PROCESSAMENTO</text>
+    <rect class="cx" x="30" y="60" width="250" height="76" rx="4"/>
+    <text class="tt" x="48" y="90">Apache Spark</text>
+    <text class="tp" x="48" y="114">NO SEU DOCKER</text>
+    <path class="seta" style="marker-end:url(#p2)" d="M300 98 H 358"/>
+    <rect class="cx" x="370" y="60" width="760" height="76" rx="4"/>
+    <text class="tt" x="390" y="90">EMR · Dataproc · Databricks · Synapse</text>
+    <text class="tp" x="390" y="114">O MESMO APACHE SPARK, OPERADO POR OUTRA PESSOA</text>
+
+    <rect class="slab" x="10" y="180" width="1140" height="140" rx="6"/>
+    <text class="ts" x="30" y="206">ARMAZENAMENTO</text>
+    <rect class="cx" x="30" y="220" width="250" height="76" rx="4"/>
+    <text class="tt" x="48" y="250">MinIO</text>
+    <text class="tp" x="48" y="274">NO SEU DOCKER</text>
+    <path class="seta" style="marker-end:url(#p2)" d="M300 258 H 358"/>
+    <rect class="cx" x="370" y="220" width="760" height="76" rx="4"/>
+    <text class="tt" x="390" y="250">Amazon S3 · Google Cloud Storage · Azure Blob</text>
+    <text class="tp" x="390" y="274">A MESMA API. VOCÊ TROCA UMA LINHA DE CONFIGURAÇÃO.</text>
+
+    <text class="tn" x="30" y="386">Delta Lake é o mesmo formato dos dois lados. Ele é aberto, e não muda quando você paga.</text>
+  </svg>
+</section>
+
+<!-- 19 -->
+<section class="slide" data-min="32" data-nota="Slide mais importante do fim. Os dois lados têm bolinha verde. Não deprecie nenhum. A escolha é de contexto, não de virtude.">
+  <div class="rotulo">quando cada um faz sentido</div>
+  <div class="dois">
+    <div class="col">
+      <div class="onde">NO SEU DOCKER</div>
+      <h3>Bom quando…</h3>
+      <ul>
+        <li>você está aprendendo e quer quebrar sem medo</li>
+        <li>o dado cabe confortavelmente numa máquina</li>
+        <li>o ciclo curto importa: subiu, errou, refez em minutos</li>
+        <li>o dado não pode sair da sua rede</li>
+        <li>o custo precisa ser previsível</li>
+      </ul>
+    </div>
+    <div class="col">
+      <div class="onde">NA NUVEM</div>
+      <h3>Bom quando…</h3>
+      <ul>
+        <li>o dado não cabe mais numa máquina só</li>
+        <li>você precisa de 200 máquinas por 20 minutos</li>
+        <li>durabilidade e backup viram contrato, não tarefa sua</li>
+        <li>o time é pequeno e o plantão não pode ser você</li>
+        <li>outras equipes precisam do mesmo dado, com governança</li>
+      </ul>
+    </div>
+  </div>
+  <div class="fecho frag">Não é um contra o outro. É o <b>mesmo Spark</b> e o <b>mesmo Delta</b> — o que muda é quem opera, e quanto disso você quer no seu prato.</div>
+</section>
+
+<!-- 20 -->
+<section class="slide" data-min="34" data-nota="Feche com o convite concreto. O repositório sobe em um comando. Depois abra para as perguntas — são 10 minutos.">
+  <div class="rotulo">para levar para casa</div>
+  <h2 style="max-width:21ch">O caminho até a nuvem começa num <code>docker compose up</code>.</h2>
+  <p>Tudo que você viu hoje é software aberto: MinIO, Apache Spark, Delta Lake, Docker — e um CSV público da Câmara. Roda no seu laptop hoje, e <b>o mesmo código sobe na nuvem no dia em que o dado crescer.</b></p>
+  <p style="font-family:var(--mono);font-size:20px;color:var(--tinta);margin-top:24px">
+    make subir &nbsp;&nbsp;·&nbsp;&nbsp; make pipeline</p>
+</section>
+</div>
+<div id="notas"><strong style="font-family:var(--mono);letter-spacing:.1em;font-size:13px;opacity:.6">NOTA DO APRESENTADOR</strong><div id="nota-txt" style="margin-top:8px"></div></div>
+<div id="ajuda">&larr;&rarr; navega &nbsp; f tela cheia &nbsp; n notas &nbsp; t relógio</div>
+<div id="relogio"></div>
+<script>
+(function(){
+  var stage=document.getElementById('stage');
+  var slides=[].slice.call(stage.querySelectorAll('.slide'));
+  var total=String(slides.length).padStart(2,'0');
+
+  // rodape fino: numero do slide, injetado para nao numerar na mao
+  slides.forEach(function(s,k){
+    var rod=document.createElement('div'); rod.className='rodape';
+    rod.innerHTML='<span>'+String(k+1).padStart(2,'0')+'/'+total+'</span>'
+                 +'<span>COTA PARLAMENTAR 2025 &nbsp;·&nbsp; SEMUNI 2026 — UnB</span>';
+    s.appendChild(rod);
+  });
+
+  var i=0, f=0;
+  var notaTxt=document.getElementById('nota-txt');
+  function frags(){ return [].slice.call(slides[i].querySelectorAll('.frag')); }
+  function render(){
+    slides.forEach(function(s,k){ s.classList.toggle('is-active', k===i); });
+    frags().forEach(function(el,k){ el.classList.toggle('on', k<f); });
+    notaTxt.textContent = 'minuto '+(slides[i].getAttribute('data-min')||'?')+' — '
+      +(slides[i].getAttribute('data-nota') || '—');
+    pintar();
+    if(history.replaceState) history.replaceState(null,'','#'+(i+1)+(f?'.'+f:''));
+  }
+  function next(){ var n=frags().length; if(f<n){f++;} else if(i<slides.length-1){i++;f=0;} else return; render(); }
+  function prev(){ if(f>0){f--;} else if(i>0){i--; f=frags().length;} else return; render(); }
+  function ir(k){ i=Math.max(0,Math.min(slides.length-1,k)); f=0; render(); }
+
+  // relogio de palco: t liga e pausa, T zera. mostra o minuto-alvo do slide atual,
+  // porque o corte da professora e duro em 35 e a deriva so aparece se voce ve ela.
+  var relogio=document.getElementById('relogio'), t0=null, acum=0, batida=null;
+  function mmss(ms){ var s=Math.max(0,Math.round(ms/1000));
+    return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); }
+  function decorrido(){ return acum + (t0 ? Date.now()-t0 : 0); }
+  function pintar(){
+    if(!relogio.classList.contains('on')) return;
+    var alvo=parseInt(slides[i].getAttribute('data-min'),10)||0;
+    var atrasado = decorrido()/60000 - alvo > 2;
+    relogio.innerHTML = (t0?'':'‖ ')+mmss(decorrido())
+      +' <span class="'+(atrasado?'atraso':'')+'">alvo '+alvo+"'</span>";
+  }
+  function relogioToggle(){
+    if(!relogio.classList.contains('on')){ relogio.classList.add('on'); t0=Date.now(); }
+    else if(t0){ acum=decorrido(); t0=null; }
+    else { t0=Date.now(); }
+    if(!batida) batida=setInterval(pintar,1000);
+    pintar();
+  }
+  function relogioZera(){ acum=0; t0=null; pintar(); }
+
+  // O palco e 1280x720 posicionado em top:50% com margin-top:-360px, e so
+  // depois escalado. Com transform-origin no topo (50% 0) a escala cresce para
+  // baixo: em 1920x1080 o topo ficava em 180px e os ultimos 180px do slide
+  // saiam da tela, rodape junto. Com a origem no centro (50% 50%) o centro da
+  // caixa fica cravado em innerHeight/2 e a escala cresce para os dois lados.
+  function fit(){
+    var notas = document.body.classList.contains('notas');
+    var h = notas ? innerHeight*0.64 : innerHeight;
+    var s = Math.min(innerWidth/1280, h/720);
+    stage.style.transform='scale('+s+')';
+    // em modo notas o palco centra na faixa de cima, nao na tela inteira
+    stage.style.marginTop = notas ? (h/2 - innerHeight/2 - 360)+'px' : '-360px';
+    // a grade do fundo acompanha a escala e a posicao do palco, senao a emenda
+    // do letterbox aparece como dois quadriculados de tamanhos diferentes
+    var b = stage.getBoundingClientRect();
+    document.body.style.backgroundSize = (40*s)+'px '+(40*s)+'px';
+    document.body.style.backgroundPosition = b.left+'px '+b.top+'px';
+  }
+
+  addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;
+    var k=e.key;
+    if(k==='ArrowRight'||k==='ArrowDown'||k==='PageDown'||k===' '||k==='Enter'){ e.preventDefault(); next(); }
+    else if(k==='ArrowLeft'||k==='ArrowUp'||k==='PageUp'||k==='Backspace'){ e.preventDefault(); prev(); }
+    else if(k==='Home'){ ir(0); }
+    else if(k==='End'){ ir(slides.length-1); }
+    else if(k==='f'||k==='F'){ if(document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen(); }
+    else if(k==='n'||k==='N'){ document.body.classList.toggle('notas'); fit(); }
+    else if(k==='t'){ relogioToggle(); }
+    else if(k==='T'){ relogioZera(); }
+  });
+  stage.addEventListener('click', function(e){ e.shiftKey ? prev() : next(); });
+  addEventListener('resize', fit);
+
+  var partes=(location.hash||'').replace('#','').split('.');
+  var ajuda=document.getElementById('ajuda'), timer;
+  function piscarAjuda(){ ajuda.classList.remove('sumiu'); clearTimeout(timer); timer=setTimeout(function(){ajuda.classList.add('sumiu');},4000); }
+  addEventListener('mousemove', piscarAjuda); ajuda.classList.add('sumiu');
+
+  var h=parseInt(partes[0],10);
+  if(h>0 && h<=slides.length){ i=h-1; f=parseInt(partes[1],10)||0; }
+  fit(); render();
+})();
+</script>
+</body>
+</html>
