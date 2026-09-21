@@ -8,14 +8,3 @@ __pycache__/
 dados/
 # jars do hadoop-aws/delta baixados pelo docker/baixar-jars.sh
 jars/
-
-# subprodutos do LaTeX; o main.pdf fica versionado de proposito, e ele que
-# vai projetado se o Overleaf estiver fora do ar no dia
-beamer/*.aux
-beamer/*.log
-beamer/*.nav
-beamer/*.out
-beamer/*.snm
-beamer/*.toc
-beamer/*.fls
-beamer/*.fdb_latexmk

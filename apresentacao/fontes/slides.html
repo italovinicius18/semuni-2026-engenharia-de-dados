@@ -11,6 +11,10 @@
   <h2>Uma nota fiscal por linha, sete arquivos.</h2>
   <p>A <b>CEAP</b> é a verba mensal de cada deputado. Ele gasta, presta contas, e a Câmara publica o CSV inteiro — um por ano, desde bem antes de 2019.</p>
   <p><code>Ano-2019.csv</code> … <code>Ano-2025.csv</code> &nbsp;·&nbsp; 538 MB &nbsp;·&nbsp; 32 colunas &nbsp;·&nbsp; <b>1.560.019 lançamentos</b></p>
+  <div class="termos">
+    <span><b>CEAP</b>Cota para o Exercício da Atividade Parlamentar: a verba mensal que cada deputado gasta e presta contas. Publicar é obrigação legal, não gentileza.</span>
+    <span><b>lançamento</b>uma linha do arquivo — uma despesa reembolsada, com fornecedor, valor, data e categoria.</span>
+  </div>
 </section>
 
 <!-- 03 -->
@@ -32,6 +36,10 @@
     </div>
   </div>
   <div class="legenda frag">Oito linhas, 40 segundos, nenhuma dependência além do pandas. Eu escrevo assim, você escreve assim, e na maior parte das vezes está tudo bem.</div>
+  <div class="termos">
+    <span><b>ad-hoc</b>feito sob demanda, para responder uma pergunta uma vez. Não é xingamento: é a forma certa de começar.</span>
+    <span><b>pandas</b>biblioteca de Python que carrega a tabela inteira na memória e deixa agrupar e somar numa linha.</span>
+  </div>
 </section>
 
 <!-- 04 -->
@@ -58,15 +66,19 @@
   <h2>Nem a soma está certa, nem a pergunta estava bem feita.</h2>
   <p><b>A soma</b> quebrou porque o nome do fornecedor é texto livre: a mesma empresa entra com grafias diferentes e vira duas linhas.</p>
   <p><b>A pergunta</b> quebrou porque companhia aérea não é fornecedora de deputado. É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara: o bilhete sai por lá e a companhia cai na planilha.</p>
+  <div class="termos">
+    <span><b>SIGEPA</b>Sistema de Gestão de Passagens Aéreas da Câmara. O bilhete sai por ele, e quem cai na planilha é a companhia aérea.</span>
+    <span><b>texto livre</b>campo digitado à mão, sem lista fechada. “TAM” e “Cia Aérea - TAM” são a mesma empresa e dois valores diferentes.</span>
+  </div>
 </section>
 
 <!-- 06 -->
-<section class="slide" data-min="8" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
+<section class="slide justo" data-min="8" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
   <div class="rotulo">e o dado não fica parado</div>
-  <h2>Quantos lançamentos não têm CNPJ, ano a ano.</h2>
+  <h2 style="max-width:34ch">Lançamentos sem CNPJ, ano a ano.</h2>
   <div class="janela" style="margin-top:14px">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — silver, agrupado por ano</span></div>
-    <div class="corpo">
+    <div class="corpo denso">
       <table>
         <tr><th>ANO</th><th>LANÇAMENTOS</th><th>SEM CNPJ</th><th>%</th></tr>
         <tr><td class="d">2019</td><td>289.830</td><td>4.448</td><td class="a">1,5%</td></tr>
@@ -79,13 +91,19 @@
       </table>
     </div>
   </div>
-  <div class="legenda frag">A Câmara foi movendo o voo de "fornecedor com CNPJ" para "SIGEPA, sem CNPJ". Quem escreveu o script em 2019 não escreveu nada errado. O chão é que andou.</div>
+  <div class="legenda frag">A Câmara foi movendo o voo de “fornecedor com CNPJ” para “SIGEPA, sem CNPJ”. Quem escreveu o script em 2019 não escreveu nada errado. O chão é que andou.</div>
+  <div class="termos">
+    <span><b>CNPJ</b>o documento da empresa, 14 dígitos. Sem ele, saber quem recebeu depende de confiar no nome que alguém digitou.</span>
+  </div>
 </section>
 
 <!-- 07 -->
 <section class="slide" data-min="10" data-nota="Frase-chave. Diga devagar e deixe respirar. O resto da aula é consequência dela. Não é um ataque ao script: é a diferença entre errar com rastro e errar sem.">
   <h2 style="font-size:46px;max-width:24ch">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
   <p style="margin-top:18px">O que vem agora são quatro erros que eu cometi montando esta aula, e o que exatamente pegou cada um deles.</p>
+  <div class="termos">
+    <span><b>pipeline</b>uma sequência de etapas nomeadas que lê de um lugar, transforma e escreve em outro — cada etapa com entrada, saída e teste próprios.</span>
+  </div>
 </section>
 
 <!-- 08 -->
@@ -93,7 +111,11 @@
   <div class="rotulo">defeito que não é defeito</div>
   <h2>56.912 linhas com valor negativo.</h2>
   <p>São estornos: dinheiro devolvido. Somados junto com o resto, abatem o gasto de quem não gastou.</p>
-  <p class="frag">Apagar resolveria a soma e perderia a informação. Na silver eles viram uma coluna <code>eh_estorno</code>, ficam onde estão, e cada pergunta decide se conta com eles. A gold, que responde "quanto saiu", conta sem.</p>
+  <p class="frag">Apagar resolveria a soma e perderia a informação. Na silver eles viram uma coluna <code>eh_estorno</code>, ficam onde estão, e cada pergunta decide se conta com eles. A gold, que responde “quanto saiu”, conta sem.</p>
+  <div class="termos">
+    <span><b>estorno</b>devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto.</span>
+    <span><b>glosa</b>a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa.</span>
+  </div>
 </section>
 
 <!-- 09 -->
@@ -110,6 +132,10 @@
   </div>
   <div class="uma frag"><b></b><span>CASCOL — R$ 5.522.621 nos sete anos — uma raiz de CNPJ</span></div>
   <p class="frag">Nenhuma grafia isolada era grande o bastante para aparecer no pódio. Juntas, entram em décimo.</p>
+  <div class="termos">
+    <span><b>raiz do CNPJ</b>os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores.</span>
+    <span><b>chave natural</b>identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar.</span>
+  </div>
 </section>
 
 <!-- 10 -->
@@ -128,6 +154,9 @@
     </div>
   </div>
   <p class="frag" style="margin-top:22px">O documento da esquerda tem 14 dígitos e passa em qualquer validação de CNPJ. Ele é uma gaveta interna da Câmara, e naquele mesmo ano a mesma assinatura também foi lançada como <b>assinatura de publicações</b>, por R$ 105,03.</p>
+  <div class="termos">
+    <span><b>dígito verificador</b>os 2 últimos dígitos do CNPJ, calculados a partir dos outros 12. Pegam erro de digitação; não provam que a empresa existe.</span>
+  </div>
 </section>
 
 <!-- 11 -->
@@ -142,6 +171,10 @@
       <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ.</p></div>
   </div>
   <div class="fecho frag" style="margin-top:26px">Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara <b>republica os CSVs com correções</b>, então o arquivo de hoje não é o de ontem.</div>
+  <div class="termos">
+    <span><b>camada</b>um estágio do pipeline que lê do lake e escreve no lake. Como cada uma fica gravada, dá para refazer só ela.</span>
+    <span><b>medalhão</b>o nome deste arranjo em três camadas. É convenção de nomes, não tecnologia: nada instala “medalhão”.</span>
+  </div>
 </section>
 
 <!-- 12 -->
@@ -160,6 +193,10 @@
     </div>
   </div>
   <div class="legenda frag">Mesmo arquivo, mesma pergunta, nenhum nome repetido entre as duas listas.</div>
+  <div class="termos">
+    <span><b>SQL</b>a mesma pergunta do slide 3, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado.</span>
+    <span><b>s3a://</b>o jeito do Spark falar com armazenamento de objetos. Entre o MinIO daqui e o S3 da AWS muda o endereço, não a consulta.</span>
+  </div>
 </section>
 
 <!-- 13 -->
@@ -168,6 +205,9 @@
   <div class="gigante certo">R$ 3,25 mi</div>
   <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
   <p class="frag" style="margin-top:32px">Nos sete anos somados a lista volta a começar com companhia aérea, e dessa vez está certo: até 2022 a Câmara lançava o voo <b>com</b> CNPJ. A resposta depende do ano porque o dado mudou de forma, e é por isso que o ano é uma partição e não um filtro solto no meio de um script.</p>
+  <div class="termos">
+    <span><b>partição</b>o dado fica em pastas por ano. Consultar um ano lê um ano, e reprocessar um ano reescreve um ano só.</span>
+  </div>
 </section>
 
 <!-- 14 -->
@@ -204,6 +244,10 @@
     </div>
   </div>
   <div class="legenda frag">Treze linhas têm quebra de linha dentro de um campo entre aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a versão 0, e dá para voltar nela agora.</div>
+  <div class="termos">
+    <span><b>Delta Lake</b>formato de tabela aberto por cima de arquivos Parquet. Guarda um registro de cada escrita num log ao lado dos dados.</span>
+    <span><b>viagem no tempo</b>consultar a tabela como ela estava antes. <code>VERSION AS OF 0</code> lê o que foi escrito antes da correção.</span>
+  </div>
 </section>
 
 <!-- 16 -->
@@ -221,6 +265,9 @@
     </div>
   </div>
   <div class="legenda frag">Rodam sem MinIO e sem cluster, numa SparkSession local, em 11 segundos. O que eles testam não é o Spark: é se a regra de negócio ainda significa o que eu quis dizer.</div>
+  <div class="termos">
+    <span><b>SparkSession</b>o objeto que representa a conexão com o Spark. O teste sobe uma local, sem cluster e sem MinIO.</span>
+  </div>
 </section>
 
 <!-- 17 -->
@@ -229,9 +276,9 @@
   <svg viewBox="0 0 1160 480" width="1160" height="480">
     <defs>
       <marker id="p2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#0F2547"/></marker>
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#8E9FB5"/></marker>
       <marker id="po2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#D6541F"/></marker>
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#FF8A4C"/></marker>
     </defs>
     <rect class="slab" x="10" y="20" width="1140" height="150" rx="6"/>
     <text class="ts" x="30" y="46">PROCESSAMENTO · CONTAINERS spark</text>
@@ -245,8 +292,8 @@
     <text class="tt" x="540" y="90">worker 2</text>
     <text class="tp" x="540" y="114">2 CORES · 2 GB</text>
     <rect class="cx q" x="748" y="60" width="200" height="78" rx="4"/>
-    <text class="tt" x="766" y="90" fill="#D6541F">worker 3</text>
-    <text class="tp" x="766" y="114" fill="#D6541F">SOBE AO VIVO</text>
+    <text class="tt" x="766" y="90" fill="#FF8A4C">worker 3</text>
+    <text class="tp" x="766" y="114" fill="#FF8A4C">SOBE AO VIVO</text>
 
     <path class="cano" style="marker-end:url(#po2)" d="M600 182 V 250"/>
     <path class="cano" style="marker-end:url(#po2)" d="M540 250 V 182"/>
@@ -269,6 +316,10 @@
     <text class="tp" x="766" y="356">55.672 EMPRESAS</text>
     <text class="tn" x="30" y="446">o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.</text>
   </svg>
+  <div class="termos">
+    <span><b>container</b>um processo isolado, com o sistema de arquivos e as dependências dele junto. Cada caixa aqui é um.</span>
+    <span><b>object storage</b>guarda o arquivo inteiro endereçado por um nome, em vez de blocos como um disco. É o que MinIO e S3 fazem.</span>
+  </div>
 </section>
 
 <!-- 18 -->
@@ -297,6 +348,9 @@
 
     <text class="tn" x="30" y="386">Delta Lake é o mesmo formato dos dois lados. Ele é aberto, e não muda quando você paga.</text>
   </svg>
+  <div class="termos">
+    <span><b>endpoint</b>o endereço do serviço de armazenamento. É a linha de configuração que muda entre rodar aqui e rodar na AWS.</span>
+  </div>
 </section>
 
 <!-- 19 -->
@@ -325,6 +379,9 @@
     </div>
   </div>
   <div class="fecho frag">É o mesmo Apache Spark e o mesmo Delta Lake dos dois lados. O que muda é quem opera a infraestrutura.</div>
+  <div class="termos">
+    <span><b>governança</b>quem pode ler o quê, quem mudou a tabela e quando. Vira problema no dia em que o dado deixa de ser só seu.</span>
+  </div>
 </section>
 
 <!-- 20 -->

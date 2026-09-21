@@ -6,27 +6,27 @@
 <title>Quem recebeu o dinheiro da cota parlamentar? — SEMUNI 2026</title>
 <style>
 :root{
-  /* papel de engenharia */
-  --papel:#F4F5F7; --grade:#DDE1E8;
-  --tinta:#0F2547; --tinta-60:rgba(15,37,71,.60); --tinta-38:rgba(15,37,71,.38);
-  --tinta-12:rgba(15,37,71,.12);
-  --laranja:#D6541F; --verde:#1B7A55;
-  /* terminal */
-  --preto:#0B0E13; --fumaca:#151A22; --linha:#232B36;
-  --branco:#E8ECF2; --cinza:rgba(232,236,242,.55); --cinza2:rgba(232,236,242,.32);
-  --t-verde:#3DDC84; --t-ambar:#FFB020; --t-vermelho:#FF5C57;
+  /* Fundo escuro, e nao por moda: sete dos vinte slides sao janela de terminal.
+     No tema claro anterior elas eram retangulos pretos colados num papel
+     quadriculado — o conteudo principal da aula parecia corpo estranho no
+     proprio slide. Aqui a escada de contraste e terminal < palco < painel,
+     entao a janela afunda e as caixas sobem, sem moldura pesada. */
+  --papel:#101822; --painel:#18222F; --grade:#22303F;
+  --tinta:#EAF0F8; --tinta-60:rgba(234,240,248,.62); --tinta-38:rgba(234,240,248,.40);
+  --tinta-12:rgba(234,240,248,.11);
+  --laranja:#FF8A4C; --verde:#48D597;
+  /* terminal: o ponto mais escuro do deck */
+  --preto:#070C13; --fumaca:#070C13; --linha:#1E2937;
+  --branco:#EAF0F8; --cinza:rgba(234,240,248,.58); --cinza2:rgba(234,240,248,.34);
+  --t-verde:#4ADE9B; --t-ambar:#FFBE55; --t-vermelho:#FF6B63;
   --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
   --mono:ui-monospace,'SF Mono',Menlo,Consolas,'Liberation Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box}
-/* o papel continua fora do palco: numa tela que nao e 16:9 o letterbox vira
-   mais papel quadriculado em vez de uma moldura cinza */
-html,body{height:100%;overflow:hidden;
-  background:var(--papel);
-  background-image:linear-gradient(var(--grade) 1px,transparent 1px),
-                   linear-gradient(90deg,var(--grade) 1px,transparent 1px);
-  background-size:40px 40px}
-body.notas{overflow:auto;background:var(--papel);background-image:none}
+/* o fundo continua fora do palco: numa tela que nao e 16:9 o letterbox some
+   em vez de virar uma moldura cinza em volta do slide */
+html,body{height:100%;overflow:hidden;background:var(--papel)}
+body.notas{overflow:auto}
 
 #stage{
   position:absolute;left:50%;top:50%;width:1280px;height:720px;
@@ -35,9 +35,10 @@ body.notas{overflow:auto;background:var(--papel);background-image:none}
      ultimos 180px do slide numa tela 1920x1080. Ver fit() no fim do arquivo. */
   transform-origin:50% 50%;
   background:var(--papel);
-  background-image:linear-gradient(var(--grade) 1px,transparent 1px),
-                   linear-gradient(90deg,var(--grade) 1px,transparent 1px);
-  background-size:40px 40px;
+  /* brilho frio no canto, fraco o bastante para nao aparecer em projetor ruim
+     e forte o bastante para o slide nao ser um retangulo chapado */
+  background-image:radial-gradient(900px 520px at 12% -6%,rgba(72,213,151,.055),transparent 62%),
+                   radial-gradient(760px 460px at 96% 104%,rgba(255,138,76,.05),transparent 60%);
   color:var(--tinta);font-family:var(--sans);
   overflow:hidden;
 }
@@ -47,15 +48,21 @@ body.notas{overflow:auto;background:var(--papel);background-image:none}
 }
 .slide.is-active{display:flex}
 .slide.topo{justify-content:flex-start}
-.slide.justo{padding:36px 54px}
+.slide.justo{padding:34px 54px}
+/* a marca do tema, no lugar do quadriculado. Vai no fluxo e nao absoluto:
+   o slide centra verticalmente, entao um tracinho cravado no topo flutuaria
+   sozinho a 200px do conteudo. Assim ele encosta sempre no rotulo. */
+.slide::before{content:'';display:block;flex:none;
+  width:46px;height:4px;border-radius:2px;background:var(--laranja);margin-bottom:17px}
+.slide.justo::before{margin-bottom:11px}
 
-/* rodape fino, sem cromo de cupom */
+/* rodape fino */
 .rodape{
   position:absolute;left:74px;right:74px;bottom:22px;
   display:flex;justify-content:space-between;
   font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--tinta-38);
 }
-.slide.justo .rodape{left:54px;right:54px;bottom:16px}
+.slide.justo .rodape{left:54px;right:54px;bottom:14px}
 
 .rotulo{font-family:var(--mono);font-size:15px;letter-spacing:.16em;text-transform:uppercase;
   color:var(--laranja);margin-bottom:20px}
@@ -66,6 +73,17 @@ p{font-size:23px;line-height:1.5;color:var(--tinta-60);max-width:60ch;margin-top
 p b{color:var(--tinta);font-weight:600}
 code{font-family:var(--mono);font-size:.92em;background:var(--tinta-12);
   padding:2px 7px;border-radius:4px;color:var(--tinta)}
+
+/* Glossario de rodape. Existe porque a aula usa vocabulario de engenharia de
+   dados na frente de uma plateia que nao e toda de engenharia de dados, e um
+   termo nao explicado custa a pessoa os dois minutos seguintes.
+   E referencia, nao roteiro: nao se le em voz alta. */
+.termos{margin-top:24px;padding-top:13px;border-top:1px solid var(--tinta-12);
+  display:flex;flex-direction:column;gap:6px;max-width:104ch}
+.termos > span{font-size:16.5px;line-height:1.34;color:var(--tinta-60)}
+.termos b{font-family:var(--mono);font-size:14.5px;letter-spacing:.05em;font-weight:600;
+  color:var(--laranja);margin-right:9px}
+.slide.justo .termos{margin-top:14px;padding-top:10px;gap:5px}
 
 /* numero gigante */
 .gigante{font-family:var(--mono);font-weight:700;font-size:140px;letter-spacing:-.05em;line-height:1}
@@ -85,13 +103,18 @@ code{font-family:var(--mono);font-size:.92em;background:var(--tinta-12);
 .uma b{display:block;height:22px;width:330px;background:var(--verde);border-radius:3px}
 .uma span{font-family:var(--mono);font-size:24px;font-weight:700}
 
-/* janela de terminal, escura, sobre o papel claro */
+/* Janela de terminal: afunda no palco em vez de flutuar sobre ele.
+   `flex:none` nao e enfeite. Sendo item de um flex column, ela encolhia
+   quando o slide passava da altura, e como tem overflow:hidden o corte era
+   silencioso: o slide 6 escondia tres dos sete anos da tabela e o conferir.py
+   media a caixa espremida, achava folga de 18px e dava tudo certo. Sem
+   encolher, o transbordo vira folga negativa e o teste grita. */
 .janela{background:var(--fumaca);border:1px solid var(--linha);border-radius:9px;overflow:hidden;
-  box-shadow:0 26px 60px rgba(15,37,71,.30);font-family:var(--mono)}
-.barra{display:flex;align-items:center;gap:9px;padding:10px 16px;background:#1C222C;
+  flex:none;font-family:var(--mono)}
+.barra{display:flex;align-items:center;gap:9px;padding:10px 16px;background:#0C131C;
   border-bottom:1px solid var(--linha)}
 .barra i{width:11px;height:11px;border-radius:50%;display:block}
-.barra i:nth-child(1){background:#FF5C57}.barra i:nth-child(2){background:#FFBD2E}.barra i:nth-child(3){background:#28C840}
+.barra i:nth-child(1){background:#FF6B63}.barra i:nth-child(2){background:#FFBE55}.barra i:nth-child(3){background:#3FCF6B}
 .barra span{margin-left:10px;font-size:13px;color:var(--cinza);letter-spacing:.06em}
 .corpo{padding:20px 24px;font-size:18px;line-height:1.6;color:var(--branco)}
 .corpo .p{color:var(--t-verde)}
@@ -102,33 +125,36 @@ code{font-family:var(--mono);font-size:.92em;background:var(--tinta-12);
 .corpo table{border-collapse:collapse;width:100%;font-size:17px}
 .corpo th{text-align:left;font-size:12px;letter-spacing:.16em;color:var(--cinza2);
   padding:0 14px 9px 0;border-bottom:1px solid var(--linha)}
-.corpo td{padding:10px 14px 10px 0;border-bottom:1px solid rgba(35,43,54,.6);color:var(--cinza)}
+.corpo td{padding:10px 14px 10px 0;border-bottom:1px solid rgba(30,41,55,.75);color:var(--cinza)}
 .corpo td.d{color:var(--branco);font-weight:600}
+/* tabela de sete anos: sem isso o slide 6 nao fecha, e apertar a entrelinha
+   custa menos que tirar um ano da serie */
+.corpo.denso td{padding:4px 14px 4px 0}
 .legenda{margin-top:22px;font-size:21px;line-height:1.45;color:var(--tinta-60);max-width:66ch}
 .legenda b{color:var(--tinta);font-weight:600}
 
 /* comparacao neutra: dois lados, os dois com beneficio */
 .dois{display:grid;grid-template-columns:1fr 1fr;gap:26px;margin-top:22px}
-.col{border:2px solid var(--tinta-12);border-radius:8px;padding:22px 24px;background:rgba(255,255,255,.66)}
+.col{border:1px solid var(--grade);border-radius:8px;padding:22px 24px;background:var(--painel)}
 .col h3{font-size:26px;margin-bottom:4px}
 .col .onde{font-family:var(--mono);font-size:13px;letter-spacing:.14em;color:var(--laranja);margin-bottom:14px}
 .col ul{list-style:none}
 .col li{font-size:19px;line-height:1.38;color:var(--tinta-60);padding:9px 0 9px 26px;position:relative}
 .col li::before{content:'';position:absolute;left:0;top:15px;width:11px;height:11px;
-  border-radius:50%;background:var(--verde);opacity:.75}
+  border-radius:50%;background:var(--verde);opacity:.8}
 .fecho{margin-top:20px;font-size:22px;line-height:1.45;color:var(--tinta);max-width:82ch}
 .fecho b{font-weight:700}
 
 /* diagrama */
 svg{display:block}
-.cx{fill:#fff;stroke:var(--tinta);stroke-width:2.5}
-.cx.q{fill:#fff;stroke:var(--laranja);stroke-dasharray:6 5}
-.slab{fill:rgba(15,37,71,.05);stroke:var(--tinta-38);stroke-width:2;stroke-dasharray:7 5}
+.cx{fill:var(--painel);stroke:var(--tinta-38);stroke-width:2}
+.cx.q{fill:none;stroke:var(--laranja);stroke-dasharray:6 5}
+.slab{fill:rgba(234,240,248,.035);stroke:var(--grade);stroke-width:2;stroke-dasharray:7 5}
 .tt{font-family:var(--mono);font-size:17px;fill:var(--tinta);font-weight:600}
 .tp{font-family:var(--mono);font-size:13px;fill:var(--tinta-60);letter-spacing:.09em}
 .ts{font-family:var(--mono);font-size:14px;fill:var(--laranja);letter-spacing:.14em;font-weight:600}
 .tn{font-family:var(--mono);font-size:15px;fill:var(--verde);font-weight:600}
-.seta{stroke:var(--tinta);stroke-width:2.5;fill:none;marker-end:url(#p)}
+.seta{stroke:var(--tinta-38);stroke-width:2.5;fill:none;marker-end:url(#p)}
 .cano{stroke:var(--laranja);stroke-width:3.5;fill:none;marker-end:url(#po)}
 
 /* fragmentos */
@@ -137,10 +163,10 @@ svg{display:block}
 
 /* notas, ajuda, relogio */
 #notas{display:none;position:absolute;left:0;right:0;top:calc(64vh + 8px);
-  padding:20px 26px;font-family:var(--sans);font-size:19px;line-height:1.5;color:#1F2A3A}
+  padding:20px 26px;font-family:var(--sans);font-size:19px;line-height:1.5;color:#C3D0E0}
 body.notas #notas{display:block}
 #ajuda{position:fixed;right:14px;bottom:12px;z-index:10;font-family:var(--mono);font-size:12px;
-  letter-spacing:.1em;color:rgba(15,37,71,.42);transition:opacity .4s}
+  letter-spacing:.1em;color:rgba(234,240,248,.34);transition:opacity .4s}
 #ajuda.sumiu{opacity:0}
 #relogio{position:fixed;left:14px;bottom:12px;z-index:10;display:none;
   font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--tinta-60)}
@@ -163,6 +189,10 @@ body.notas #notas{display:block}
   <h2>Uma nota fiscal por linha, sete arquivos.</h2>
   <p>A <b>CEAP</b> é a verba mensal de cada deputado. Ele gasta, presta contas, e a Câmara publica o CSV inteiro — um por ano, desde bem antes de 2019.</p>
   <p><code>Ano-2019.csv</code> … <code>Ano-2025.csv</code> &nbsp;·&nbsp; 538 MB &nbsp;·&nbsp; 32 colunas &nbsp;·&nbsp; <b>1.560.019 lançamentos</b></p>
+  <div class="termos">
+    <span><b>CEAP</b>Cota para o Exercício da Atividade Parlamentar: a verba mensal que cada deputado gasta e presta contas. Publicar é obrigação legal, não gentileza.</span>
+    <span><b>lançamento</b>uma linha do arquivo — uma despesa reembolsada, com fornecedor, valor, data e categoria.</span>
+  </div>
 </section>
 
 <!-- 03 -->
@@ -184,6 +214,10 @@ body.notas #notas{display:block}
     </div>
   </div>
   <div class="legenda frag">Oito linhas, 40 segundos, nenhuma dependência além do pandas. Eu escrevo assim, você escreve assim, e na maior parte das vezes está tudo bem.</div>
+  <div class="termos">
+    <span><b>ad-hoc</b>feito sob demanda, para responder uma pergunta uma vez. Não é xingamento: é a forma certa de começar.</span>
+    <span><b>pandas</b>biblioteca de Python que carrega a tabela inteira na memória e deixa agrupar e somar numa linha.</span>
+  </div>
 </section>
 
 <!-- 04 -->
@@ -210,15 +244,19 @@ body.notas #notas{display:block}
   <h2>Nem a soma está certa, nem a pergunta estava bem feita.</h2>
   <p><b>A soma</b> quebrou porque o nome do fornecedor é texto livre: a mesma empresa entra com grafias diferentes e vira duas linhas.</p>
   <p><b>A pergunta</b> quebrou porque companhia aérea não é fornecedora de deputado. É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara: o bilhete sai por lá e a companhia cai na planilha.</p>
+  <div class="termos">
+    <span><b>SIGEPA</b>Sistema de Gestão de Passagens Aéreas da Câmara. O bilhete sai por ele, e quem cai na planilha é a companhia aérea.</span>
+    <span><b>texto livre</b>campo digitado à mão, sem lista fechada. “TAM” e “Cia Aérea - TAM” são a mesma empresa e dois valores diferentes.</span>
+  </div>
 </section>
 
 <!-- 06 -->
-<section class="slide" data-min="8" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
+<section class="slide justo" data-min="8" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
   <div class="rotulo">e o dado não fica parado</div>
-  <h2>Quantos lançamentos não têm CNPJ, ano a ano.</h2>
+  <h2 style="max-width:34ch">Lançamentos sem CNPJ, ano a ano.</h2>
   <div class="janela" style="margin-top:14px">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — silver, agrupado por ano</span></div>
-    <div class="corpo">
+    <div class="corpo denso">
       <table>
         <tr><th>ANO</th><th>LANÇAMENTOS</th><th>SEM CNPJ</th><th>%</th></tr>
         <tr><td class="d">2019</td><td>289.830</td><td>4.448</td><td class="a">1,5%</td></tr>
@@ -231,13 +269,19 @@ body.notas #notas{display:block}
       </table>
     </div>
   </div>
-  <div class="legenda frag">A Câmara foi movendo o voo de "fornecedor com CNPJ" para "SIGEPA, sem CNPJ". Quem escreveu o script em 2019 não escreveu nada errado. O chão é que andou.</div>
+  <div class="legenda frag">A Câmara foi movendo o voo de “fornecedor com CNPJ” para “SIGEPA, sem CNPJ”. Quem escreveu o script em 2019 não escreveu nada errado. O chão é que andou.</div>
+  <div class="termos">
+    <span><b>CNPJ</b>o documento da empresa, 14 dígitos. Sem ele, saber quem recebeu depende de confiar no nome que alguém digitou.</span>
+  </div>
 </section>
 
 <!-- 07 -->
 <section class="slide" data-min="10" data-nota="Frase-chave. Diga devagar e deixe respirar. O resto da aula é consequência dela. Não é um ataque ao script: é a diferença entre errar com rastro e errar sem.">
   <h2 style="font-size:46px;max-width:24ch">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
   <p style="margin-top:18px">O que vem agora são quatro erros que eu cometi montando esta aula, e o que exatamente pegou cada um deles.</p>
+  <div class="termos">
+    <span><b>pipeline</b>uma sequência de etapas nomeadas que lê de um lugar, transforma e escreve em outro — cada etapa com entrada, saída e teste próprios.</span>
+  </div>
 </section>
 
 <!-- 08 -->
@@ -245,7 +289,11 @@ body.notas #notas{display:block}
   <div class="rotulo">defeito que não é defeito</div>
   <h2>56.912 linhas com valor negativo.</h2>
   <p>São estornos: dinheiro devolvido. Somados junto com o resto, abatem o gasto de quem não gastou.</p>
-  <p class="frag">Apagar resolveria a soma e perderia a informação. Na silver eles viram uma coluna <code>eh_estorno</code>, ficam onde estão, e cada pergunta decide se conta com eles. A gold, que responde "quanto saiu", conta sem.</p>
+  <p class="frag">Apagar resolveria a soma e perderia a informação. Na silver eles viram uma coluna <code>eh_estorno</code>, ficam onde estão, e cada pergunta decide se conta com eles. A gold, que responde “quanto saiu”, conta sem.</p>
+  <div class="termos">
+    <span><b>estorno</b>devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto.</span>
+    <span><b>glosa</b>a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa.</span>
+  </div>
 </section>
 
 <!-- 09 -->
@@ -262,6 +310,10 @@ body.notas #notas{display:block}
   </div>
   <div class="uma frag"><b></b><span>CASCOL — R$ 5.522.621 nos sete anos — uma raiz de CNPJ</span></div>
   <p class="frag">Nenhuma grafia isolada era grande o bastante para aparecer no pódio. Juntas, entram em décimo.</p>
+  <div class="termos">
+    <span><b>raiz do CNPJ</b>os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores.</span>
+    <span><b>chave natural</b>identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar.</span>
+  </div>
 </section>
 
 <!-- 10 -->
@@ -280,6 +332,9 @@ body.notas #notas{display:block}
     </div>
   </div>
   <p class="frag" style="margin-top:22px">O documento da esquerda tem 14 dígitos e passa em qualquer validação de CNPJ. Ele é uma gaveta interna da Câmara, e naquele mesmo ano a mesma assinatura também foi lançada como <b>assinatura de publicações</b>, por R$ 105,03.</p>
+  <div class="termos">
+    <span><b>dígito verificador</b>os 2 últimos dígitos do CNPJ, calculados a partir dos outros 12. Pegam erro de digitação; não provam que a empresa existe.</span>
+  </div>
 </section>
 
 <!-- 11 -->
@@ -294,6 +349,10 @@ body.notas #notas{display:block}
       <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ.</p></div>
   </div>
   <div class="fecho frag" style="margin-top:26px">Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara <b>republica os CSVs com correções</b>, então o arquivo de hoje não é o de ontem.</div>
+  <div class="termos">
+    <span><b>camada</b>um estágio do pipeline que lê do lake e escreve no lake. Como cada uma fica gravada, dá para refazer só ela.</span>
+    <span><b>medalhão</b>o nome deste arranjo em três camadas. É convenção de nomes, não tecnologia: nada instala “medalhão”.</span>
+  </div>
 </section>
 
 <!-- 12 -->
@@ -312,6 +371,10 @@ body.notas #notas{display:block}
     </div>
   </div>
   <div class="legenda frag">Mesmo arquivo, mesma pergunta, nenhum nome repetido entre as duas listas.</div>
+  <div class="termos">
+    <span><b>SQL</b>a mesma pergunta do slide 3, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado.</span>
+    <span><b>s3a://</b>o jeito do Spark falar com armazenamento de objetos. Entre o MinIO daqui e o S3 da AWS muda o endereço, não a consulta.</span>
+  </div>
 </section>
 
 <!-- 13 -->
@@ -320,6 +383,9 @@ body.notas #notas{display:block}
   <div class="gigante certo">R$ 3,25 mi</div>
   <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
   <p class="frag" style="margin-top:32px">Nos sete anos somados a lista volta a começar com companhia aérea, e dessa vez está certo: até 2022 a Câmara lançava o voo <b>com</b> CNPJ. A resposta depende do ano porque o dado mudou de forma, e é por isso que o ano é uma partição e não um filtro solto no meio de um script.</p>
+  <div class="termos">
+    <span><b>partição</b>o dado fica em pastas por ano. Consultar um ano lê um ano, e reprocessar um ano reescreve um ano só.</span>
+  </div>
 </section>
 
 <!-- 14 -->
@@ -356,6 +422,10 @@ body.notas #notas{display:block}
     </div>
   </div>
   <div class="legenda frag">Treze linhas têm quebra de linha dentro de um campo entre aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a versão 0, e dá para voltar nela agora.</div>
+  <div class="termos">
+    <span><b>Delta Lake</b>formato de tabela aberto por cima de arquivos Parquet. Guarda um registro de cada escrita num log ao lado dos dados.</span>
+    <span><b>viagem no tempo</b>consultar a tabela como ela estava antes. <code>VERSION AS OF 0</code> lê o que foi escrito antes da correção.</span>
+  </div>
 </section>
 
 <!-- 16 -->
@@ -373,6 +443,9 @@ body.notas #notas{display:block}
     </div>
   </div>
   <div class="legenda frag">Rodam sem MinIO e sem cluster, numa SparkSession local, em 11 segundos. O que eles testam não é o Spark: é se a regra de negócio ainda significa o que eu quis dizer.</div>
+  <div class="termos">
+    <span><b>SparkSession</b>o objeto que representa a conexão com o Spark. O teste sobe uma local, sem cluster e sem MinIO.</span>
+  </div>
 </section>
 
 <!-- 17 -->
@@ -381,9 +454,9 @@ body.notas #notas{display:block}
   <svg viewBox="0 0 1160 480" width="1160" height="480">
     <defs>
       <marker id="p2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#0F2547"/></marker>
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#8E9FB5"/></marker>
       <marker id="po2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#D6541F"/></marker>
+        <path d="M0,0 L9,4.5 L0,9 z" fill="#FF8A4C"/></marker>
     </defs>
     <rect class="slab" x="10" y="20" width="1140" height="150" rx="6"/>
     <text class="ts" x="30" y="46">PROCESSAMENTO · CONTAINERS spark</text>
@@ -397,8 +470,8 @@ body.notas #notas{display:block}
     <text class="tt" x="540" y="90">worker 2</text>
     <text class="tp" x="540" y="114">2 CORES · 2 GB</text>
     <rect class="cx q" x="748" y="60" width="200" height="78" rx="4"/>
-    <text class="tt" x="766" y="90" fill="#D6541F">worker 3</text>
-    <text class="tp" x="766" y="114" fill="#D6541F">SOBE AO VIVO</text>
+    <text class="tt" x="766" y="90" fill="#FF8A4C">worker 3</text>
+    <text class="tp" x="766" y="114" fill="#FF8A4C">SOBE AO VIVO</text>
 
     <path class="cano" style="marker-end:url(#po2)" d="M600 182 V 250"/>
     <path class="cano" style="marker-end:url(#po2)" d="M540 250 V 182"/>
@@ -421,6 +494,10 @@ body.notas #notas{display:block}
     <text class="tp" x="766" y="356">55.672 EMPRESAS</text>
     <text class="tn" x="30" y="446">o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.</text>
   </svg>
+  <div class="termos">
+    <span><b>container</b>um processo isolado, com o sistema de arquivos e as dependências dele junto. Cada caixa aqui é um.</span>
+    <span><b>object storage</b>guarda o arquivo inteiro endereçado por um nome, em vez de blocos como um disco. É o que MinIO e S3 fazem.</span>
+  </div>
 </section>
 
 <!-- 18 -->
@@ -449,6 +526,9 @@ body.notas #notas{display:block}
 
     <text class="tn" x="30" y="386">Delta Lake é o mesmo formato dos dois lados. Ele é aberto, e não muda quando você paga.</text>
   </svg>
+  <div class="termos">
+    <span><b>endpoint</b>o endereço do serviço de armazenamento. É a linha de configuração que muda entre rodar aqui e rodar na AWS.</span>
+  </div>
 </section>
 
 <!-- 19 -->
@@ -477,6 +557,9 @@ body.notas #notas{display:block}
     </div>
   </div>
   <div class="fecho frag">É o mesmo Apache Spark e o mesmo Delta Lake dos dois lados. O que muda é quem opera a infraestrutura.</div>
+  <div class="termos">
+    <span><b>governança</b>quem pode ler o quê, quem mudou a tabela e quando. Vira problema no dia em que o dado deixa de ser só seu.</span>
+  </div>
 </section>
 
 <!-- 20 -->

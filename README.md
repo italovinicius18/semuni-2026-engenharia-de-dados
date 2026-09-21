@@ -16,7 +16,6 @@ src/pipeline/      o pipeline, uma camada por arquivo
   consulta.py      SQL ad-hoc e DESCRIBE HISTORY, para projetar ao vivo
 testes/            21 testes das transformações, sem MinIO e sem cluster
 apresentacao/      o deck HTML e o script que mede se algo estourou
-beamer/            a mesma aula em LaTeX/Beamer (ver "Ainda falta")
 docker/            Dockerfile do cluster e o script que baixa os jars
 dados/             os CSVs da Câmara (fora do git; `make ingestao` rebaixa)
 ```
@@ -67,15 +66,11 @@ camadas de Spark só quando vai usá-las.
 
 ## Apresentar
 
-Duas versões da **mesma** aula. Escolha uma e leve só ela:
+Uma versão só, e é a que se projeta: **`apresentacao/aula.html`**. Arquivo único,
+41 KB, abre no navegador sem internet e sem servidor, com relógio de palco,
+fragmentos ao vivo e notas do apresentador.
 
-- **`apresentacao/aula.html`** — abre no navegador, arquivo único, 36 KB, sem internet
-  e sem servidor. Tem relógio de palco e fragmentos ao vivo.
-- **`beamer/`** — a mesma aula em LaTeX/Beamer, para subir no Overleaf. Hoje
-  compila em 34 páginas, mas duplica o texto do deck HTML. Instruções em
-  `beamer/README.md`.
-
-São 20 slides nos dois casos, e o último mira o minuto 34.
+São 20 slides, e o último mira o minuto 34.
 
 Atalhos da versão HTML:
 
@@ -212,8 +207,19 @@ grafia que calhasse de vir na primeira partição, então a mesma empresa aparec
 - `slides.html` — os 20 slides; `data-nota` vira nota, `data-min` vira minuto-alvo
 - `rodape.html` — navegação, relógio, escala do palco 1280×720, notas
 
+O tema é escuro, e a razão é o conteúdo: sete dos vinte slides são janela de
+terminal. No tema claro anterior elas eram retângulos pretos colados num papel
+quadriculado, e o que a aula tem de mais importante parecia corpo estranho no
+próprio slide. A escada de contraste agora é **terminal < palco < painel** — a
+janela afunda, as caixas sobem, e nenhuma delas precisa de sombra.
+
+Termos de engenharia de dados são descritos no slide em que aparecem, pelo
+componente `.termos`: faixa fina acima do rodapé, termo em mono laranja e
+descrição em uma linha. São 25 descrições em 16 slides. **Não se lê em voz
+alta** — é referência para quem na plateia não é da área, não roteiro de fala.
+
 O deck usa a fonte do sistema em vez de embutir IBM Plex em base64: o arquivo cai de
-320 KB para 36 KB e continua abrindo sem internet. O build falha se sobrar qualquer
+320 KB para 41 KB e continua abrindo sem internet. O build falha se sobrar qualquer
 `http://` no HTML.
 
 Depois de editar, confira que nada estourou:
@@ -225,26 +231,15 @@ fragmentos revelados (o pior caso de altura). Abaixo de 14px o slide está encos
 Depois repete a conta para seis resoluções de projetor e confere que o palco cabe
 inteiro na tela — em 16:9 exato tem que dar tela cheia, sem sobra.
 
-### O PDF do pendrive
-
-    make pdf
-
-Fotografa os 20 slides num chromium headless a 3840×2160 e costura um PDF de 20
-páginas em `apresentacao/aula.pdf` (~12 MB). Cada página sai com todos os fragmentos
-revelados, porque PDF não anima e uma página por fragmento viraria 34 páginas que
-ninguém folheia. Quem apresenta usa o HTML, que tem a construção ao vivo; o PDF é o
-que vai no pendrive e no e-mail da organização.
-
-Ele cai na mesma armadilha do `conferir.py` se você mexer: trocar só o hash **não**
-recarrega a página, e sem o `reload()` o export sai com o slide 1 vinte vezes. Por
-isso os dois asserts depois de cada navegação.
-
-Três armadilhas que o script já cobre: `goto('#7')` **não recarrega** quando só o hash
-muda (sem `reload()` você mede o slide 1 vinte vezes), elemento SVG **não tem
-`offsetTop`** (sem `getBoundingClientRect` os slides de diagrama medem zero), e medir
-a folga **dentro** do palco não prova que o palco cabe na tela — um erro de
-`transform-origin` fazia o slide vazar 180px para fora da viewport em 1920×1080 com
-todos os slides passando no teste.
+Desde setembro de 2026 ele também acusa **conteúdo cortado por dentro**, e essa
+checagem nasceu de um erro real: `.janela` tem `overflow:hidden` e, como item de
+um flex column, encolhia sozinha quando o slide passava da altura. O slide 6
+escondeu três dos sete anos da tabela de deriva por uma sessão inteira, e a
+medida de folga não via nada — a caixa espremida cabia com 18px de sobra. O
+conserto foi `flex:none` na janela, para o transbordo virar folga negativa em vez
+de sumir, mais uma varredura por qualquer elemento com `scrollHeight` maior que
+`clientHeight`. É o próprio argumento da aula aplicado ao deck: o erro não sumiu,
+só passou a acontecer num lugar onde dá para ver.
 
 ## Ainda falta
 
@@ -256,9 +251,5 @@ todos os slides passando no teste.
       1.261 palavras e os `data-min` são estimativa, não medição. Se estourar: o slide
       14 aguenta perder o quarto erro e o 16 sai inteiro sem furar o arco.
 - [ ] Screencast de 90s do bloco remoto, como plano B se a demo travar
-- [ ] **Decidir se `beamer/` continua.** O `make pdf` já produz `apresentacao/aula.pdf`
-      a partir do mesmo HTML, que era a única coisa que o Beamer fazia e o deck não.
-      Manter os dois é manter dois textos em sincronia na mão — eles já divergiram uma
-      vez. O diretório está versionado, então apagar dá para desfazer.
 - [ ] Preencher a planilha da professora com título e minibio
 - [ ] Confirmar as certificações antes de deixar a minibio ir para a leitura em voz alta

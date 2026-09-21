@@ -14,7 +14,6 @@ matplotlib==3.10.0
 jupyterlab==4.3.4
 
 # so para o deck: `make conferir` mede a folga de cada slide num chromium
-# headless, e `make pdf` fotografa os 20 slides e costura o PDF do pendrive.
-# o chromium em si nao vem no pip:  .venv/bin/playwright install chromium
+# headless. o chromium em si nao vem no pip:
+#     .venv/bin/playwright install chromium
 playwright==1.63.0
-pillow==12.3.0

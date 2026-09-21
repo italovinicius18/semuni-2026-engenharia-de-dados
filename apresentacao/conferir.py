@@ -11,7 +11,12 @@ Duas armadilhas que este script existe para evitar:
    diagrama silenciosamente medem zero. Por isso a medida usa
    getBoundingClientRect e desconverte a escala do palco.
 
-3. Medir a folga DENTRO do palco nao prova que o palco cabe na tela. Um erro de
+3. Folga positiva nao prova que o conteudo aparece. `.janela` tem
+   overflow:hidden; quando ela encolhia como item flex, a tabela era cortada
+   por dentro e a caixa continuava passando aqui. O slide 6 escondeu tres dos
+   sete anos assim, por uma sessao inteira. Por isso existe `confere_corte`.
+
+4. Medir a folga DENTRO do palco nao prova que o palco cabe na tela. Um erro de
    transform-origin fazia o palco vazar 180px para fora da viewport em
    1920x1080 — cada slide passava aqui com folga de sobra e mesmo assim perdia
    o rodape no projetor. Por isso existe `confere_palco`.
@@ -55,6 +60,16 @@ def chromium():
     if not achados:
         sys.exit("chromium do playwright nao encontrado — rode: .venv/bin/playwright install chromium")
     return achados[0]
+
+
+# conteudo cortado por dentro de uma caixa com overflow:hidden
+CORTE = """() => {
+  const s = document.querySelector('.slide.is-active');
+  return [...s.querySelectorAll('*')]
+    .filter(e => getComputedStyle(e).overflow === 'hidden'
+              && e.scrollHeight - e.clientHeight > 1)
+    .map(e => [e.className || e.tagName, e.scrollHeight - e.clientHeight]);
+}"""
 
 
 PALCO = """() => {
@@ -120,6 +135,10 @@ def main():
             elif d["folga"] < APERTADO:
                 aviso, _ = "  <-- APERTADO", ruins.append(d)
             print(f"  slide {i:>2}  alvo {d['alvo']:>2}'  folga {d['folga']:>4}px{aviso}")
+
+            for cls, px in pg.evaluate(CORTE):
+                ruins.append(d)
+                print(f"            <-- CORTADO: .{cls} esconde {px}px por dentro")
 
         print()
         telas_ruins = confere_palco(nav)

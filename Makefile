@@ -16,7 +16,7 @@ NO_CLUSTER := docker compose exec -T \
 NO_LAPTOP  := S3_ENDPOINT=http://localhost:9000 PYTHONPATH=src $(PYTHON) -m pipeline
 
 .PHONY: preparar jars subir descer pipeline ingestao bronze silver gold ano \
-        consultar historico slides conferir pdf teste limpar
+        consultar historico slides conferir teste limpar
 
 preparar:
 	python3 -m venv .venv
@@ -76,12 +76,6 @@ slides:
 
 conferir:
 	$(PYTHON) apresentacao/conferir.py
-
-# o mesmo deck em PDF, uma pagina por slide, com os fragmentos todos revelados.
-# e o plano B do projetor: nao depende de navegador, cabe num pendrive e e o
-# formato que a organizacao pede quando pede o material antes.
-pdf:
-	$(PYTHON) apresentacao/pdf.py
 
 # os testes rodam no cluster pela mesma razao que o pipeline: e la que existe
 # uma SparkSession com o Delta no classpath
