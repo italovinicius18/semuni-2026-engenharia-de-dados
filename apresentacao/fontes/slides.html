@@ -43,7 +43,7 @@
 </section>
 
 <!-- 04 -->
-<section class="slide" data-min="5" data-nota="Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então avance o fragmento. Se ninguém vir, aponte para a linha 1 e a linha 3.">
+<section class="slide" data-min="4" data-nota="Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então avance o fragmento. Se ninguém vir, aponte para a linha 1 e a linha 3.">
   <div class="rotulo">a saída, nos sete anos</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>python analise.py</span></div>
@@ -61,19 +61,54 @@
 </section>
 
 <!-- 05 -->
-<section class="slide" data-min="6" data-nota="SIGEPA é o sistema de passagens da Câmara. A companhia aparece como fornecedora porque o bilhete foi emitido por lá, não porque um deputado contratou a TAM. Dois problemas diferentes no mesmo pódio.">
-  <div class="rotulo">dois problemas, empilhados</div>
-  <h2>Nem a soma está certa, nem a pergunta estava bem feita.</h2>
-  <p><b>A soma</b> quebrou porque o nome do fornecedor é texto livre: a mesma empresa entra com grafias diferentes e vira duas linhas.</p>
-  <p><b>A pergunta</b> quebrou porque companhia aérea não é fornecedora de deputado. É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara: o bilhete sai por lá e a companhia cai na planilha.</p>
+<section class="slide" data-min="6" data-nota="Sem ironia nenhuma: este script e bom. O analista viu o erro do slide anterior e consertou. Leia o dicionario em voz alta, e depois a legenda. O ponto e que FUNCIONOU.">
+  <div class="rotulo">e aí você conserta, porque é isso que a gente faz</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>analise.py — três semanas depois</span></div>
+    <div class="corpo">
+<div>APELIDO = {</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="a">"TAM"</span>: <span class="a">"TAM"</span>,&nbsp;&nbsp;<span class="a">"LATAM"</span>: <span class="a">"TAM"</span>,&nbsp;&nbsp;<span class="a">"GOL"</span>: <span class="a">"GOL"</span>,</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="a">"AZUL"</span>: <span class="a">"AZUL"</span>,&nbsp;&nbsp;<span class="a">"TELEFONICA"</span>: <span class="a">"VIVO"</span>,&nbsp;&nbsp;<span class="a">"VIVO"</span>: <span class="a">"VIVO"</span>,</div>
+<div>}</div>
+<div>&nbsp;</div>
+<div><span class="c">def</span> limpar(nome):</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;n = re.sub(<span class="a">r"[^A-Z0-9 ]"</span>, <span class="a">" "</span>, <span class="c">str</span>(nome).upper())</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c">for</span> chave, apelido <span class="c">in</span> APELIDO.items():</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c">if</span> re.search(<span class="a">rf"\b{chave}\b"</span>, n): <span class="c">return</span> apelido</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c">return</span> <span class="p">" "</span>.join(n.split())</div>
+    </div>
+  </div>
+  <div class="legenda frag">E <b>funciona</b>. AZUL tinha 50 grafias, VIVO 33, Facebook 4 — e os R$ 3,3 milhões do Facebook param de aparecer partidos em dois. De 22.024 fornecedores distintos para 21.414.</div>
   <div class="termos">
-    <span><b>SIGEPA</b>Sistema de Gestão de Passagens Aéreas da Câmara. O bilhete sai por ele, e quem cai na planilha é a companhia aérea.</span>
-    <span><b>texto livre</b>campo digitado à mão, sem lista fechada. “TAM” e “Cia Aérea - TAM” são a mesma empresa e dois valores diferentes.</span>
+    <span><b>normalizar</b>reduzir grafias diferentes da mesma coisa a uma forma única, para poder somar. É o primeiro conserto que todo mundo faz.</span>
   </div>
 </section>
 
 <!-- 06 -->
-<section class="slide justo" data-min="8" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
+<section class="slide justo" data-min="8" data-nota="O golpe da aula. A soma agora esta CERTA e o podio continua ERRADO, e as duas coisas nao se contradizem. Espere a plateia procurar o erro antes de avancar o fragmento.">
+  <div class="rotulo">a soma certa, a resposta errada</div>
+  <div class="janela" style="margin-top:12px">
+    <div class="barra"><i></i><i></i><i></i><span>python analise.py — 2025, já com o conserto</span></div>
+    <div class="corpo denso">
+      <table>
+        <tr><th>FORNECEDOR</th><th>TOTAL</th><th></th></tr>
+        <tr><td class="d">TAM</td><td>R$ 17.403.240</td><td class="v">ainda em primeiro</td></tr>
+        <tr><td class="d">GOL</td><td>R$ 6.337.713</td><td class="v">e em segundo</td></tr>
+        <tr><td class="d">AZUL</td><td>R$ 5.038.621</td><td class="v">e em terceiro</td></tr>
+        <tr><td class="d">FACEBOOK</td><td>R$ 3.303.431</td><td class="a">agora inteiro</td></tr>
+        <tr><td class="d">PANTANAL VEÍCULOS</td><td>R$ 3.246.762</td><td class="a">ok</td></tr>
+      </table>
+    </div>
+  </div>
+  <p class="frag">Companhia aérea não é fornecedora de deputado. É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara: o bilhete sai por lá e a companhia cai na planilha. <b>Das 38.113 linhas de aérea em 2025, 37.114 não têm CNPJ.</b></p>
+  <p class="frag">Nenhum dicionário de nomes ia descobrir isso, porque o defeito não estava na grafia. Estava na pergunta.</p>
+  <div class="termos">
+    <span><b>SIGEPA</b>Sistema de Gestão de Passagens Aéreas da Câmara. O bilhete sai por ele, e quem cai na planilha é a companhia aérea.</span>
+  </div>
+</section>
+
+<!-- 07 -->
+<section class="slide justo" data-min="10" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
   <div class="rotulo">e o dado não fica parado</div>
   <h2 style="max-width:34ch">Lançamentos sem CNPJ, ano a ano.</h2>
   <div class="janela" style="margin-top:14px">
@@ -97,17 +132,21 @@
   </div>
 </section>
 
-<!-- 07 -->
-<section class="slide" data-min="10" data-nota="Frase-chave. Diga devagar e deixe respirar. O resto da aula é consequência dela. Não é um ataque ao script: é a diferença entre errar com rastro e errar sem.">
-  <h2 style="font-size:46px;max-width:24ch">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
-  <p style="margin-top:18px">O que vem agora são quatro erros que eu cometi montando esta aula, e o que exatamente pegou cada um deles.</p>
+<!-- 08 -->
+<section class="slide" data-min="12" data-nota="Aqui nasce engenharia de dados, e nao e por causa de dado sujo. Leia as tres perguntas devagar, uma pausa entre elas. Sao perguntas de processo, nao de codigo. A tese vem depois, como conclusao.">
+  <div class="rotulo">o que nenhum conserto de script resolve</div>
+  <p><b>De onde veio</b> aquele número que você mandou no grupo mês passado? O script foi editado quatro vezes desde então.</p>
+  <p><b>A Câmara republicou o CSV</b> com correções, como faz sempre. Sua resposta mudou? Você saberia dizer?</p>
+  <p><b>O colega rodou o mesmo script</b> e deu outro número. Qual dos dois está certo?</p>
+  <h2 class="frag" style="margin-top:30px">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
   <div class="termos">
-    <span><b>pipeline</b>uma sequência de etapas nomeadas que lê de um lugar, transforma e escreve em outro — cada etapa com entrada, saída e teste próprios.</span>
+    <span><b>pipeline</b>o mesmo tratamento escrito como etapas fixas, que rodam sempre na mesma ordem e deixam rastro do que fizeram.</span>
+    <span><b>reprodutível</b>rodar de novo amanhã, na mesma entrada, e obter exatamente o mesmo número — ou saber por que não.</span>
   </div>
 </section>
 
-<!-- 08 -->
-<section class="slide" data-min="12" data-nota="Estorno = devolução, valor líquido negativo. Se você soma tudo junto, o estorno abate o gasto de quem não gastou. A decisão de tirar da soma é legítima; escondê-la não é.">
+<!-- 09 -->
+<section class="slide" data-min="14" data-nota="Estorno = devolução, valor líquido negativo. Se você soma tudo junto, o estorno abate o gasto de quem não gastou. A decisão de tirar da soma é legítima; escondê-la não é.">
   <div class="rotulo">defeito que não é defeito</div>
   <h2>56.912 linhas com valor negativo.</h2>
   <p>São estornos: dinheiro devolvido. Somados junto com o resto, abatem o gasto de quem não gastou.</p>
@@ -115,26 +154,6 @@
   <div class="termos">
     <span><b>estorno</b>devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto.</span>
     <span><b>glosa</b>a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa.</span>
-  </div>
-</section>
-
-<!-- 09 -->
-<section class="slide" data-min="14" data-nota="Cada barrinha é uma grafia diferente do mesmo posto. Avance o fragmento e mostre as 70 virando uma. A raiz do CNPJ — os 8 primeiros dígitos — é o que une, porque filial muda os 4 do meio.">
-  <div class="rotulo">a mesma empresa, setenta vezes</div>
-  <h2>Setenta fornecedores que são um posto só.</h2>
-  <div class="grafias" style="margin-top:22px">
-    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-  </div>
-  <div class="uma frag"><b></b><span>CASCOL — R$ 5.522.621 nos sete anos — uma raiz de CNPJ</span></div>
-  <p class="frag">Nenhuma grafia isolada era grande o bastante para aparecer no pódio. Juntas, entram em décimo.</p>
-  <div class="termos">
-    <span><b>raiz do CNPJ</b>os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores.</span>
-    <span><b>chave natural</b>identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar.</span>
   </div>
 </section>
 
@@ -160,7 +179,7 @@
 </section>
 
 <!-- 11 -->
-<section class="slide" data-min="18" data-nota="Agora a estrutura, e só agora. Construa o desenho no ritmo da fala: f0 é o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora.">
+<section class="slide" data-min="17" data-nota="Agora a estrutura, e só agora. Construa o desenho no ritmo da fala: f0 é o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora.">
   <div class="rotulo">onde o conserto vai morar</div>
   <div class="dois" style="grid-template-columns:1fr 1fr 1fr;gap:18px">
     <div class="col"><div class="onde">CAMADA 1</div><h3>bronze</h3>
@@ -172,13 +191,15 @@
   </div>
   <div class="fecho frag" style="margin-top:26px">Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara <b>republica os CSVs com correções</b>, então o arquivo de hoje não é o de ontem.</div>
   <div class="termos">
+    <span><b>raiz do CNPJ</b>os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores. É por ela que 55.672 empresas se somam.</span>
+    <span><b>chave natural</b>identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar.</span>
     <span><b>camada</b>um estágio do pipeline que lê do lake e escreve no lake. Como cada uma fica gravada, dá para refazer só ela.</span>
     <span><b>medalhão</b>o nome deste arranjo em três camadas. É convenção de nomes, não tecnologia: nada instala “medalhão”.</span>
   </div>
 </section>
 
 <!-- 12 -->
-<section class="slide" data-min="20" data-nota="A mesma pergunta nas duas pontas. Rode ao vivo se a internet deixar; o screencast é o plano B. Aponte que a de cima é o script do slide 3, só que em SQL.">
+<section class="slide" data-min="19" data-nota="A mesma pergunta nas duas pontas. Rode ao vivo se a internet deixar; o screencast é o plano B. Aponte que a de cima é o script do slide 3, só que em SQL.">
   <div class="rotulo">a mesma pergunta, nas duas pontas</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — container spark-master</span></div>
@@ -200,7 +221,7 @@
 </section>
 
 <!-- 13 -->
-<section class="slide" data-min="22" data-nota="Clímax. Silêncio antes do fragmento. E seja honesto no fragmento: nos sete anos a lista muda, e o motivo é o slide 6.">
+<section class="slide" data-min="21" data-nota="Clímax. Silêncio antes do fragmento. E seja honesto no fragmento: nos sete anos a lista muda, e o motivo é o slide 7.">
   <div class="rotulo">a resposta, em 2025</div>
   <div class="gigante certo">R$ 3,25 mi</div>
   <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
@@ -211,7 +232,7 @@
 </section>
 
 <!-- 14 -->
-<section class="slide" data-min="24" data-nota="O coração da aula. São quatro erros meus, não hipotéticos. Leia os quatro e depois o fragmento. Se estiver atrasado, corte o quarto.">
+<section class="slide" data-min="23" data-nota="O coração da aula. São quatro erros meus, não hipotéticos. Leia os quatro e depois o fragmento. Se estiver atrasado, corte o quarto.">
   <div class="rotulo">quatro erros meus, e o que pegou cada um</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>o que aconteceu montando esta aula</span></div>
@@ -229,7 +250,7 @@
 </section>
 
 <!-- 15 -->
-<section class="slide" data-min="27" data-nota="Aconteceu de verdade: DuckDB contou 209.066 e Spark contou 209.079, porque multiLine é true num e false no outro. A v0 guardou o erro. Consulte ao vivo.">
+<section class="slide" data-min="26" data-nota="Aconteceu de verdade: DuckDB contou 209.066 e Spark contou 209.079, porque multiLine é true num e false no outro. A v0 guardou o erro. Consulte ao vivo.">
   <div class="rotulo">o erro continua consultável</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — DESCRIBE HISTORY</span></div>
@@ -251,7 +272,7 @@
 </section>
 
 <!-- 16 -->
-<section class="slide" data-min="29" data-nota="Slide curto. O ponto: dois destes testes existem porque os bugs aconteceram. Teste em engenharia de dados é sobre a regra, não sobre o framework.">
+<section class="slide" data-min="28" data-nota="Slide curto. O ponto: dois destes testes existem porque os bugs aconteceram. Teste em engenharia de dados é sobre a regra, não sobre o framework.">
   <div class="rotulo">o que impede a volta</div>
   <h2>21 testes, e dois deles têm nome de cicatriz.</h2>
   <div class="janela" style="margin-top:14px">
@@ -271,7 +292,7 @@
 </section>
 
 <!-- 17 -->
-<section class="slide justo" data-min="30" data-nota="Agora o desenho completo. O worker 3 nasce tracejado porque vai subir de verdade: docker compose up -d --scale spark-worker=3, com o Spark UI aberto noutra aba.">
+<section class="slide justo" data-min="29" data-nota="Agora o desenho completo. O worker 3 nasce tracejado porque vai subir de verdade: docker compose up -d --scale spark-worker=3, com o Spark UI aberto noutra aba.">
   <div class="rotulo">processamento separado do armazenamento</div>
   <svg viewBox="0 0 1160 480" width="1160" height="480">
     <defs>
@@ -387,10 +408,11 @@
 </section>
 
 <!-- 20 -->
-<section class="slide" data-min="33" data-nota="Fecho curto. O repositório sobe em dois comandos. Depois abra para as perguntas — são 10 minutos.">
+<section class="slide" data-min="34" data-nota="Fecho curto. O repositório sobe em dois comandos. Depois abra para as perguntas — são 10 minutos.">
   <div class="rotulo">para levar para casa</div>
   <h2 style="max-width:23ch">O script do slide 3 continua certo. Ele só precisava de um lugar para morar.</h2>
   <p>Tudo que você viu é software aberto — MinIO, Apache Spark, Delta Lake, Docker — e um CSV público da Câmara. Roda no seu laptop hoje e sobe na nuvem no dia em que o dado crescer, sem reescrever a regra.</p>
   <p style="font-family:var(--mono);font-size:20px;color:var(--tinta);margin-top:24px">
     make subir &nbsp;&nbsp;·&nbsp;&nbsp; make pipeline</p>
 </section>
+

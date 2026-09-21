@@ -96,13 +96,36 @@ primeiro fragmento já revelado. Útil para ensaiar um trecho.
 A aula defende uma tese: **o processo estruturado ganha do script ad-hoc não por
 errar menos, mas por errar num lugar onde dá para ver.**
 
-Ela começa mostrando o script que todo mundo escreve — oito linhas de pandas,
-`groupby` no nome do fornecedor, `head(10)`. Ele roda até o fim e devolve um
-pódio em que **o primeiro e o terceiro lugar são a mesma companhia aérea**
-(`TAM` R$ 116,35 mi e `Cia Aérea - TAM` R$ 43,43 mi). Nenhum aviso, nenhuma
-exceção.
+A capa promete **três respostas para a mesma pergunta, e as duas primeiras
+erradas** — e o primeiro ato entrega as três, porque o caminho ad-hoc só
+convence se for mostrado inteiro, e não como espantalho.
 
-Daí em diante cada peça da arquitetura entra porque pegou um erro concreto, e
+**Resposta 1 (slides 3–4).** O script que todo mundo escreve: oito linhas de
+pandas, `groupby` no nome do fornecedor, `head(10)`. Roda até o fim e devolve um
+pódio em que **o primeiro e o terceiro lugar são a mesma companhia aérea**
+(`TAM` e `Cia Aérea - TAM`). Nenhum aviso, nenhuma exceção.
+
+**Resposta 2 (slides 5–6).** O que de fato acontece depois: o analista vê o erro
+e conserta. Entra um dicionário de apelidos e uma normalização de texto, e **o
+conserto funciona** — AZUL tinha 50 grafias, VIVO 33, Facebook 4, e os R$ 3,3
+milhões do Facebook param de aparecer partidos em dois. A soma agora está certa.
+**E o pódio continua errado**, com TAM, GOL e AZUL em primeiro, segundo e
+terceiro. Nenhum dicionário de nomes resolveria: das 38.113 linhas de companhia
+aérea em 2025, **37.114 não têm CNPJ nenhum** — não são fornecedor, são SIGEPA,
+o sistema de passagens da própria Câmara. O defeito nunca esteve na grafia.
+Estava na pergunta.
+
+Esse é o par que sustenta a aula. Sem ele a comparação seria entre um script
+ingênuo e um pipeline pronto, que não é comparação nenhuma.
+
+**O que nenhum conserto de script alcança (slide 8)** são três perguntas de
+processo, não de código: de onde veio o número que você mandou no grupo mês
+passado, se a sua resposta mudou quando a Câmara republicou o CSV, e qual dos
+dois números está certo quando o colega roda o mesmo script. É daí que a tese
+cai como conclusão, em vez de ser afirmada antes da prova.
+
+**Resposta 3 (slides 11–13).** O pipeline. Daí em diante cada peça da
+arquitetura entra porque pegou um erro concreto, e
 todos os quatro são erros que eu cometi montando esta aula. O fecho é neutro:
 mapeia MinIO → S3/GCS/Blob e Spark → EMR/Dataproc/Databricks, e lista quando
 cada lado faz sentido, com quatro benefícios reais de cada. É o mesmo Apache
@@ -126,9 +149,10 @@ O mesmo vale para uma assinatura de ChatGPT: em 2023 ela entra com o documento
 CNPJ real `62531071000178`. Agrupar por nome dá duas empresas; agrupar por
 documento sem tratar a sentinela dá uma empresa que não existe.
 
-A linguagem visual alterna duas coisas de propósito: **papel de engenharia**
-(fundo quadriculado claro) para o raciocínio e os diagramas, montados peça por
-peça com os fragmentos; e **janela de terminal escura** para as telas de prova.
+A linguagem visual alterna duas coisas de propósito: **palco** para o raciocínio
+e os diagramas, montados peça por peça com os fragmentos; e **janela de
+terminal** para as telas de prova, que afunda no palco em vez de flutuar sobre
+ele.
 
 ## Os números
 
@@ -215,7 +239,7 @@ janela afunda, as caixas sobem, e nenhuma delas precisa de sombra.
 
 Termos de engenharia de dados são descritos no slide em que aparecem, pelo
 componente `.termos`: faixa fina acima do rodapé, termo em mono laranja e
-descrição em uma linha. São 25 descrições em 16 slides. **Não se lê em voz
+descrição em uma linha. São 27 descrições em 16 slides. **Não se lê em voz
 alta** — é referência para quem na plateia não é da área, não roteiro de fala.
 
 O deck usa a fonte do sistema em vez de embutir IBM Plex em base64: o arquivo cai de
