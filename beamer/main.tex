@@ -28,104 +28,135 @@
   \rotulo{semuni 2026 · seminário em cloud}
   \titulao{Quem recebeu o dinheiro da cota parlamentar?}
   \vspace{5mm}
-  \corpo{Um arquivo público, 209 mil linhas, ninguém limpou nada. Vamos responder
-  duas vezes: primeiro errado, depois certo. A diferença entre as duas respostas
-  é a aula inteira.}
-  \note{Não se apresente: a professora já leu a minibio. Comece pela pergunta e
-  diga que ela vai ser respondida errado antes de ser respondida certo.}
+  \corpo{Sete anos de nota fiscal, 1,56 milhão de linhas, domínio público. Vou
+  responder três vezes nos próximos 35 minutos. As duas primeiras respostas
+  estão erradas, e nenhuma delas dá erro.}
+  \note{Não se apresente: a professora já leu a minibio. Comece pela pergunta. Diga que você vai responder três vezes e errar duas.}
 \end{frame}
 
 % ======================================================== 02 · minuto 1
 \begin{frame}
   \rotulo{o dado}
-  \subtitulo{Uma nota fiscal por linha.}
+  \subtitulo{Uma nota fiscal por linha, sete arquivos.}
   \vspace{4mm}
-  \corpo{\destaque{CEAP} --- Cota para o Exercício da Atividade Parlamentar. Cada
-  deputado tem uma verba mensal, gasta, e presta contas. A Câmara publica o
-  arquivo inteiro.}
+  \corpo{A \destaque{CEAP} é a verba mensal de cada deputado. Ele gasta, presta
+  contas, e a Câmara publica o CSV inteiro --- um por ano, desde bem antes de
+  2019.}
   \vspace{3mm}
-  \corpo{\cod{Ano-2025.csv} \quad 74,5~MB \quad 32 colunas \quad 209.066
-  lançamentos \quad domínio público.}
-  \note{CEAP = Cota para o Exercício da Atividade Parlamentar. A Câmara publica
-  tudo. Não é vazamento: é transparência ativa.}
+  \corpo{\cod{Ano-2019.csv} \ldots \cod{Ano-2025.csv} \quad · \quad 538 MB
+  \quad · \quad 32 colunas \quad · \quad \destaque{1.560.019 lançamentos}}
+  \note{CEAP = Cota para o Exercício da Atividade Parlamentar. Verba mensal, prestação de contas, publicação obrigatória. Não é vazamento: é transparência ativa.}
 \end{frame}
 
 % ======================================================== 03 · minuto 3
 \begin{frame}
-  \rotulo{a resposta ingênua}
-  \gigante{laranja}{R\$ 16,4 mi}
+  \rotulo{o jeito que a gente começa}
   \vspace{2mm}
-  \legendanum{TAM LINHAS AÉREAS}
-  \onslide<2->{\carimbo{ERRADO}}
-  \vspace{7mm}
-  \onslide<2->{\corpo{Uma \cod{GROUP BY} honesta, num dado honesto, que produz
-  uma resposta falsa.}}
-  \note{Deixe o número na tela em silêncio por uns segundos antes de avançar o
-  carimbo. A plateia precisa acreditar no número antes de você derrubá-lo.}
+  \begin{terminal}[analise.py]
+  \begin{tela}
+  \comentario{import} pandas \comentario{as} pd\\[1.2mm]
+  df = pd.read\_csv(\ambar{``Ano-2025.csv''}, sep=\ambar{``;''}, encoding=\ambar{``latin-1''})\\[1.2mm]
+  top = (df.groupby(\ambar{``txtFornecedor''})[\ambar{``vlrDocumento''}]\\
+  \hphantom{top = (df}.sum()\\
+  \hphantom{top = (df}.sort\_values(ascending=\comentario{False})\\
+  \hphantom{top = (df}.head(\saida{10}))\\[1.2mm]
+  \comentario{print}(top)
+  \end{tela}
+  \end{terminal}
+  \onslide<2->{\legenda{Oito linhas, 40 segundos, nenhuma dependência além do
+  pandas. Eu escrevo assim, você escreve assim, e na maior parte das vezes está
+  tudo bem.}}
+  \note{Mostre o script sem ironia. Esta é a forma correta de começar uma análise: é barata, é rápida, e responde. O problema aparece depois, e não é culpa de quem escreveu.}
 \end{frame}
 
-% ======================================================== 04 · minuto 4
+% ======================================================== 04 · minuto 5
 \begin{frame}
-  \rotulo{por que a resposta é falsa}
-  \subtitulo{Companhia aérea não é fornecedora de deputado.}
-  \vspace{5mm}
-  \corpo{É o \destaque{SIGEPA}, o sistema de passagens da própria Câmara. O
-  bilhete sai por lá e a companhia entra na planilha. O dado não mentiu ---
-  \destaque{a pergunta é que foi mal feita.}}
-  \note{SIGEPA é o sistema de passagens da Câmara. A companhia aérea aparece como
-  fornecedora porque o bilhete foi emitido por lá, não porque um deputado
-  contratou a TAM.}
+  \rotulo{a saída, nos sete anos}
+  \vspace{2mm}
+  \begin{terminal}[python analise.py]
+  \begin{tela}
+  \vermelho{TAM} \hfill R\$ 116.350.000\\
+  GOL \hfill R\$ \phantom{1}52.850.000\\
+  \vermelho{Cia Aérea - TAM} \hfill R\$ \phantom{1}43.430.000\\
+  AZUL \hfill R\$ \phantom{1}37.530.000\\
+  Cia Aérea - GOL \hfill R\$ \phantom{1}35.240.000\\
+  PANTANAL VEÍCULOS \hfill R\$ \phantom{1}18.780.000
+  \end{tela}
+  \end{terminal}
+  \onslide<2->{\carimbo{ERRADO}}
+  \onslide<2->{\legenda{Primeiro e terceiro lugar são a mesma companhia aérea,
+  escrita de dois jeitos. Segundo e quinto também. O script rodou até o fim, sem
+  aviso nenhum.}}
+  \note{Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então avance o carimbo.}
 \end{frame}
 
 % ======================================================== 05 · minuto 6
 \begin{frame}
-  \frase{O dado sujo não avisa que está sujo.\\ Ele só responde.}
+  \rotulo{dois problemas, empilhados}
+  \subtitulo{Nem a soma está certa, nem a pergunta estava bem feita.}
+  \vspace{4mm}
+  \corpo{\destaque{A soma} quebrou porque o nome do fornecedor é texto livre: a
+  mesma empresa entra com grafias diferentes e vira duas linhas.}
+  \vspace{3mm}
+  \corpo{\destaque{A pergunta} quebrou porque companhia aérea não é fornecedora
+  de deputado. É o \destaque{SIGEPA}, o sistema de passagens da própria Câmara:
+  o bilhete sai por lá e a companhia cai na planilha.}
+  \note{SIGEPA é o sistema de passagens da Câmara. Dois problemas diferentes no mesmo pódio.}
+\end{frame}
+
+% ======================================================== 06 · minuto 8
+\begin{frame}
+  \rotulo{e o dado não fica parado}
+  \subtitulo{Quantos lançamentos não têm CNPJ, ano a ano.}
+  \vspace{3mm}
+  \begin{terminal}[spark-sql --- silver, agrupado por ano]
+  \begin{tela}
+  ANO \hfill LANÇAMENTOS \hfill SEM CNPJ \hfill \%\\[1mm]
+  2019 \hfill 289.830 \hfill 4.448 \hfill \saida{1,5\%}\\
+  2020 \hfill 167.132 \hfill 17.234 \hfill 10,3\%\\
+  2021 \hfill 218.765 \hfill 43.487 \hfill 19,9\%\\
+  2022 \hfill 209.556 \hfill 46.992 \hfill 22,4\%\\
+  2023 \hfill 232.745 \hfill 56.943 \hfill 24,5\%\\
+  2024 \hfill 232.925 \hfill 58.164 \hfill \vermelho{25,0\%}\\
+  2025 \hfill 209.066 \hfill 37.934 \hfill 18,1\%
+  \end{tela}
+  \end{terminal}
+  \onslide<2->{\legenda{A Câmara foi movendo o voo de ``fornecedor com CNPJ'' para
+  ``SIGEPA, sem CNPJ''. Quem escreveu o script em 2019 não escreveu nada errado.
+  O chão é que andou.}}
+  \note{Slide central e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos, e nada no script mudou.}
+\end{frame}
+
+% ======================================================== 07 · minuto 10
+\begin{frame}
+  \frase{Um pipeline não erra menos que um script.\\ Ele erra num lugar onde dá
+  para ver.}
   \vspace{6mm}
-  \corpo{Três defeitos neste arquivo. Nenhum é bug. Todos são o mundo real
-  chegando sem aviso.}
-  \note{Esta é a frase-chave da aula. Diga devagar. Tudo depois disso é
-  consequência dela.}
+  \corpo{O que vem agora são quatro erros que eu cometi montando esta aula, e o
+  que exatamente pegou cada um deles.}
+  \note{Frase-chave. Diga devagar e deixe respirar. Não é um ataque ao script: é a diferença entre errar com rastro e errar sem.}
 \end{frame}
 
-% ======================================================== 06 · minuto 7
+% ======================================================== 08 · minuto 12
 \begin{frame}
-  \rotulo{defeito 1 de 3}
-  \subtitulo{Oito mil linhas com valor negativo.}
+  \rotulo{defeito que não é defeito}
+  \subtitulo{56.912 linhas com valor negativo.}
+  \vspace{4mm}
+  \corpo{São estornos: dinheiro devolvido. Somados junto com o resto, abatem o
+  gasto de quem não gastou.}
   \vspace{3mm}
-  {\ttfamily\bfseries\fontsize{34}{36}\selectfont\color{verde}8.017\par}
-  \vspace{1.5mm}
-  \legendanum{ESTORNOS --- DEVOLUÇÕES DE DESPESA}
-  \vspace{4mm}
-  \onslide<2->{\corpo{\destaque{Não apague.} Um estorno é informação: alguém
-  devolveu dinheiro. Ele vira uma coluna \cod{eh\_estorno}, e cada pergunta
-  decide se quer contar com ele ou sem.}}
-  \note{Estorno = devolução, valor líquido negativo. Se você soma tudo junto, o
-  estorno abate o gasto de quem não gastou. Não apague: marque numa coluna.}
+  \onslide<2->{\corpo{Apagar resolveria a soma e perderia a informação. Na silver
+  eles viram uma coluna \cod{eh\_estorno}, ficam onde estão, e cada pergunta
+  decide se conta com eles. A gold, que responde ``quanto saiu'', conta sem.}}
+  \note{Estorno = devolução, valor líquido negativo. A decisão de tirar da soma é legítima; escondê-la não é.}
 \end{frame}
 
-% ======================================================== 07 · minuto 9
+% ======================================================== 09 · minuto 14
 \begin{frame}
-  \rotulo{defeito 2 de 3}
-  \subtitulo{Trinta e sete mil linhas sem CNPJ.}
-  \vspace{3mm}
-  {\ttfamily\bfseries\fontsize{34}{36}\selectfont\color{verde}37.934\par}
-  \vspace{1.5mm}
-  \legendanum{SEM DOCUMENTO DO FORNECEDOR}
+  \rotulo{a mesma empresa, setenta vezes}
+  \subtitulo{Setenta fornecedores que são um posto só.}
   \vspace{4mm}
-  \onslide<2->{\corpo{Sem CNPJ não existe \destaque{chave natural}: você não
-  consegue ligar essa linha a nenhuma informação de fora do arquivo. Vira a
-  coluna \cod{via\_sigepa}.}}
-  \note{Sem CNPJ você não consegue juntar a empresa com nada de fora do arquivo.
-  Quase todas são passagem aérea emitida pela Câmara.}
-\end{frame}
-
-% ======================================================== 08 · minuto 10
-\begin{frame}
-  \rotulo{defeito 3 de 3}
-  \subtitulo{Setenta fornecedores que são um só.}
-  \vspace{4mm}
-  % cada barrinha é uma grafia diferente do mesmo posto de gasolina
-  \begin{tikzpicture}
+\begin{tikzpicture}
     \foreach \i in {0,...,69}{
       \pgfmathsetmacro{\lin}{int(\i/14)}
       \pgfmathsetmacro{\col}{mod(\i,14)}
@@ -139,187 +170,175 @@
     \begin{tikzpicture}[baseline=0pt]
       \fill[verde,rounded corners=.5pt] (0,0) rectangle ++(42mm,2.6mm);
       \node[anchor=west,font=\ttfamily\bfseries\fontsize{8.6}{10}\selectfont,text=tinta]
-        at (44mm,1.3mm) {CASCOL --- R\$ 1.067.822 --- mesma raiz de CNPJ};
-    \end{tikzpicture}\par
-    \vspace{3mm}
-    \corpo{Nenhum pedaço era grande o bastante para aparecer sozinho. Juntos,
-    mudam o pódio.}}
-  \note{Cada barrinha é uma grafia diferente do mesmo posto de gasolina. Avance o
-  fragmento e mostre as 70 virando uma. A raiz do CNPJ (8 primeiros dígitos) é o
-  que une.}
+        at (44mm,1.3mm) {CASCOL --- R\$ 5.522.621 nos sete anos --- uma raiz de CNPJ};
+    \end{tikzpicture}%
+  }
+  \vspace{4mm}
+  \onslide<3->{\corpo{Nenhuma grafia isolada era grande o bastante para aparecer
+  no pódio. Juntas, entram em décimo.}}
+  \note{Cada barrinha é uma grafia diferente do mesmo posto. A raiz do CNPJ — os 8 primeiros dígitos — é o que une, porque filial muda os 4 do meio.}
 \end{frame}
 
-% ======================================================== 09 · minuto 12
-\begin{frame}[t]
-  \rotulo{o conserto precisa de um lugar para morar}
-  \vspace{1mm}
-  \begin{center}
-  \begin{tikzpicture}[x=1mm,y=1mm]
-    % o arquivo, sozinho
-    \bloco{0}{0}{29}{cx}{Ano-2025.csv}{74,5 MB · 32 COLUNAS}
-    \node[tp] at (2.4mm,-9.0mm) {CAMARA.LEG.BR};
-
-    \onslide<2->{
-      \draw[seta] (30mm,-4.5mm) -- (35mm,-4.5mm);
-      \draw[slab] (37mm,3mm) rectangle (142mm,-13mm);
-      \node[ts] at (39.5mm,1mm) {ARMAZENAMENTO · CONTAINER minio};
-      \bloco{39.5}{-2}{27}{cx}{MinIO}{s3a://lake}
-    }
-    \onslide<3->{
-      \bloco{69}{-2}{22}{cx}{bronze}{COMO VEIO}
-      \bloco{93}{-2}{22}{cx}{silver}{CONSERTADO}
-      \bloco{117}{-2}{22}{cx}{gold}{A RESPOSTA}
-      \node[tn] at (39.5mm,-17mm)
-        {três tabelas Delta --- arquivo Parquet + um log de transações};
-    }
-  \end{tikzpicture}
-  \end{center}
-  \note{Construa o desenho no ritmo da fala: primeiro só o CSV, depois o
-  armazenamento, depois as três tabelas Delta. Não avance antes de terminar a
-  frase.}
-\end{frame}
-
-% ======================================================== 10 · minuto 14
+% ======================================================== 10 · minuto 16
 \begin{frame}
-  \rotulo{tela 1 · o que uma tabela Delta é por dentro}
-  \begin{terminal}[mc ls --- container minio · s3a://lake]
-    \begin{tela}
-      \shell{mc ls \dd recursive local/lake/}\\[1.4mm]
-      \ambar{bronze/} \dd\ \_delta\_log/00000000000000000000.json \comentario{2.1 KiB}\\
-      \ambar{bronze/} \dd\ part-00000-\dots.snappy.parquet \comentario{17 MiB}\\
-      \ambar{silver/} \dd\ \_delta\_log/00000000000000000000.json \comentario{3.4 KiB}\\
-      \ambar{silver/} \dd\ part-00000-\dots.snappy.parquet \comentario{6.1 MiB}\\
-      \ambar{gold/} \dd\ \_delta\_log/00000000000000000000.json \comentario{1.7 KiB}\\
-      \ambar{gold/} \dd\ part-00000-\dots.snappy.parquet \comentario{1.2 MiB}
-    \end{tela}
-  \end{terminal}
-  \onslide<2->{\legenda{Uma pasta de Parquet mais \destaque{um log de transações}.
-  É esse log que dá à pasta as coisas que você espera de uma tabela: escrita
-  atômica, leitura consistente e histórico.}}
-  \note{Esta tela é real: é o mc ls do MinIO depois do ETL. Aponte para o
-  \_delta\_log. É o que transforma uma pasta de Parquet numa tabela.}
+  \rotulo{uma assinatura de ChatGPT, dois universos}
+  \vspace{2mm}
+  \begin{columns}[t,onlytextwidth]
+    \begin{column}{.48\textwidth}
+      \begin{lado}{2023}
+        {\ttfamily\bfseries\fontsize{11}{13}\selectfont\color{tinta}00000000000010\par}\vspace{1.6mm}
+        {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}\destaque{ChatGPT Plus Subscription}\\
+        R\$ 98,93, com R\$ 56,06 de glosa\\ categoria: manutenção de escritório\par}
+      \end{lado}
+    \end{column}
+    \begin{column}{.48\textwidth}
+      \begin{lado}{2025}
+        {\ttfamily\bfseries\fontsize{11}{13}\selectfont\color{laranja}62531071000178\par}\vspace{1.6mm}
+        {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}\destaque{chatGPT}\\
+        R\$ 999,90\\ categoria: manutenção de escritório\par}
+      \end{lado}
+    \end{column}
+  \end{columns}
+  \vspace{5mm}
+  \onslide<2->{\fecho{O documento da esquerda tem 14 dígitos e passa em qualquer
+  validação de CNPJ. Ele é uma gaveta interna da Câmara, e naquele mesmo ano a
+  mesma assinatura também foi lançada como \destaque{assinatura de publicações},
+  por R\$ 105,03.}}
+  \note{O caso que junta todos os defeitos numa linha só, e é recente o bastante para a plateia rir.}
 \end{frame}
 
-% ======================================================== 11 · minuto 16
+% ======================================================== 11 · minuto 18
 \begin{frame}
-  \rotulo{por que três camadas e não uma}
+  \rotulo{onde o conserto vai morar}
   \vspace{1mm}
   \begin{columns}[t,onlytextwidth]
     \begin{column}{.315\textwidth}
       \begin{lado}{camada 1}
         {\bfseries\fontsize{12}{14}\selectfont\color{tinta}bronze\par}\vspace{1.4mm}
         {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}Como a Câmara
-        publicou. Tudo texto. Nada consertado.\par}
+        publicou. Tudo texto, nada consertado. 1.560.019 linhas.\par}
       \end{lado}
     \end{column}
     \begin{column}{.315\textwidth}
       \begin{lado}{camada 2}
         {\bfseries\fontsize{12}{14}\selectfont\color{tinta}silver\par}\vspace{1.4mm}
-        {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}Tipos certos,
-        defeitos marcados em colunas. Nada apagado.\par}
+        {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}Tipos certos e sete
+        colunas de defeito marcado. Nenhuma linha some.\par}
       \end{lado}
     \end{column}
     \begin{column}{.315\textwidth}
       \begin{lado}{camada 3}
         {\bfseries\fontsize{12}{14}\selectfont\color{tinta}gold\par}\vspace{1.4mm}
         {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}Uma tabela por
-        pergunta. 19.441 empresas, uma linha cada.\par}
+        pergunta. 55.672 empresas, somadas pela raiz do CNPJ.\par}
       \end{lado}
     \end{column}
   \end{columns}
   \vspace{5mm}
-  \onslide<2->{\fecho{O bronze não é desperdício: é o seguro. \destaque{Sua regra
-  de limpeza vai estar errada uma hora} --- e aí o bronze é o único jeito de
-  refazer sem pedir o arquivo de novo.}}
-  \note{Medalhão. O ponto que importa: o bronze existe porque a sua regra de
-  limpeza vai estar errada uma hora, e aí você precisa do original.}
+  \onslide<2->{\fecho{Guardar o bronze cru custa 5 GB e parece desperdício até a
+  primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer
+  sem pedir o arquivo de novo --- e a Câmara \destaque{republica os CSVs com
+  correções}, então o arquivo de hoje não é o de ontem.}}
+  \note{Agora a estrutura, e só agora. O bronze existe porque a sua regra vai estar errada uma hora.}
 \end{frame}
 
-% ======================================================== 12 · minuto 18
+% ======================================================== 12 · minuto 20
 \begin{frame}
-  \rotulo{tela 2 · a mesma pergunta, nas duas pontas}
-  \begin{terminal}[spark-sql --- container spark-master]
-    \begin{tela}
-      \sql{SELECT txtFornecedor, sum(vlrDocumento) t}\\
-      \hspace*{11mm}FROM delta.\bt s3a://lake/\vermelho{bronze}\bt\ GROUP BY 1 ORDER BY 2 DESC LIMIT 3;\\
-      \vermelho{TAM 16.402.463,26 \quad GOL 6.052.550,88 \quad AZUL 4.696.245,04}\\[1.8mm]
-      \sql{SELECT fornecedor, total}\\
-      \hspace*{11mm}FROM delta.\bt s3a://lake/\ambar{gold}\bt\ ORDER BY total DESC LIMIT 3;\\
-      \ambar{FACEBOOK 3.251.951,87 \quad PANTANAL 3.227.314,77 \quad TELEFÔNICA 1.591.715,84}
-    \end{tela}
-  \end{terminal}
-  \onslide<2->{\legenda{Mesmo arquivo. Mesma pergunta. \destaque{Nenhum nome se
-  repete entre as duas listas.}}}
-  \note{A mesma pergunta nas duas pontas. Rode ao vivo se der; o screencast é o
-  plano B.}
-\end{frame}
-
-% ======================================================== 13 · minuto 20
-\begin{frame}
-  \rotulo{a resposta, depois das três camadas}
-  \gigante{verde}{R\$ 3,25 mi}
+  \rotulo{a mesma pergunta, nas duas pontas}
   \vspace{2mm}
-  \legendanum{FACEBOOK SERVIÇOS ONLINE DO BRASIL}
-  \vspace{8mm}
-  \onslide<2->{\corpo{Não foi o dado que mudou. \destaque{Foi o cuidado.}}}
-  \note{Este é o clímax. Silêncio antes do fragmento.}
-\end{frame}
-
-% ======================================================== 14 · minuto 22
-\begin{frame}
-  \rotulo{um erro que eu cometi montando esta aula}
-  \subtitulo{Dois motores, o mesmo arquivo, contagens diferentes.}
-  \vspace{4mm}
-  \begin{columns}[t,onlytextwidth]
-    \begin{column}{.48\textwidth}
-      \begin{lado}{duckdb}
-        {\ttfamily\bfseries\fontsize{16}{18}\selectfont\color{tinta}209.066\par}
-        \vspace{1.4mm}
-        {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}\cod{multiLine} é
-        \destaque{true} por padrão\par}
-      \end{lado}
-    \end{column}
-    \begin{column}{.48\textwidth}
-      \begin{lado}{apache spark}
-        {\ttfamily\bfseries\fontsize{16}{18}\selectfont\color{laranja}209.079\par}
-        \vspace{1.4mm}
-        {\fontsize{8}{10.4}\selectfont\color{\tintaSessenta}\cod{multiLine} é
-        \destaque{false} por padrão\par}
-      \end{lado}
-    \end{column}
-  \end{columns}
-  \vspace{4.5mm}
-  \onslide<2->{\fecho{13 registros têm quebra de linha \destaque{dentro} de um
-  campo entre aspas. Nenhum motor está com defeito: os padrões é que são
-  diferentes. \destaque{``O dado está certo'' não é propriedade do arquivo --- é
-  do arquivo mais de quem lê.}}}
-  \note{Aconteceu de verdade montando esta aula. Nenhum dos dois tinha bug.}
-\end{frame}
-
-% ======================================================== 15 · minuto 24
-\begin{frame}
-  \rotulo{tela 3 · o erro continua consultável}
-  \begin{terminal}[spark-sql --- DESCRIBE HISTORY]
-    \begin{tela}
-      \comentario{VERSÃO \quad OPERAÇÃO \quad LINHAS \quad\ O QUE ERA}\\[.8mm]
-      \saida{0} \quad\ \ \ \ WRITE \quad\ \ \ \vermelho{209.079} \quad
-        \comentario{sem multiLine --- 13 linhas partidas}\\[.6mm]
-      \saida{1} \quad\ \ \ \ WRITE \quad\ \ \ \ambar{209.066} \quad
-        \comentario{com multiLine --- correto}\\[2.2mm]
-      \sql{SELECT count(*) FROM delta.\bt s3a://lake/bronze\bt\ \saida{VERSION AS OF 0};}\\
-      \vermelho{209079}
-    \end{tela}
+  \begin{terminal}[spark-sql --- container spark-master]
+  \begin{tela}
+  \sql{SELECT txtFornecedor, sum(vlrDocumento) t}\\
+  \hphantom{spark-sql> }FROM delta.`s3a://lake/\vermelho{bronze}` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;\\
+  \vermelho{TAM 16.402.463,26 \quad GOL 6.052.550,88 \quad AZUL 4.696.245,04}\\[1.6mm]
+  \sql{SELECT fornecedor, total}\\
+  \hphantom{spark-sql> }FROM fornecedores WHERE ano\_ref=2025 ORDER BY total DESC LIMIT 3;\\
+  \saida{FACEBOOK 3.251.951,87 \quad PANTANAL 3.227.314,77 \quad VIVO 1.591.715,84}
+  \end{tela}
   \end{terminal}
-  \onslide<2->{\legenda{O erro não foi apagado --- \destaque{ele virou uma
-  versão}. Errou a limpeza? Volta, compara, conserta. E ninguém precisa baixar
-  74~MB da Câmara de novo.}}
-  \note{A v0 da tabela guardou o erro. Consulte-a ao vivo. É o argumento de
-  guardar o bronze cru, demonstrado em vez de afirmado.}
+  \onslide<2->{\legenda{Mesmo arquivo, mesma pergunta, nenhum nome repetido entre
+  as duas listas.}}
+  \note{A mesma pergunta nas duas pontas. Aponte que a de cima é o script do slide 3, só que em SQL.}
 \end{frame}
 
-% ======================================================== 16 · minuto 26
-\begin{frame}[t]
-  \rotulo{a arquitetura inteira --- tudo em containers}
+% ======================================================== 13 · minuto 22
+\begin{frame}
+  \rotulo{a resposta, em 2025}
+  \vspace{4mm}
+  \gigante{verde}{R\$ 3,25 mi}
+  \vspace{1.5mm}
+  \legendanum{FACEBOOK SERVIÇOS ONLINE DO BRASIL}
+  \vspace{6mm}
+  \onslide<2->{\corpo{Nos sete anos somados a lista volta a começar com companhia
+  aérea, e dessa vez está certo: até 2022 a Câmara lançava o voo \destaque{com}
+  CNPJ. A resposta depende do ano porque o dado mudou de forma, e é por isso que
+  o ano é uma partição e não um filtro solto no meio de um script.}}
+  \note{Clímax. Silêncio antes do fragmento. E seja honesto: nos sete anos a lista muda, e o motivo é o slide 6.}
+\end{frame}
+
+% ======================================================== 14 · minuto 24
+\begin{frame}
+  \rotulo{quatro erros meus, e o que pegou cada um}
+  \vspace{2mm}
+  \begin{terminal}[o que aconteceu montando esta aula]
+  \begin{tela}
+  O ERRO \hfill O QUE PEGOU\\[1.4mm]
+  regra de glosa acusou 53.112 linhas boas \hfill \saida{o relatório conta, não filtra}\\
+  a mesma empresa com nome diferente a cada execução \hfill \saida{rodar duas vezes e comparar}\\
+  soma saindo como 4.99577E7 na tela \hfill \saida{tipo decimal na gold}\\
+  \vermelho{R\$ 15,1 mi de um fornecedor que não existe} \hfill \saida{consultar a gold antes de crer}
+  \end{tela}
+  \end{terminal}
+  \onslide<2->{\legenda{O quarto ia para este slide. Ramal, celular funcional e
+  Correios compartilham a raiz \cod{00000000}, viraram uma empresa só e
+  apareceram em quarto lugar. Os catorze dígitos batem, inclusive os
+  verificadores. Formato válido e significado válido são coisas diferentes.}}
+  \note{O coração da aula. São quatro erros meus, não hipotéticos. Se estiver atrasado, corte o quarto.}
+\end{frame}
+
+% ======================================================== 15 · minuto 27
+\begin{frame}
+  \rotulo{o erro continua consultável}
+  \vspace{2mm}
+  \begin{terminal}[spark-sql --- DESCRIBE HISTORY]
+  \begin{tela}
+  VERSÃO \hfill OPERAÇÃO \hfill LINHAS \hfill O QUE ERA\\[1.4mm]
+  0 \hfill WRITE \hfill \vermelho{209.079} \hfill sem multiLine --- 13 linhas partidas\\
+  1 \hfill WRITE \hfill \saida{209.066} \hfill com multiLine --- correto\\[2.4mm]
+  \sql{SELECT count(*) FROM delta.`s3a://lake/bronze` VERSION AS OF 0;}\\
+  \vermelho{209079}
+  \end{tela}
+  \end{terminal}
+  \onslide<2->{\legenda{Treze linhas têm quebra de linha dentro de um campo entre
+  aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela
+  Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a
+  versão 0, e dá para voltar nela agora.}}
+  \note{Aconteceu de verdade: DuckDB contou 209.066 e Spark contou 209.079. A v0 guardou o erro. Consulte ao vivo.}
+\end{frame}
+
+% ======================================================== 16 · minuto 29
+\begin{frame}
+  \rotulo{o que impede a volta}
+  \subtitulo{21 testes, e dois deles têm nome de cicatriz.}
+  \vspace{3mm}
+  \begin{terminal}[pytest /opt/testes]
+  \begin{tela}
+  \saida{PASSED} test\_estorno\_nao\_conta\_como\_glosa\_maior\\
+  \saida{PASSED} test\_raiz\_zerada\_nao\_e\_empresa\\
+  \saida{PASSED} test\_raiz\_de\_verdade\_nao\_e\_confundida\\
+  \comentario{...}\\[1.2mm]
+  \saida{21 passed} in 11.09s
+  \end{tela}
+  \end{terminal}
+  \onslide<2->{\legenda{Rodam sem MinIO e sem cluster, numa SparkSession local,
+  em 11 segundos. O que eles testam não é o Spark: é se a regra de negócio ainda
+  significa o que eu quis dizer.}}
+  \note{Dois destes testes existem porque os bugs aconteceram. Teste em engenharia de dados é sobre a regra, não sobre o framework.}
+\end{frame}
+
+% ======================================================== 17 · minuto 30
+\begin{frame}
+  \rotulo{a sala de máquinas --- tudo em containers}
   % o frame e [t], entao o diagrama encostaria no rotulo e deixaria um vazio de
   % ~20mm sobre o rodape. Os dois \vfill centram o desenho no espaco que sobra.
   \vfill
@@ -343,39 +362,21 @@
     \draw[slab] (0mm,-24mm) rectangle (142mm,-40mm);
     \node[ts] at (2.5mm,-26mm) {ARMAZENAMENTO · CONTAINER minio};
     \bloco{2.5}{-29}{30}{cx}{MinIO}{BUCKET lake}
-    \bloco{35}{-29}{25}{cx}{bronze}{209.066 LINHAS}
+    \bloco{35}{-29}{25}{cx}{bronze}{1.560.019 LINHAS}
     \bloco{62.5}{-29}{25}{cx}{silver}{DEFEITOS MARCADOS}
-    \bloco{90}{-29}{25}{cx}{gold}{19.441 EMPRESAS}
+    \bloco{90}{-29}{25}{cx}{gold}{55.672 EMPRESAS}
 
     \node[tn] at (2.5mm,-44mm)
       {o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.};
   \end{tikzpicture}
   \end{center}
   \vfill
-  \note{O worker 3 nasce tracejado de propósito: ele vai subir de verdade no
-  próximo slide.}
+  \note{O worker 3 nasce tracejado porque vai subir de verdade: docker compose up -d --scale spark-worker=3, com o Spark UI aberto noutra aba.}
 \end{frame}
 
-% ======================================================== 17 · minuto 28
+% ======================================================== 18 · minuto 31
 \begin{frame}
-  \rotulo{tela 4 · mais máquina, sem tocar no dado}
-  \begin{terminal}[docker compose --- ao vivo]
-    \begin{tela}
-      \shell{docker compose up -d \dd scale spark-worker=3}\\
-      \comentario{\ \ \ Container semuni-spark-worker-3\ \ Started\ \ \ 0.9s}\\[1.8mm]
-      \shell{curl -s localhost:8080 | grep -c "ALIVE"}\\
-      \ambar{3}
-    \end{tela}
-  \end{terminal}
-  \onslide<2->{\legenda{Uma linha, um worker novo, \destaque{e o dado não se
-  mexeu.} Isso só é possível porque o dado nunca esteve dentro do Spark. É essa
-  separação que faz o resto funcionar.}}
-  \note{RODE DE VERDADE. Deixe o Spark UI (localhost:8080) aberto numa aba e
-  mostre passar de 2 para 3. Se falhar, use o screencast.}
-\end{frame}
-
-% ======================================================== 18 · minuto 30
-\begin{frame}[t]
+[t]
   \rotulo{o mesmo desenho, com o nome que ele tem na nuvem}
   \vspace{2mm}
   \begin{center}
@@ -396,8 +397,7 @@
       {Delta Lake é o mesmo formato dos dois lados. Ele é aberto, e não muda quando você paga.};
   \end{tikzpicture}
   \end{center}
-  \note{Tom neutro aqui. Não é laptop contra nuvem: é o mesmo software rodando em
-  dois lugares. O código não muda.}
+  \note{Tom neutro. É o mesmo software rodando em dois lugares, e o código não muda. Não deprecie nenhum lado.}
 \end{frame}
 
 % ======================================================== 19 · minuto 32
@@ -414,7 +414,6 @@
           \item o dado cabe confortavelmente numa máquina
           \item o ciclo curto importa: subiu, errou, refez em minutos
           \item o dado não pode sair da sua rede
-          \item o custo precisa ser previsível
         \end{beneficios}
       \end{lado}
     \end{column}
@@ -425,34 +424,30 @@
         \begin{beneficios}
           \item o dado não cabe mais numa máquina só
           \item você precisa de 200 máquinas por 20 minutos
-          \item durabilidade e backup viram contrato, não tarefa sua
           \item o time é pequeno e o plantão não pode ser você
           \item outras equipes precisam do mesmo dado, com governança
         \end{beneficios}
       \end{lado}
     \end{column}
   \end{columns}
-  \vspace{2mm}
-  \onslide<2->{\fecho{Não é um contra o outro. É o \destaque{mesmo Spark} e o
-  \destaque{mesmo Delta} --- o que muda é quem opera, e quanto disso você quer no
-  seu prato.}}
-  \note{Slide mais importante do fim. Os dois lados têm bolinha verde. Não
-  deprecie nenhum: a escolha é de contexto, não de virtude.}
+  \onslide<2->{\fecho{É o \destaque{mesmo Apache Spark} e o \destaque{mesmo Delta
+  Lake} dos dois lados. O que muda é quem opera a infraestrutura.}}
+  \note{Os dois lados têm bolinha verde. A escolha é de contexto, não de virtude.}
 \end{frame}
 
-% ======================================================== 20 · minuto 34
+% ======================================================== 20 · minuto 33
 \begin{frame}
   \rotulo{para levar para casa}
-  \subtitulo{O caminho até a nuvem começa num \cod{docker compose up}.}
+  \subtitulo{O script do slide 3 continua certo.\\ Ele só precisava de um lugar
+  para morar.}
   \vspace{5mm}
-  \corpo{Tudo que você viu hoje é software aberto: MinIO, Apache Spark, Delta
-  Lake, Docker --- e um CSV público da Câmara. Roda no seu laptop hoje, e
-  \destaque{o mesmo código sobe na nuvem no dia em que o dado crescer.}}
+  \corpo{Tudo que você viu é software aberto --- MinIO, Apache Spark, Delta Lake,
+  Docker --- e um CSV público da Câmara. Roda no seu laptop hoje e sobe na nuvem
+  no dia em que o dado crescer, sem reescrever a regra.}
   \vspace{6mm}
   {\ttfamily\fontsize{10}{12}\selectfont\color{tinta}%
    make subir \quad · \quad make pipeline\par}
-  \note{Feche com o convite concreto. Depois abra para as perguntas --- são 10
-  minutos.}
+  \note{Fecho curto. O repositório sobe em dois comandos. Depois abra para as perguntas — são 10 minutos.}
 \end{frame}
 
 \end{document}

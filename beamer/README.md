@@ -40,7 +40,7 @@ Na prática: duas compilações, dois downloads, dois arquivos no pendrive
 ## Compilar aqui, sem Overleaf
 
 ```bash
-cd overleaf
+cd beamer
 latexmk -pdf main.tex      # gera main.pdf
 latexmk -c                 # limpa os auxiliares
 ```
@@ -68,9 +68,9 @@ Duas coisas que já custaram tempo e estão comentadas no código, não repita:
 
 ## Estado
 
-Compila com `exit=0`, sem `Overfull \vbox` e sem `Underfull`. Sobram cinco
-`Overfull \hbox` de 0,26 a 0,6 pt (menos de 0,2 mm, dentro das caixas do
-`tcolorbox`) — invisíveis no PDF, deixados de propósito.
+Compila com `exit=0`, 34 páginas, sem `Overfull \vbox` e sem `Underfull`.
+Sobram alguns `Overfull \hbox` de fração de ponto dentro das caixas do
+`tcolorbox` — invisíveis no PDF, deixados de propósito.
 
-O desenho da arquitetura em SVG/PNG, para README e impressão, está em
-`../desenho/`. A versão HTML da mesma aula está em `../deck/aula-v2.html`.
+A versão HTML da mesma aula está em `../apresentacao/aula.html`, e sai de
+`make slides`. As duas contam a mesma aula: se você mudar uma, mude a outra.

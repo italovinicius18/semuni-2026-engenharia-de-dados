@@ -97,24 +97,42 @@ primeiro fragmento já revelado. Útil para ensaiar um trecho.
 
 ## O arco
 
-Abre com a pergunta "qual empresa mais recebeu dinheiro de cota parlamentar em 2025?",
-responde errado ao vivo (TAM, R$ 16,4 mi), passa a aula provando por que está errado, e
-fecha com a resposta certa (Facebook Brasil, R$ 3,25 mi). Nenhum nome se repete entre as
-duas listas.
+A aula defende uma tese: **o processo estruturado ganha do script ad-hoc não por
+errar menos, mas por errar num lugar onde dá para ver.**
 
-A linguagem visual alterna duas coisas de propósito:
+Ela começa mostrando o script que todo mundo escreve — oito linhas de pandas,
+`groupby` no nome do fornecedor, `head(10)`. Ele roda até o fim e devolve um
+pódio em que **o primeiro e o terceiro lugar são a mesma companhia aérea**
+(`TAM` R$ 116,35 mi e `Cia Aérea - TAM` R$ 43,43 mi). Nenhum aviso, nenhuma
+exceção.
 
-- **papel de engenharia** (fundo quadriculado claro) para o raciocínio e os diagramas,
-  que são montados peça por peça com os fragmentos em vez de aparecerem prontos;
-- **janela de terminal escura** para as quatro telas de prova — `mc ls` mostrando o
-  `_delta_log`, as duas consultas lado a lado, o `DESCRIBE HISTORY` e o
-  `--scale spark-worker=3`.
+Daí em diante cada peça da arquitetura entra porque pegou um erro concreto, e
+todos os quatro são erros que eu cometi montando esta aula. O fecho é neutro:
+mapeia MinIO → S3/GCS/Blob e Spark → EMR/Dataproc/Databricks, e lista quando
+cada lado faz sentido, com quatro benefícios reais de cada. É o mesmo Apache
+Spark e o mesmo Delta Lake dos dois lados; o que muda é quem opera. Nenhum slide
+deprecia a nuvem — seria estranho num Seminário em Cloud, e seria falso.
 
-**O fecho é neutro, de propósito.** Os dois últimos slides mapeiam MinIO → S3/GCS/Blob e
-Spark → EMR/Dataproc/Databricks, e depois listam quando cada lado faz sentido, com
-benefícios reais nos dois. Não é laptop contra nuvem: é o mesmo Apache Spark e o mesmo
-Delta Lake, e o que muda é quem opera a infraestrutura. Nenhum slide deprecia a nuvem —
-seria estranho num Seminário em Cloud, e seria falso.
+### O achado que sustenta a tese
+
+Lançamentos **sem CNPJ**, ano a ano:
+
+| 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
+|---|---|---|---|---|---|---|
+| 1,5% | 10,3% | 19,9% | 22,4% | 24,5% | **25,0%** | 18,1% |
+
+A Câmara foi movendo o registro do voo de "fornecedor com CNPJ" para "SIGEPA, sem
+CNPJ". Um script afinado em 2025 mente sobre 2019, e vice-versa — sem quebrar. É
+por isso que `ano_ref` é partição e não um filtro solto no meio do código.
+
+O mesmo vale para uma assinatura de ChatGPT: em 2023 ela entra com o documento
+`00000000000010` (gaveta interna da Câmara, 14 dígitos válidos) e em 2025 com o
+CNPJ real `62531071000178`. Agrupar por nome dá duas empresas; agrupar por
+documento sem tratar a sentinela dá uma empresa que não existe.
+
+A linguagem visual alterna duas coisas de propósito: **papel de engenharia**
+(fundo quadriculado claro) para o raciocínio e os diagramas, montados peça por
+peça com os fragmentos; e **janela de terminal escura** para as telas de prova.
 
 ## Os números
 

@@ -151,64 +151,107 @@ body.notas #notas{display:block}
 <body>
 <div id="stage">
 <!-- 01 -->
-<section class="slide" data-min="0" data-nota="Não se apresente: a professora já leu a minibio. Comece pela pergunta e diga que ela vai ser respondida errado antes de ser respondida certo.">
+<section class="slide" data-min="0" data-nota="Não se apresente: a professora já leu a minibio. Comece pela pergunta. Diga que você vai responder três vezes e errar duas.">
   <div class="rotulo">semuni 2026 · seminário em cloud</div>
   <h1>Quem recebeu o dinheiro da cota parlamentar?</h1>
-  <p>Um arquivo público, 209 mil linhas, ninguém limpou nada. Vamos responder duas vezes: primeiro errado, depois certo. A diferença entre as duas respostas é a aula inteira.</p>
+  <p>Sete anos de nota fiscal, 1,56 milhão de linhas, domínio público. Vou responder três vezes nos próximos 35 minutos. As duas primeiras respostas estão erradas, e nenhuma delas dá erro.</p>
 </section>
 
 <!-- 02 -->
-<section class="slide" data-min="1" data-nota="CEAP = Cota para o Exercício da Atividade Parlamentar. Cada deputado tem uma verba mensal e presta contas. A Câmara publica tudo. Não é vazamento: é transparência ativa.">
+<section class="slide" data-min="1" data-nota="CEAP = Cota para o Exercício da Atividade Parlamentar. Verba mensal, prestação de contas, publicação obrigatória. Não é vazamento: é transparência ativa. Sete arquivos, um por ano.">
   <div class="rotulo">o dado</div>
-  <h2>Uma nota fiscal por linha.</h2>
-  <p><b>CEAP</b> — Cota para o Exercício da Atividade Parlamentar. Cada deputado tem uma verba mensal, gasta, e presta contas. A Câmara publica o arquivo inteiro.</p>
-  <p><code>Ano-2025.csv</code> &nbsp;·&nbsp; 74,5 MB &nbsp;·&nbsp; 32 colunas &nbsp;·&nbsp; 209.066 lançamentos &nbsp;·&nbsp; domínio público.</p>
+  <h2>Uma nota fiscal por linha, sete arquivos.</h2>
+  <p>A <b>CEAP</b> é a verba mensal de cada deputado. Ele gasta, presta contas, e a Câmara publica o CSV inteiro — um por ano, desde bem antes de 2019.</p>
+  <p><code>Ano-2019.csv</code> … <code>Ano-2025.csv</code> &nbsp;·&nbsp; 538 MB &nbsp;·&nbsp; 32 colunas &nbsp;·&nbsp; <b>1.560.019 lançamentos</b></p>
 </section>
 
 <!-- 03 -->
-<section class="slide" data-min="3" data-nota="Deixe o número na tela em silêncio por uns segundos antes de avançar o carimbo. A plateia precisa acreditar no número antes de você derrubá-lo.">
-  <div class="rotulo">a resposta ingênua</div>
-  <div class="gigante errado">R$ 16,4 mi</div>
-  <div class="sub">TAM LINHAS AÉREAS</div>
-  <div class="carimbo frag">ERRADO</div>
-  <p class="frag" style="margin-top:36px">Uma <code>GROUP BY</code> honesta, num dado honesto, que produz uma resposta falsa.</p>
+<section class="slide" data-min="3" data-nota="Mostre o script sem ironia. Esta é a forma correta de começar uma análise: é barata, é rápida, e responde. O problema aparece depois, e não é culpa de quem escreveu.">
+  <div class="rotulo">o jeito que a gente começa</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>analise.py</span></div>
+    <div class="corpo">
+<div><span class="c">import</span> pandas <span class="c">as</span> pd</div>
+<div>&nbsp;</div>
+<div>df = pd.read_csv(<span class="a">"Ano-2025.csv"</span>, sep=<span class="a">";"</span>, encoding=<span class="a">"latin-1"</span>)</div>
+<div>&nbsp;</div>
+<div>top = (df.groupby(<span class="a">"txtFornecedor"</span>)[<span class="a">"vlrDocumento"</span>]</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.sum()</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.sort_values(ascending=<span class="c">False</span>)</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.head(<span class="v">10</span>))</div>
+<div>&nbsp;</div>
+<div><span class="c">print</span>(top)</div>
+    </div>
+  </div>
+  <div class="legenda frag">Oito linhas, 40 segundos, nenhuma dependência além do pandas. Eu escrevo assim, você escreve assim, e na maior parte das vezes está tudo bem.</div>
 </section>
 
 <!-- 04 -->
-<section class="slide" data-min="4" data-nota="SIGEPA é o sistema de passagens da Câmara. A companhia aérea aparece como fornecedora porque o bilhete foi emitido por lá, não porque um deputado contratou a TAM.">
-  <div class="rotulo">por que a resposta é falsa</div>
-  <h2>Companhia aérea não é fornecedora de deputado.</h2>
-  <p>É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara. O bilhete sai por lá e a companhia entra na planilha. O dado não mentiu — <b>a pergunta é que foi mal feita.</b></p>
+<section class="slide" data-min="5" data-nota="Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então avance o fragmento. Se ninguém vir, aponte para a linha 1 e a linha 3.">
+  <div class="rotulo">a saída, nos sete anos</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>python analise.py</span></div>
+    <div class="corpo">
+<div><span class="v">TAM</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ 116.350.000</div>
+<div>GOL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ &nbsp;52.850.000</div>
+<div><span class="v">Cia Aérea - TAM</span> &nbsp;&nbsp;&nbsp;R$ &nbsp;43.430.000</div>
+<div>AZUL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ &nbsp;37.530.000</div>
+<div>Cia Aérea - GOL &nbsp;&nbsp;&nbsp;R$ &nbsp;35.240.000</div>
+<div>PANTANAL VEÍCULOS &nbsp;R$ &nbsp;18.780.000</div>
+    </div>
+  </div>
+  <div class="carimbo frag">ERRADO</div>
+  <p class="frag" style="margin-top:22px">Primeiro e terceiro lugar são a mesma companhia aérea, escrita de dois jeitos. Segundo e quinto também. O script rodou até o fim, sem aviso nenhum.</p>
 </section>
 
 <!-- 05 -->
-<section class="slide" data-min="6" data-nota="Esta é a frase-chave da aula. Diga devagar. Tudo depois disso é consequência dela.">
-  <h2 style="font-size:52px;max-width:20ch">O dado sujo não avisa que está sujo. Ele só responde.</h2>
-  <p>Três defeitos neste arquivo. Nenhum é bug. Todos são o mundo real chegando sem aviso.</p>
+<section class="slide" data-min="6" data-nota="SIGEPA é o sistema de passagens da Câmara. A companhia aparece como fornecedora porque o bilhete foi emitido por lá, não porque um deputado contratou a TAM. Dois problemas diferentes no mesmo pódio.">
+  <div class="rotulo">dois problemas, empilhados</div>
+  <h2>Nem a soma está certa, nem a pergunta estava bem feita.</h2>
+  <p><b>A soma</b> quebrou porque o nome do fornecedor é texto livre: a mesma empresa entra com grafias diferentes e vira duas linhas.</p>
+  <p><b>A pergunta</b> quebrou porque companhia aérea não é fornecedora de deputado. É o <b>SIGEPA</b>, o sistema de passagens da própria Câmara: o bilhete sai por lá e a companhia cai na planilha.</p>
 </section>
 
 <!-- 06 -->
-<section class="slide" data-min="7" data-nota="Estorno = devolução. Valor líquido negativo. Se você soma tudo junto, o estorno abate o gasto de quem não gastou. Não apague: marque numa coluna.">
-  <div class="rotulo">defeito 1 de 3</div>
-  <h2>Oito mil linhas com valor negativo.</h2>
-  <div class="gigante certo" style="font-size:104px;margin-top:14px">8.017</div>
-  <div class="sub">ESTORNOS — DEVOLUÇÕES DE DESPESA</div>
-  <p class="frag"><b>Não apague.</b> Um estorno é informação: alguém devolveu dinheiro. Ele vira uma coluna <code>eh_estorno</code>, e cada pergunta decide se quer contar com ele ou sem.</p>
+<section class="slide" data-min="8" data-nota="Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.">
+  <div class="rotulo">e o dado não fica parado</div>
+  <h2>Quantos lançamentos não têm CNPJ, ano a ano.</h2>
+  <div class="janela" style="margin-top:14px">
+    <div class="barra"><i></i><i></i><i></i><span>spark-sql — silver, agrupado por ano</span></div>
+    <div class="corpo">
+      <table>
+        <tr><th>ANO</th><th>LANÇAMENTOS</th><th>SEM CNPJ</th><th>%</th></tr>
+        <tr><td class="d">2019</td><td>289.830</td><td>4.448</td><td class="a">1,5%</td></tr>
+        <tr><td class="d">2020</td><td>167.132</td><td>17.234</td><td>10,3%</td></tr>
+        <tr><td class="d">2021</td><td>218.765</td><td>43.487</td><td>19,9%</td></tr>
+        <tr><td class="d">2022</td><td>209.556</td><td>46.992</td><td>22,4%</td></tr>
+        <tr><td class="d">2023</td><td>232.745</td><td>56.943</td><td>24,5%</td></tr>
+        <tr><td class="d">2024</td><td>232.925</td><td>58.164</td><td class="v">25,0%</td></tr>
+        <tr><td class="d">2025</td><td>209.066</td><td>37.934</td><td>18,1%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="legenda frag">A Câmara foi movendo o voo de "fornecedor com CNPJ" para "SIGEPA, sem CNPJ". Quem escreveu o script em 2019 não escreveu nada errado. O chão é que andou.</div>
 </section>
 
 <!-- 07 -->
-<section class="slide" data-min="9" data-nota="Sem CNPJ você não consegue juntar a empresa com nada de fora do arquivo. Quase todas são passagem aérea emitida pela Câmara.">
-  <div class="rotulo">defeito 2 de 3</div>
-  <h2>Trinta e sete mil linhas sem CNPJ.</h2>
-  <div class="gigante certo" style="font-size:104px;margin-top:14px">37.934</div>
-  <div class="sub">SEM DOCUMENTO DO FORNECEDOR</div>
-  <p class="frag">Sem CNPJ não existe <b>chave natural</b>: você não consegue ligar essa linha a nenhuma informação de fora do arquivo. Vira a coluna <code>via_sigepa</code>.</p>
+<section class="slide" data-min="10" data-nota="Frase-chave. Diga devagar e deixe respirar. O resto da aula é consequência dela. Não é um ataque ao script: é a diferença entre errar com rastro e errar sem.">
+  <h2 style="font-size:46px;max-width:24ch">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
+  <p style="margin-top:18px">O que vem agora são quatro erros que eu cometi montando esta aula, e o que exatamente pegou cada um deles.</p>
 </section>
 
 <!-- 08 -->
-<section class="slide" data-min="10" data-nota="Cada barrinha é uma grafia diferente do mesmo posto de gasolina. Avance o fragmento e mostre as 70 virando uma. A raiz do CNPJ (8 primeiros dígitos) é o que une.">
-  <div class="rotulo">defeito 3 de 3</div>
-  <h2>Setenta fornecedores que são um só.</h2>
+<section class="slide" data-min="12" data-nota="Estorno = devolução, valor líquido negativo. Se você soma tudo junto, o estorno abate o gasto de quem não gastou. A decisão de tirar da soma é legítima; escondê-la não é.">
+  <div class="rotulo">defeito que não é defeito</div>
+  <h2>56.912 linhas com valor negativo.</h2>
+  <p>São estornos: dinheiro devolvido. Somados junto com o resto, abatem o gasto de quem não gastou.</p>
+  <p class="frag">Apagar resolveria a soma e perderia a informação. Na silver eles viram uma coluna <code>eh_estorno</code>, ficam onde estão, e cada pergunta decide se conta com eles. A gold, que responde "quanto saiu", conta sem.</p>
+</section>
+
+<!-- 09 -->
+<section class="slide" data-min="14" data-nota="Cada barrinha é uma grafia diferente do mesmo posto. Avance o fragmento e mostre as 70 virando uma. A raiz do CNPJ — os 8 primeiros dígitos — é o que une, porque filial muda os 4 do meio.">
+  <div class="rotulo">a mesma empresa, setenta vezes</div>
+  <h2>Setenta fornecedores que são um posto só.</h2>
   <div class="grafias" style="margin-top:22px">
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
@@ -217,125 +260,89 @@ body.notas #notas{display:block}
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
     <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
   </div>
-  <div class="uma frag"><b></b><span>CASCOL — R$ 1.067.822 — mesma raiz de CNPJ</span></div>
-  <p class="frag">Nenhum pedaço era grande o bastante para aparecer sozinho. Juntos, mudam o pódio.</p>
-</section>
-
-<!-- 09 -->
-<section class="slide justo" data-min="12" data-nota="Construa o desenho no ritmo da fala. f0 é só o CSV. Depois entra o armazenamento, depois as três tabelas Delta. Não avance antes de terminar a frase.">
-  <div class="rotulo">o conserto precisa de um lugar para morar</div>
-  <svg viewBox="0 0 1160 470" width="1160" height="470">
-    <defs>
-      <marker id="p" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#0F2547"/></marker>
-      <marker id="po" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
-        <path d="M0,0 L9,4.5 L0,9 z" fill="#D6541F"/></marker>
-    </defs>
-    <g>
-      <rect class="cx" x="10" y="180" width="185" height="82" rx="4"/>
-      <text class="tt" x="30" y="212">Ano-2025.csv</text>
-      <text class="tp" x="30" y="236">74,5 MB · 32 COLUNAS</text>
-      <text class="tp" x="30" y="254">CAMARA.LEG.BR</text>
-    </g>
-    <g class="frag">
-      <path class="seta" d="M200 221 H 258"/>
-      <rect class="slab" x="270" y="150" width="880" height="140" rx="6"/>
-      <text class="ts" x="290" y="176">ARMAZENAMENTO · CONTAINER minio</text>
-      <rect class="cx" x="290" y="190" width="230" height="78" rx="4"/>
-      <text class="tt" x="308" y="220">MinIO</text>
-      <text class="tp" x="308" y="244">s3a://lake</text>
-    </g>
-    <g class="frag">
-      <rect class="cx" x="548" y="190" width="180" height="78" rx="4"/>
-      <text class="tt" x="566" y="220">bronze</text>
-      <text class="tp" x="566" y="244">COMO VEIO</text>
-      <rect class="cx" x="748" y="190" width="180" height="78" rx="4"/>
-      <text class="tt" x="766" y="220">silver</text>
-      <text class="tp" x="766" y="244">CONSERTADO</text>
-      <rect class="cx" x="948" y="190" width="180" height="78" rx="4"/>
-      <text class="tt" x="966" y="220">gold</text>
-      <text class="tp" x="966" y="244">A RESPOSTA</text>
-      <text class="tn" x="548" y="316">três tabelas Delta — arquivo Parquet + um log de transações</text>
-    </g>
-  </svg>
+  <div class="uma frag"><b></b><span>CASCOL — R$ 5.522.621 nos sete anos — uma raiz de CNPJ</span></div>
+  <p class="frag">Nenhuma grafia isolada era grande o bastante para aparecer no pódio. Juntas, entram em décimo.</p>
 </section>
 
 <!-- 10 -->
-<section class="slide" data-min="14" data-nota="Esta tela é real: é o mc ls do MinIO depois do ETL. Aponte para o _delta_log. É o que transforma uma pasta de Parquet numa tabela.">
-  <div class="rotulo">tela 1 · o que uma tabela Delta é por dentro</div>
-  <div class="janela">
-    <div class="barra"><i></i><i></i><i></i><span>mc ls — container minio · s3a://lake</span></div>
-    <div class="corpo">
-<div><span class="p">$</span> mc ls --recursive local/lake/</div>
-<div>&nbsp;</div>
-<div><span class="a">bronze/</span> _delta_log/00000000000000000000.json <span class="c">2.1 KiB</span></div>
-<div><span class="a">bronze/</span> part-00000-....snappy.parquet <span class="c">17 MiB</span></div>
-<div><span class="a">silver/</span> _delta_log/00000000000000000000.json <span class="c">3.4 KiB</span></div>
-<div><span class="a">silver/</span> part-00000-....snappy.parquet <span class="c">6.1 MiB</span></div>
-<div><span class="a">gold/</span>&nbsp;&nbsp; _delta_log/00000000000000000000.json <span class="c">1.7 KiB</span></div>
-<div><span class="a">gold/</span>&nbsp;&nbsp; part-00000-....snappy.parquet <span class="c">1.2 MiB</span></div>
+<section class="slide" data-min="16" data-nota="Este é o caso que junta todos os defeitos numa linha só, e é recente o bastante para a plateia rir. Mesma assinatura, dois documentos, duas categorias, dois deputados.">
+  <div class="rotulo">uma assinatura de ChatGPT, dois universos</div>
+  <div class="dois">
+    <div class="col">
+      <div class="onde">2023</div>
+      <h3 style="font-family:var(--mono);font-size:26px">00000000000010</h3>
+      <p style="font-size:19px;margin-top:10px"><b>ChatGPT Plus Subscription</b><br>R$ 98,93, com R$ 56,06 de glosa<br>categoria: manutenção de escritório</p>
+    </div>
+    <div class="col">
+      <div class="onde">2025</div>
+      <h3 style="font-family:var(--mono);font-size:26px;color:var(--laranja)">62531071000178</h3>
+      <p style="font-size:19px;margin-top:10px"><b>chatGPT</b><br>R$ 999,90<br>categoria: manutenção de escritório</p>
     </div>
   </div>
-  <div class="legenda frag">Uma pasta de Parquet mais <b>um log de transações</b>. É esse log que dá à pasta as coisas que você espera de uma tabela: escrita atômica, leitura consistente e histórico.</div>
+  <p class="frag" style="margin-top:22px">O documento da esquerda tem 14 dígitos e passa em qualquer validação de CNPJ. Ele é uma gaveta interna da Câmara, e naquele mesmo ano a mesma assinatura também foi lançada como <b>assinatura de publicações</b>, por R$ 105,03.</p>
 </section>
 
 <!-- 11 -->
-<section class="slide" data-min="16" data-nota="Medalhão. O ponto que importa: o bronze existe porque a sua regra de limpeza vai estar errada uma hora, e aí você precisa do original.">
-  <div class="rotulo">por que três camadas e não uma</div>
+<section class="slide" data-min="18" data-nota="Agora a estrutura, e só agora. Construa o desenho no ritmo da fala: f0 é o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora.">
+  <div class="rotulo">onde o conserto vai morar</div>
   <div class="dois" style="grid-template-columns:1fr 1fr 1fr;gap:18px">
     <div class="col"><div class="onde">CAMADA 1</div><h3>bronze</h3>
-      <p style="font-size:19px;margin-top:10px">Como a Câmara publicou. Tudo texto. Nada consertado.</p></div>
+      <p style="font-size:19px;margin-top:10px">Como a Câmara publicou. Tudo texto, nada consertado. 1.560.019 linhas.</p></div>
     <div class="col"><div class="onde">CAMADA 2</div><h3>silver</h3>
-      <p style="font-size:19px;margin-top:10px">Tipos certos, defeitos marcados em colunas. Nada apagado.</p></div>
+      <p style="font-size:19px;margin-top:10px">Tipos certos e sete colunas de defeito marcado. Nenhuma linha some.</p></div>
     <div class="col"><div class="onde">CAMADA 3</div><h3>gold</h3>
-      <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 19.441 empresas, uma linha cada.</p></div>
+      <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ.</p></div>
   </div>
-  <div class="fecho frag" style="margin-top:26px">O bronze não é desperdício: é o seguro. <b>Sua regra de limpeza vai estar errada uma hora</b> — e aí o bronze é o único jeito de refazer sem pedir o arquivo de novo.</div>
+  <div class="fecho frag" style="margin-top:26px">Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara <b>republica os CSVs com correções</b>, então o arquivo de hoje não é o de ontem.</div>
 </section>
 
 <!-- 12 -->
-<section class="slide" data-min="18" data-nota="A mesma pergunta, nas duas pontas. Rode isso ao vivo se a internet deixar; o screencast é o plano B.">
-  <div class="rotulo">tela 2 · a mesma pergunta, nas duas pontas</div>
+<section class="slide" data-min="20" data-nota="A mesma pergunta nas duas pontas. Rode ao vivo se a internet deixar; o screencast é o plano B. Aponte que a de cima é o script do slide 3, só que em SQL.">
+  <div class="rotulo">a mesma pergunta, nas duas pontas</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — container spark-master</span></div>
     <div class="corpo">
 <div><span class="p">spark-sql&gt;</span> SELECT txtFornecedor, sum(vlrDocumento) t</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="v">bronze</span>` GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="v">bronze</span>` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
 <div class="v">TAM 16.402.463,26 &nbsp; GOL 6.052.550,88 &nbsp; AZUL 4.696.245,04</div>
 <div>&nbsp;</div>
 <div><span class="p">spark-sql&gt;</span> SELECT fornecedor, total</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="a">gold</span>` ORDER BY total DESC LIMIT 3;</div>
-<div class="a">FACEBOOK 3.251.951,87 &nbsp; PANTANAL 3.227.314,77 &nbsp; TELEFÔNICA 1.591.715,84</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM fornecedores WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3;</div>
+<div class="a">FACEBOOK 3.251.951,87 &nbsp; PANTANAL 3.227.314,77 &nbsp; VIVO 1.591.715,84</div>
     </div>
   </div>
-  <div class="legenda frag">Mesmo arquivo. Mesma pergunta. <b>Nenhum nome se repete entre as duas listas.</b></div>
+  <div class="legenda frag">Mesmo arquivo, mesma pergunta, nenhum nome repetido entre as duas listas.</div>
 </section>
 
 <!-- 13 -->
-<section class="slide" data-min="20" data-nota="Este é o clímax. Silêncio antes do fragmento. Não foi o dado que mudou — foi o cuidado.">
-  <div class="rotulo">a resposta, depois das três camadas</div>
+<section class="slide" data-min="22" data-nota="Clímax. Silêncio antes do fragmento. E seja honesto no fragmento: nos sete anos a lista muda, e o motivo é o slide 6.">
+  <div class="rotulo">a resposta, em 2025</div>
   <div class="gigante certo">R$ 3,25 mi</div>
   <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
-  <p class="frag" style="margin-top:36px">Não foi o dado que mudou. <b>Foi o cuidado.</b></p>
+  <p class="frag" style="margin-top:32px">Nos sete anos somados a lista volta a começar com companhia aérea, e dessa vez está certo: até 2022 a Câmara lançava o voo <b>com</b> CNPJ. A resposta depende do ano porque o dado mudou de forma, e é por isso que o ano é uma partição e não um filtro solto no meio de um script.</p>
 </section>
 
 <!-- 14 -->
-<section class="slide" data-min="22" data-nota="Aconteceu de verdade montando esta aula. DuckDB achou 209.066, Spark achou 209.079. Nenhum dos dois com bug: multiLine é false no Spark e true no DuckDB.">
-  <div class="rotulo">um erro que eu cometi montando esta aula</div>
-  <h2>Dois motores, o mesmo arquivo, contagens diferentes.</h2>
-  <div class="dois" style="margin-top:20px">
-    <div class="col"><div class="onde">DUCKDB</div><h3 style="font-family:var(--mono)">209.066</h3>
-      <p style="font-size:19px;margin-top:8px"><code>multiLine</code> é <b>true</b> por padrão</p></div>
-    <div class="col"><div class="onde">APACHE SPARK</div>
-      <h3 style="font-family:var(--mono);color:var(--laranja)">209.079</h3>
-      <p style="font-size:19px;margin-top:8px"><code>multiLine</code> é <b>false</b> por padrão</p></div>
+<section class="slide" data-min="24" data-nota="O coração da aula. São quatro erros meus, não hipotéticos. Leia os quatro e depois o fragmento. Se estiver atrasado, corte o quarto.">
+  <div class="rotulo">quatro erros meus, e o que pegou cada um</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>o que aconteceu montando esta aula</span></div>
+    <div class="corpo" style="padding-bottom:10px">
+      <table>
+        <tr><th>O ERRO</th><th>O QUE PEGOU</th></tr>
+        <tr><td>regra de glosa acusou 53.112 linhas boas</td><td class="a">o relatório conta, não filtra</td></tr>
+        <tr><td>a mesma empresa com nome diferente a cada execução</td><td class="a">rodar duas vezes e comparar</td></tr>
+        <tr><td>soma saindo como <span class="d">4.99577E7</span> na tela</td><td class="a">tipo decimal na gold</td></tr>
+        <tr><td><span class="v">R$ 15,1 mi de um fornecedor que não existe</span></td><td class="a">consultar a gold antes de crer</td></tr>
+      </table>
+    </div>
   </div>
-  <div class="fecho frag">13 registros têm quebra de linha <b>dentro</b> de um campo entre aspas. Nenhum motor está com defeito: os padrões é que são diferentes. <b>“O dado está certo” não é propriedade do arquivo — é do arquivo mais de quem lê.</b></div>
+  <div class="legenda frag">O quarto ia para este slide. Ramal, celular funcional e Correios compartilham a raiz <code>00000000</code>, viraram uma empresa só e apareceram em quarto lugar. Os catorze dígitos batem, inclusive os verificadores. Formato válido e significado válido são coisas diferentes.</div>
 </section>
 
 <!-- 15 -->
-<section class="slide" data-min="24" data-nota="A v0 da tabela guardou o erro. Consulte-a ao vivo. É o argumento de guardar o bronze cru, demonstrado em vez de afirmado.">
-  <div class="rotulo">tela 3 · o erro continua consultável</div>
+<section class="slide" data-min="27" data-nota="Aconteceu de verdade: DuckDB contou 209.066 e Spark contou 209.079, porque multiLine é true num e false no outro. A v0 guardou o erro. Consulte ao vivo.">
+  <div class="rotulo">o erro continua consultável</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — DESCRIBE HISTORY</span></div>
     <div class="corpo" style="padding-bottom:8px">
@@ -348,12 +355,29 @@ body.notas #notas{display:block}
       <div class="v">209079</div>
     </div>
   </div>
-  <div class="legenda frag">O erro não foi apagado — <b>ele virou uma versão</b>. Errou a limpeza? Volta, compara, conserta. E ninguém precisa baixar 74 MB da Câmara de novo.</div>
+  <div class="legenda frag">Treze linhas têm quebra de linha dentro de um campo entre aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a versão 0, e dá para voltar nela agora.</div>
 </section>
 
 <!-- 16 -->
-<section class="slide justo" data-min="26" data-nota="Agora o desenho completo. O worker 3 nasce tracejado de propósito: ele vai subir de verdade no próximo slide.">
-  <div class="rotulo">a arquitetura inteira — tudo em containers</div>
+<section class="slide" data-min="29" data-nota="Slide curto. O ponto: dois destes testes existem porque os bugs aconteceram. Teste em engenharia de dados é sobre a regra, não sobre o framework.">
+  <div class="rotulo">o que impede a volta</div>
+  <h2>21 testes, e dois deles têm nome de cicatriz.</h2>
+  <div class="janela" style="margin-top:14px">
+    <div class="barra"><i></i><i></i><i></i><span>pytest /opt/testes</span></div>
+    <div class="corpo">
+<div><span class="a">PASSED</span> test_estorno_nao_conta_como_glosa_maior</div>
+<div><span class="a">PASSED</span> test_raiz_zerada_nao_e_empresa</div>
+<div><span class="a">PASSED</span> test_raiz_de_verdade_nao_e_confundida</div>
+<div><span class="c">...</span></div>
+<div><span class="a">21 passed</span> in 11.09s</div>
+    </div>
+  </div>
+  <div class="legenda frag">Rodam sem MinIO e sem cluster, numa SparkSession local, em 11 segundos. O que eles testam não é o Spark: é se a regra de negócio ainda significa o que eu quis dizer.</div>
+</section>
+
+<!-- 17 -->
+<section class="slide justo" data-min="30" data-nota="Agora o desenho completo. O worker 3 nasce tracejado porque vai subir de verdade: docker compose up -d --scale spark-worker=3, com o Spark UI aberto noutra aba.">
+  <div class="rotulo">a sala de máquinas — tudo em containers</div>
   <svg viewBox="0 0 1160 480" width="1160" height="480">
     <defs>
       <marker id="p2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
@@ -388,35 +412,19 @@ body.notas #notas{display:block}
     <text class="tp" x="48" y="356">BUCKET lake</text>
     <rect class="cx" x="296" y="302" width="200" height="78" rx="4"/>
     <text class="tt" x="314" y="332">bronze</text>
-    <text class="tp" x="314" y="356">209.066 LINHAS</text>
+    <text class="tp" x="314" y="356">1.560.019 LINHAS</text>
     <rect class="cx" x="522" y="302" width="200" height="78" rx="4"/>
     <text class="tt" x="540" y="332">silver</text>
     <text class="tp" x="540" y="356">DEFEITOS MARCADOS</text>
     <rect class="cx" x="748" y="302" width="200" height="78" rx="4"/>
     <text class="tt" x="766" y="332">gold</text>
-    <text class="tp" x="766" y="356">19.441 EMPRESAS</text>
+    <text class="tp" x="766" y="356">55.672 EMPRESAS</text>
     <text class="tn" x="30" y="446">o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.</text>
   </svg>
 </section>
 
-<!-- 17 -->
-<section class="slide" data-min="28" data-nota="RODE DE VERDADE. Deixe o Spark UI (localhost:8080) aberto numa aba e mostre passar de 2 para 3. Se a demo falhar, o screencast está em deck/.">
-  <div class="rotulo">tela 4 · mais máquina, sem tocar no dado</div>
-  <div class="janela">
-    <div class="barra"><i></i><i></i><i></i><span>docker compose — ao vivo</span></div>
-    <div class="corpo">
-<div><span class="p">$</span> docker compose up -d --scale spark-worker=3</div>
-<div class="c"> ✔ Container semuni-spark-worker-3  Started   0.9s</div>
-<div>&nbsp;</div>
-<div><span class="p">$</span> curl -s localhost:8080 | grep -c "ALIVE"</div>
-<div class="a">3</div>
-    </div>
-  </div>
-  <div class="legenda frag">Uma linha, um worker novo, <b>e o dado não se mexeu.</b> Isso só é possível porque o dado nunca esteve dentro do Spark. É essa separação que faz o resto funcionar.</div>
-</section>
-
 <!-- 18 -->
-<section class="slide justo" data-min="30" data-nota="Tom neutro aqui. Não é laptop contra nuvem. É o mesmo software, rodando em dois lugares. O código não muda.">
+<section class="slide justo" data-min="31" data-nota="Tom neutro. É o mesmo software rodando em dois lugares, e o código não muda. Não deprecie nenhum lado: estamos num Seminário em Cloud e a comparação é honesta.">
   <div class="rotulo">o mesmo desenho, com o nome que ele tem na nuvem</div>
   <svg viewBox="0 0 1160 430" width="1160" height="430">
     <rect class="slab" x="10" y="20" width="1140" height="140" rx="6"/>
@@ -444,7 +452,7 @@ body.notas #notas{display:block}
 </section>
 
 <!-- 19 -->
-<section class="slide" data-min="32" data-nota="Slide mais importante do fim. Os dois lados têm bolinha verde. Não deprecie nenhum. A escolha é de contexto, não de virtude.">
+<section class="slide" data-min="32" data-nota="Os dois lados têm bolinha verde. A escolha é de contexto, não de virtude. Se alguém perguntar qual é o melhor, a resposta é depende do que está na coluna da direita.">
   <div class="rotulo">quando cada um faz sentido</div>
   <div class="dois">
     <div class="col">
@@ -455,7 +463,6 @@ body.notas #notas{display:block}
         <li>o dado cabe confortavelmente numa máquina</li>
         <li>o ciclo curto importa: subiu, errou, refez em minutos</li>
         <li>o dado não pode sair da sua rede</li>
-        <li>o custo precisa ser previsível</li>
       </ul>
     </div>
     <div class="col">
@@ -464,20 +471,19 @@ body.notas #notas{display:block}
       <ul>
         <li>o dado não cabe mais numa máquina só</li>
         <li>você precisa de 200 máquinas por 20 minutos</li>
-        <li>durabilidade e backup viram contrato, não tarefa sua</li>
         <li>o time é pequeno e o plantão não pode ser você</li>
         <li>outras equipes precisam do mesmo dado, com governança</li>
       </ul>
     </div>
   </div>
-  <div class="fecho frag">Não é um contra o outro. É o <b>mesmo Spark</b> e o <b>mesmo Delta</b> — o que muda é quem opera, e quanto disso você quer no seu prato.</div>
+  <div class="fecho frag">É o mesmo Apache Spark e o mesmo Delta Lake dos dois lados. O que muda é quem opera a infraestrutura.</div>
 </section>
 
 <!-- 20 -->
-<section class="slide" data-min="34" data-nota="Feche com o convite concreto. O repositório sobe em um comando. Depois abra para as perguntas — são 10 minutos.">
+<section class="slide" data-min="33" data-nota="Fecho curto. O repositório sobe em dois comandos. Depois abra para as perguntas — são 10 minutos.">
   <div class="rotulo">para levar para casa</div>
-  <h2 style="max-width:21ch">O caminho até a nuvem começa num <code>docker compose up</code>.</h2>
-  <p>Tudo que você viu hoje é software aberto: MinIO, Apache Spark, Delta Lake, Docker — e um CSV público da Câmara. Roda no seu laptop hoje, e <b>o mesmo código sobe na nuvem no dia em que o dado crescer.</b></p>
+  <h2 style="max-width:23ch">O script do slide 3 continua certo. Ele só precisava de um lugar para morar.</h2>
+  <p>Tudo que você viu é software aberto — MinIO, Apache Spark, Delta Lake, Docker — e um CSV público da Câmara. Roda no seu laptop hoje e sobe na nuvem no dia em que o dado crescer, sem reescrever a regra.</p>
   <p style="font-family:var(--mono);font-size:20px;color:var(--tinta);margin-top:24px">
     make subir &nbsp;&nbsp;·&nbsp;&nbsp; make pipeline</p>
 </section>
@@ -495,7 +501,7 @@ body.notas #notas{display:block}
   slides.forEach(function(s,k){
     var rod=document.createElement('div'); rod.className='rodape';
     rod.innerHTML='<span>'+String(k+1).padStart(2,'0')+'/'+total+'</span>'
-                 +'<span>COTA PARLAMENTAR 2025 &nbsp;·&nbsp; SEMUNI 2026 — UnB</span>';
+                 +'<span>COTA PARLAMENTAR 2019–2025 &nbsp;·&nbsp; SEMUNI 2026 — UnB</span>';
     s.appendChild(rod);
   });
 
