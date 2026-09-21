@@ -16,7 +16,7 @@ src/pipeline/      o pipeline, uma camada por arquivo
   consulta.py      SQL ad-hoc e DESCRIBE HISTORY, para projetar ao vivo
 testes/            21 testes das transformações, sem MinIO e sem cluster
 apresentacao/      o deck HTML e o script que mede se algo estourou
-beamer/            a mesma aula em LaTeX/Beamer, para quem prefere PDF
+beamer/            a mesma aula em LaTeX/Beamer (ver "Ainda falta")
 docker/            Dockerfile do cluster e o script que baixa os jars
 dados/             os CSVs da Câmara (fora do git; `make ingestao` rebaixa)
 ```
@@ -71,7 +71,8 @@ Duas versões da **mesma** aula. Escolha uma e leve só ela:
 
 - **`apresentacao/aula.html`** — abre no navegador, arquivo único, 36 KB, sem internet
   e sem servidor. Tem relógio de palco e fragmentos ao vivo.
-- **`beamer/`** — projeto LaTeX/Beamer para subir no Overleaf. Instruções em
+- **`beamer/`** — a mesma aula em LaTeX/Beamer, para subir no Overleaf. Hoje
+  compila em 34 páginas, mas duplica o texto do deck HTML. Instruções em
   `beamer/README.md`.
 
 São 20 slides nos dois casos, e o último mira o minuto 34.
@@ -224,6 +225,20 @@ fragmentos revelados (o pior caso de altura). Abaixo de 14px o slide está encos
 Depois repete a conta para seis resoluções de projetor e confere que o palco cabe
 inteiro na tela — em 16:9 exato tem que dar tela cheia, sem sobra.
 
+### O PDF do pendrive
+
+    make pdf
+
+Fotografa os 20 slides num chromium headless a 3840×2160 e costura um PDF de 20
+páginas em `apresentacao/aula.pdf` (~12 MB). Cada página sai com todos os fragmentos
+revelados, porque PDF não anima e uma página por fragmento viraria 34 páginas que
+ninguém folheia. Quem apresenta usa o HTML, que tem a construção ao vivo; o PDF é o
+que vai no pendrive e no e-mail da organização.
+
+Ele cai na mesma armadilha do `conferir.py` se você mexer: trocar só o hash **não**
+recarrega a página, e sem o `reload()` o export sai com o slide 1 vinte vezes. Por
+isso os dois asserts depois de cada navegação.
+
 Três armadilhas que o script já cobre: `goto('#7')` **não recarrega** quando só o hash
 muda (sem `reload()` você mede o slide 1 vinte vezes), elemento SVG **não tem
 `offsetTop`** (sem `getBoundingClientRect` os slides de diagrama medem zero), e medir
@@ -233,20 +248,17 @@ todos os slides passando no teste.
 
 ## Ainda falta
 
-- [ ] **`beamer/main.tex` não compila.** Os fontes originais se perderam e a recuperação
-      pelo transcript veio incompleta: falta a macro `\frase`, usada no slide 5. Enquanto
-      isso, `beamer/main.pdf` (34 páginas, compilado antes da perda) continua válido.
 - [ ] **Refazer o notebook.** O antigo era inteiro em DuckDB, apontava para `../data/`
       (que não existe mais) e fechava com "custo total desta aula: R$ 0,00" e "o que a
       nuvem vende não é o motor" — as duas frases que você já tinha vetado. Está na
       lixeira do job, não no repo. O novo deve ler a `gold` que o pipeline escreve.
-- [ ] Levar os sete anos para os slides — hoje o deck só fala de 2025
-- [ ] Soltar a prosa do deck: 16 dos 20 slides terminam em aforismo e o "não é A — é B"
-      aparece 9 vezes. Está lido como texto de IA, e é
+- [ ] **Ensaiar cronometrado com `t` ligado.** A reescrita levou o corpo de 966 para
+      1.261 palavras e os `data-min` são estimativa, não medição. Se estourar: o slide
+      14 aguenta perder o quarto erro e o 16 sai inteiro sem furar o arco.
 - [ ] Screencast de 90s do bloco remoto, como plano B se a demo travar
-- [ ] Ensaiar cronometrado com `t` ligado, e ajustar os `data-min` que não baterem
-- [ ] Decidir qual versão vai para o projetor (HTML ou PDF) e levar só uma
+- [ ] **Decidir se `beamer/` continua.** O `make pdf` já produz `apresentacao/aula.pdf`
+      a partir do mesmo HTML, que era a única coisa que o Beamer fazia e o deck não.
+      Manter os dois é manter dois textos em sincronia na mão — eles já divergiram uma
+      vez. O diretório está versionado, então apagar dá para desfazer.
 - [ ] Preencher a planilha da professora com título e minibio
 - [ ] Confirmar as certificações antes de deixar a minibio ir para a leitura em voz alta
-- [ ] **Versionar este diretório.** Ele não é um repositório git, e os fontes do Beamer
-      já sumiram uma vez por causa disso.
