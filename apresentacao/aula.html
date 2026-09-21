@@ -450,7 +450,7 @@ body.notas #notas{display:block}
 
 <!-- 17 -->
 <section class="slide justo" data-min="30" data-nota="Agora o desenho completo. O worker 3 nasce tracejado porque vai subir de verdade: docker compose up -d --scale spark-worker=3, com o Spark UI aberto noutra aba.">
-  <div class="rotulo">a sala de máquinas — tudo em containers</div>
+  <div class="rotulo">processamento separado do armazenamento</div>
   <svg viewBox="0 0 1160 480" width="1160" height="480">
     <defs>
       <marker id="p2" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
@@ -493,9 +493,10 @@ body.notas #notas{display:block}
     <text class="tt" x="766" y="332">gold</text>
     <text class="tp" x="766" y="356">55.672 EMPRESAS</text>
     <text class="tn" x="30" y="446">o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.</text>
+    <text class="tp" x="30" y="468">NA NUVEM ISSO SE CHAMA “COMPUTE E STORAGE SEPARADOS”, E É O QUE DEIXA O DESENHO PORTÁVEL</text>
   </svg>
   <div class="termos">
-    <span><b>container</b>um processo isolado, com o sistema de arquivos e as dependências dele junto. Cada caixa aqui é um.</span>
+    <span><b>compute e storage separados</b>quem processa e quem guarda são serviços distintos. Escalar um não obriga a escalar o outro.</span>
     <span><b>object storage</b>guarda o arquivo inteiro endereçado por um nome, em vez de blocos como um disco. É o que MinIO e S3 fazem.</span>
   </div>
 </section>
@@ -528,6 +529,7 @@ body.notas #notas{display:block}
   </svg>
   <div class="termos">
     <span><b>endpoint</b>o endereço do serviço de armazenamento. É a linha de configuração que muda entre rodar aqui e rodar na AWS.</span>
+    <span><b>elasticidade</b>pedir máquina quando precisa e devolver depois. O worker 3 do slide anterior sobe ao vivo; na nuvem são 200, e o código é o mesmo.</span>
   </div>
 </section>
 
