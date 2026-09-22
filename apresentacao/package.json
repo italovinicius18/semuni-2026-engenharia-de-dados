@@ -1,0 +1,7 @@
+{
+  "name": "semuni-2026-apresentacao",
+  "private": true,
+  "description": "gera aula.pptx a partir do mesmo conteudo do deck HTML — `make pptx`",
+  "scripts": { "build": "node pptx.js" },
+  "dependencies": { "pptxgenjs": "^4.0.0" }
+}

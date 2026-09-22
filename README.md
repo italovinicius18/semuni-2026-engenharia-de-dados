@@ -66,11 +66,21 @@ camadas de Spark só quando vai usá-las.
 
 ## Apresentar
 
-Uma versão só, e é a que se projeta: **`apresentacao/aula.html`**. Arquivo único,
-41 KB, abre no navegador sem internet e sem servidor, com relógio de palco,
-fragmentos ao vivo e notas do apresentador.
+O que se projeta é **`apresentacao/aula.html`**: arquivo único, 48 KB, abre no
+navegador sem internet e sem servidor, com relógio de palco, fragmentos ao vivo e
+notas do apresentador.
 
-São 20 slides, e o último mira o minuto 34.
+Para quem pedir PowerPoint existe **`apresentacao/aula.pptx`**, gerado por
+`make pptx` a partir de `apresentacao/pptx.js` com o mesmo conteúdo, slide a
+slide, e as mesmas notas no campo de notas. Segue o que a Microsoft recomenda para
+um arquivo que abre em qualquer Office: 16:9, Calibri e Courier New (vêm com o
+Office, nada para instalar), título 32–48 pt, corpo 14–18 pt, margem de 0,6". O
+que não viaja para lá são os fragmentos — PowerPoint gerado por script não tem
+animação, então cada slide mostra tudo de uma vez, e a nota diz onde era a pausa.
+Os dois arquivos saem do mesmo texto; quando mudar o HTML, rode `make pptx` de
+novo e os dois voltam a bater.
+
+São 20 slides nos dois, e o último mira o minuto 34.
 
 Atalhos da versão HTML:
 
@@ -240,6 +250,7 @@ grafia que calhasse de vir na primeira partição, então a mesma empresa aparec
 - `cabecalho.html` — tokens de design e CSS (papel de engenharia + terminal)
 - `slides.html` — os 20 slides; `data-nota` vira nota, `data-min` vira minuto-alvo
 - `rodape.html` — navegação, relógio, escala do palco 1280×720, notas
+- `pptx.js` — o mesmo conteúdo em PowerPoint; `make pptx` instala o `pptxgenjs` e gera `aula.pptx`
 
 O tema é escuro, e a razão é o conteúdo: sete dos vinte slides são janela de
 terminal. No tema claro anterior elas eram retângulos pretos colados num papel

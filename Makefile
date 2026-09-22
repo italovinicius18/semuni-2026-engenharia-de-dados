@@ -16,7 +16,7 @@ NO_CLUSTER := docker compose exec -T \
 NO_LAPTOP  := S3_ENDPOINT=http://localhost:9000 PYTHONPATH=src $(PYTHON) -m pipeline
 
 .PHONY: preparar jars subir descer pipeline ingestao bronze silver gold ano \
-        consultar historico slides conferir teste limpar
+        consultar historico slides conferir pptx teste limpar
 
 preparar:
 	python3 -m venv .venv
@@ -76,6 +76,14 @@ slides:
 
 conferir:
 	$(PYTHON) apresentacao/conferir.py
+
+# a mesma aula em PowerPoint, para quem pedir .pptx. o HTML continua sendo o
+# que se projeta; este e o arquivo do e-mail e do pendrive
+pptx: apresentacao/node_modules
+	cd apresentacao && node pptx.js
+
+apresentacao/node_modules: apresentacao/package.json
+	cd apresentacao && npm install --silent
 
 # os testes rodam no cluster pela mesma razao que o pipeline: e la que existe
 # uma SparkSession com o Delta no classpath

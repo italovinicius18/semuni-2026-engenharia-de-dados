@@ -8,3 +8,6 @@ __pycache__/
 dados/
 # jars do hadoop-aws/delta baixados pelo docker/baixar-jars.sh
 jars/
+
+# o gerador do .pptx instala o pptxgenjs aqui
+apresentacao/node_modules/
