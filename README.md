@@ -101,9 +101,13 @@ erradas** — e o primeiro ato entrega as três, porque o caminho ad-hoc só
 convence se for mostrado inteiro, e não como espantalho.
 
 **Resposta 1 (slides 3–4).** O script que todo mundo escreve: oito linhas de
-pandas, `groupby` no nome do fornecedor, `head(10)`. Roda até o fim e devolve um
-pódio em que **o primeiro e o terceiro lugar são a mesma companhia aérea**
-(`TAM` e `Cia Aérea - TAM`). Nenhum aviso, nenhuma exceção.
+pandas, `groupby` no nome do fornecedor, `head(10)`, sobre o `Ano-2025.csv`. Roda
+até o fim e devolve um pódio em que **o quinto e o oitavo lugar são a mesma
+empresa** (`Facebook Serviços Online do Brasil Ltda.` e `FACEBOOK SERVIÇOS ONLINE
+DO BRASIL LTDA`). Nenhum aviso, nenhuma exceção. O primeiro ato inteiro fica em
+2025 de propósito: os números do slide 4 ao 6 são contínuos (TAM 16,40 → 17,40 mi
+depois do conserto), e os sete anos só entram no slide 7, como a revelação de que
+o chão andou.
 
 **Resposta 2 (slides 5–6).** O que de fato acontece depois: o analista vê o erro
 e conserta. Entra um dicionário de apelidos e uma normalização de texto, e **o
@@ -122,12 +126,16 @@ ingênuo e um pipeline pronto, que não é comparação nenhuma.
 o mesmo `analise.py` sobre o `Ano-2025.csv` baixado em 04/09 e em 18/09 — 208.246
 linhas e TAM R$ 22,8 mi, depois 209.066 linhas e TAM R$ 16,4 mi. Mesma URL, mesmo
 script. É daí que a tese cai como conclusão, em vez de ser afirmada antes da
-prova. Os slides 9 e 10 seguem o mesmo idioma: o que está dentro dos R$ 116 mi
-da TAM (R$ 139,6 mi de passagem menos 22.071 devoluções) e um `grep chatgpt`
+prova. Os slides 12 e 13 seguem o mesmo idioma: o que está dentro dos R$ 16,4 mi
+da TAM em 2025 (R$ 22,8 mi de passagem menos 5.433 devoluções) e um `grep chatgpt`
 (58 linhas, nove grafias, 57 com o documento-gaveta `000.000.000/0001-0`).
 
-**Resposta 3 (slides 11–13).** O pipeline. Daí em diante cada peça da
-arquitetura entra porque pegou um erro concreto, e
+**Resposta 3 (slides 9–11).** O pipeline, e a resposta — com a honestidade de
+dizer que o script do slide 5 mais `df[df.txtCNPJCPF.notna()]` chega ao mesmo
+pódio. O pipeline não ganha pela resposta; ganha pelos slides 7, 14, 15 e 16.
+Depois da resposta vêm as regras que a sustentam (12, estorno; 13, o documento
+sentinela) e as que eu errei (14). Cada peça da arquitetura entra porque pegou
+um erro concreto, e
 todos os quatro são erros que eu cometi montando esta aula. O fecho é neutro:
 mapeia MinIO → S3/GCS/Blob e Spark → EMR/Dataproc/Databricks, e lista quando
 cada lado faz sentido, com quatro benefícios reais de cada. É o mesmo Apache

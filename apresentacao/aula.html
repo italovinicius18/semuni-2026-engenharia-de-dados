@@ -203,7 +203,7 @@ body.notas #notas{display:block}
     <div class="corpo">
 <div><span class="c">import</span> pandas <span class="c">as</span> pd</div>
 <div>&nbsp;</div>
-<div>df = pd.read_csv(<span class="a">"Ano-2025.csv"</span>, sep=<span class="a">";"</span>, encoding=<span class="a">"latin-1"</span>)</div>
+<div>df = pd.read_csv(<span class="a">"Ano-2025.csv"</span>, sep=<span class="a">";"</span>, encoding=<span class="a">"utf-8"</span>)</div>
 <div>&nbsp;</div>
 <div>top = (df.groupby(<span class="a">"txtFornecedor"</span>)[<span class="a">"vlrDocumento"</span>]</div>
 <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;.sum()</div>
@@ -221,21 +221,25 @@ body.notas #notas{display:block}
 </section>
 
 <!-- 04 -->
-<section class="slide" data-min="4" data-nota="Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então avance o fragmento. Se ninguém vir, aponte para a linha 1 e a linha 3.">
-  <div class="rotulo">a saída, nos sete anos</div>
-  <div class="janela">
+<section class="slide" data-min="4" data-nota="Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então avance o fragmento. Se ninguém vir, aponte para a linha 5 e a linha 8.">
+  <div class="rotulo">a saída</div>
+  <div class="janela" style="max-width:780px">
     <div class="barra"><i></i><i></i><i></i><span>python analise.py</span></div>
-    <div class="corpo">
-<div><span class="v">TAM</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ 116.350.000</div>
-<div>GOL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ &nbsp;52.850.000</div>
-<div><span class="v">Cia Aérea - TAM</span> &nbsp;&nbsp;&nbsp;R$ &nbsp;43.430.000</div>
-<div>AZUL &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ &nbsp;37.530.000</div>
-<div>Cia Aérea - GOL &nbsp;&nbsp;&nbsp;R$ &nbsp;35.240.000</div>
-<div>PANTANAL VEÍCULOS &nbsp;R$ &nbsp;18.780.000</div>
+    <div class="corpo denso">
+      <table>
+        <tr><td class="d">TAM</td><td>R$ 16.402.463</td></tr>
+        <tr><td class="d">GOL</td><td>R$ 6.052.551</td></tr>
+        <tr><td class="d">AZUL</td><td>R$ 4.696.245</td></tr>
+        <tr><td class="d">PANTANAL VEÍCULOS LTDA</td><td>R$ 3.230.363</td></tr>
+        <tr><td class="v">Facebook Serviços Online do Brasil Ltda.</td><td>R$ 2.237.052</td></tr>
+        <tr><td class="d">HPE AUTOMOTORES DO BRASIL LTDA</td><td>R$ 1.475.070</td></tr>
+        <tr><td class="d">SUPREMA MOBILIDADE LTDA</td><td>R$ 1.430.533</td></tr>
+        <tr><td class="v">FACEBOOK SERVIÇOS ONLINE DO BRASIL LTDA</td><td>R$ 1.064.974</td></tr>
+      </table>
     </div>
   </div>
   <div class="carimbo frag">ERRADO</div>
-  <p class="frag" style="margin-top:22px">Primeiro e terceiro lugar são a mesma companhia aérea, escrita de dois jeitos. Segundo e quinto também. O script rodou até o fim, sem aviso nenhum.</p>
+  <p class="frag" style="margin-top:18px">Quinto e oitavo lugar são a mesma empresa, escrita de dois jeitos. O script rodou até o fim, sem aviso nenhum.</p>
 </section>
 
 <!-- 05 -->
@@ -290,7 +294,7 @@ body.notas #notas{display:block}
   <div class="rotulo">e o dado não fica parado</div>
   <h2 style="max-width:34ch">Lançamentos sem CNPJ, ano a ano.</h2>
   <div class="janela" style="margin-top:14px">
-    <div class="barra"><i></i><i></i><i></i><span>spark-sql — silver, agrupado por ano</span></div>
+    <div class="barra"><i></i><i></i><i></i><span>python analise.py — os sete anos, linhas sem CNPJ</span></div>
     <div class="corpo denso">
       <table>
         <tr><th>ANO</th><th>LANÇAMENTOS</th><th>SEM CNPJ</th><th>%</th></tr>
@@ -334,26 +338,80 @@ body.notas #notas{display:block}
 </section>
 
 <!-- 09 -->
-<section class="slide" data-min="14" data-nota="O 116 e o numero do slide 4. Mostre que ele ja e uma subtracao: 139 de passagem menos 23 de devolucao. Estorno = dinheiro devolvido. Apagar as negativas resolve a soma e perde a informacao.">
-  <div class="rotulo">o que está dentro dos R$ 116 milhões</div>
+<section class="slide" data-min="14" data-nota="Agora a estrutura, e só agora. Construa o desenho no ritmo da fala: f0 é o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora.">
+  <div class="rotulo">onde o conserto vai morar</div>
+  <div class="dois" style="grid-template-columns:1fr 1fr 1fr;gap:18px">
+    <div class="col"><div class="onde">CAMADA 1</div><h3>bronze</h3>
+      <p style="font-size:19px;margin-top:10px">Como a Câmara publicou. Tudo texto, nada consertado. 1.560.019 linhas.</p></div>
+    <div class="col"><div class="onde">CAMADA 2</div><h3>silver</h3>
+      <p style="font-size:19px;margin-top:10px">Tipos certos e sete colunas de defeito marcado. Nenhuma linha some.</p></div>
+    <div class="col"><div class="onde">CAMADA 3</div><h3>gold</h3>
+      <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ.</p></div>
+  </div>
+  <div class="fecho frag" style="margin-top:26px">Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara <b>republica os CSVs com correções</b>, então o arquivo de hoje não é o de ontem.</div>
+  <div class="termos">
+    <span><b>raiz do CNPJ</b>os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores. É por ela que 55.672 empresas se somam.</span>
+    <span><b>chave natural</b>identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar.</span>
+    <span><b>camada</b>um estágio do pipeline que lê do lake e escreve no lake. Como cada uma fica gravada, dá para refazer só ela.</span>
+    <span><b>medalhão</b>o nome deste arranjo em três camadas. É convenção de nomes, não tecnologia: nada instala “medalhão”.</span>
+  </div>
+</section>
+
+<!-- 10 -->
+<section class="slide" data-min="16" data-nota="A mesma pergunta nas duas pontas. Rode ao vivo se a internet deixar; o screencast é o plano B. Aponte que a de cima é o script do slide 3, só que em SQL.">
+  <div class="rotulo">a mesma pergunta, nas duas pontas</div>
   <div class="janela">
-    <div class="barra"><i></i><i></i><i></i><span>python — a TAM do slide 4, nos sete anos</span></div>
+    <div class="barra"><i></i><i></i><i></i><span>spark-sql — container spark-master</span></div>
     <div class="corpo">
-<div><span class="p">&gt;&gt;&gt;</span> tam = df[df.txtFornecedor == <span class="a">"TAM"</span>].vlrDocumento</div>
-<div><span class="p">&gt;&gt;&gt;</span> tam[tam &gt; <span class="v">0</span>].sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">139.601.370</span></div>
-<div><span class="p">&gt;&gt;&gt;</span> tam[tam &lt; <span class="v">0</span>].sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="v">-23.254.073</span>&nbsp;&nbsp;&nbsp;<span class="c"># 22.071 linhas</span></div>
-<div><span class="p">&gt;&gt;&gt;</span> tam.sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">116.347.297</span>&nbsp;&nbsp;&nbsp;<span class="c"># o slide 4</span></div>
+<div><span class="p">spark-sql&gt;</span> SELECT txtFornecedor, sum(vlrDocumento) t</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="v">bronze</span>` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
+<div class="v">TAM 16.402.463,26 &nbsp; GOL 6.052.550,88 &nbsp; AZUL 4.696.245,04</div>
+<div>&nbsp;</div>
+<div><span class="p">spark-sql&gt;</span> SELECT fornecedor, total</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM fornecedores WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3;</div>
+<div class="a">FACEBOOK 3.251.951,87 &nbsp; PANTANAL 3.227.314,77 &nbsp; VIVO 1.591.715,84</div>
     </div>
   </div>
-  <div class="legenda frag">São estornos: passagem devolvida, lançada como valor negativo na mesma coluna do gasto. 53.112 linhas assim nos sete anos. Apagar resolve a soma e perde a informação. Marcar, numa coluna a mais, guarda as duas — e cada pergunta decide se conta com eles.</div>
+  <div class="legenda frag">Mesmo arquivo, mesma pergunta, nenhum nome repetido entre as duas listas.</div>
+  <div class="termos">
+    <span><b>SQL</b>a mesma pergunta do slide 3, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado.</span>
+    <span><b>s3a://</b>o jeito do Spark falar com armazenamento de objetos. Entre o MinIO daqui e o S3 da AWS muda o endereço, não a consulta.</span>
+  </div>
+</section>
+
+<!-- 11 -->
+<section class="slide" data-min="18" data-nota="Clímax. Silêncio antes do fragmento. E seja honesto: o pandas chega ao mesmo pódio, e é preciso dizer isso antes que alguém pergunte. O que ele não tem são os próximos slides. Nos sete anos a lista muda, e o motivo é o slide 7.">
+  <div class="rotulo">a resposta, em 2025</div>
+  <div class="gigante certo">R$ 3,25 mi</div>
+  <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
+  <p class="frag" style="margin-top:26px">O script do slide 5, com uma linha a mais — <code>df[df.txtCNPJCPF.notna()]</code> —, chega ao mesmo pódio. Ele dá R$ 3,30 mi e a gold 3,25 por duas razões que dá para nomear: ele soma a nota e a gold soma o reembolso; ele agrupa por nome e a gold por CNPJ, o que deixa de fora uma linha homônima de outra empresa.</p>
+  <p class="frag">Nos sete anos a lista volta a começar com companhia aérea — até 2022 o voo entrava <b>com</b> CNPJ. A regra não mudou; o dado mudou de forma. Por isso o ano é uma partição, e não um filtro solto no meio de um script.</p>
+  <div class="termos">
+    <span><b>partição</b>o dado fica em pastas por ano. Consultar um ano lê um ano, e reprocessar um ano reescreve um ano só.</span>
+  </div>
+</section>
+
+<!-- 12 -->
+<section class="slide" data-min="20" data-nota="O 16,4 e o numero do slide 4. Mostre que ele ja e uma subtracao: 22,8 de passagem menos 6,4 de devolucao. Os 22,8 sao o mesmo numero do slide 8, e e provavel que as 820 linhas novas sejam devolucoes — mas o arquivo de 04/09 nao esta guardado. Se perguntarem, diga que e provavel e nao medido.">
+  <div class="rotulo">o que está dentro dos R$ 16,4 milhões</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>python — a TAM do slide 4</span></div>
+    <div class="corpo">
+<div><span class="p">&gt;&gt;&gt;</span> tam = df[df.txtFornecedor == <span class="a">"TAM"</span>].vlrDocumento</div>
+<div><span class="p">&gt;&gt;&gt;</span> tam[tam &gt; <span class="v">0</span>].sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">22.787.293</span></div>
+<div><span class="p">&gt;&gt;&gt;</span> tam[tam &lt; <span class="v">0</span>].sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="v">-6.384.830</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c"># 5.433 linhas</span></div>
+<div><span class="p">&gt;&gt;&gt;</span> tam.sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">16.402.463</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="c"># o slide 4</span></div>
+    </div>
+  </div>
+  <div class="legenda frag">São estornos: passagem devolvida, lançada como valor negativo na mesma coluna do gasto. 7.197 linhas assim em 2025, 53.112 nos sete anos. Apagar resolve a soma e perde a informação. Marcar, numa coluna a mais, guarda as duas — e cada pergunta decide se conta com eles.</div>
   <div class="termos">
     <span><b>estorno</b>devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto.</span>
     <span><b>glosa</b>a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa.</span>
   </div>
 </section>
 
-<!-- 10 -->
-<section class="slide" data-min="16" data-nota="Um grep. 58 linhas, nove jeitos de escrever, e a coluna do documento: 57 iguais e uma diferente. O igual e a gaveta da Camara para o que nao tem nota; passa em qualquer validacao de CNPJ.">
+<!-- 13 -->
+<section class="slide" data-min="22" data-nota="Um grep. 58 linhas, nove jeitos de escrever, e a coluna do documento: 57 iguais e uma diferente. O igual e a gaveta da Camara para o que nao tem nota; passa em qualquer validacao de CNPJ.">
   <div class="rotulo">grep chatgpt</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>Ano-2019.csv … Ano-2025.csv</span></div>
@@ -375,61 +433,8 @@ body.notas #notas{display:block}
   </div>
 </section>
 
-<!-- 11 -->
-<section class="slide" data-min="17" data-nota="Agora a estrutura, e só agora. Construa o desenho no ritmo da fala: f0 é o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora.">
-  <div class="rotulo">onde o conserto vai morar</div>
-  <div class="dois" style="grid-template-columns:1fr 1fr 1fr;gap:18px">
-    <div class="col"><div class="onde">CAMADA 1</div><h3>bronze</h3>
-      <p style="font-size:19px;margin-top:10px">Como a Câmara publicou. Tudo texto, nada consertado. 1.560.019 linhas.</p></div>
-    <div class="col"><div class="onde">CAMADA 2</div><h3>silver</h3>
-      <p style="font-size:19px;margin-top:10px">Tipos certos e sete colunas de defeito marcado. Nenhuma linha some.</p></div>
-    <div class="col"><div class="onde">CAMADA 3</div><h3>gold</h3>
-      <p style="font-size:19px;margin-top:10px">Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ.</p></div>
-  </div>
-  <div class="fecho frag" style="margin-top:26px">Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara <b>republica os CSVs com correções</b>, então o arquivo de hoje não é o de ontem.</div>
-  <div class="termos">
-    <span><b>raiz do CNPJ</b>os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores. É por ela que 55.672 empresas se somam.</span>
-    <span><b>chave natural</b>identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar.</span>
-    <span><b>camada</b>um estágio do pipeline que lê do lake e escreve no lake. Como cada uma fica gravada, dá para refazer só ela.</span>
-    <span><b>medalhão</b>o nome deste arranjo em três camadas. É convenção de nomes, não tecnologia: nada instala “medalhão”.</span>
-  </div>
-</section>
-
-<!-- 12 -->
-<section class="slide" data-min="19" data-nota="A mesma pergunta nas duas pontas. Rode ao vivo se a internet deixar; o screencast é o plano B. Aponte que a de cima é o script do slide 3, só que em SQL.">
-  <div class="rotulo">a mesma pergunta, nas duas pontas</div>
-  <div class="janela">
-    <div class="barra"><i></i><i></i><i></i><span>spark-sql — container spark-master</span></div>
-    <div class="corpo">
-<div><span class="p">spark-sql&gt;</span> SELECT txtFornecedor, sum(vlrDocumento) t</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM delta.`s3a://lake/<span class="v">bronze</span>` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
-<div class="v">TAM 16.402.463,26 &nbsp; GOL 6.052.550,88 &nbsp; AZUL 4.696.245,04</div>
-<div>&nbsp;</div>
-<div><span class="p">spark-sql&gt;</span> SELECT fornecedor, total</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; FROM fornecedores WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3;</div>
-<div class="a">FACEBOOK 3.251.951,87 &nbsp; PANTANAL 3.227.314,77 &nbsp; VIVO 1.591.715,84</div>
-    </div>
-  </div>
-  <div class="legenda frag">Mesmo arquivo, mesma pergunta, nenhum nome repetido entre as duas listas.</div>
-  <div class="termos">
-    <span><b>SQL</b>a mesma pergunta do slide 3, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado.</span>
-    <span><b>s3a://</b>o jeito do Spark falar com armazenamento de objetos. Entre o MinIO daqui e o S3 da AWS muda o endereço, não a consulta.</span>
-  </div>
-</section>
-
-<!-- 13 -->
-<section class="slide" data-min="21" data-nota="Clímax. Silêncio antes do fragmento. E seja honesto no fragmento: nos sete anos a lista muda, e o motivo é o slide 7.">
-  <div class="rotulo">a resposta, em 2025</div>
-  <div class="gigante certo">R$ 3,25 mi</div>
-  <div class="sub">FACEBOOK SERVIÇOS ONLINE DO BRASIL</div>
-  <p class="frag" style="margin-top:32px">Nos sete anos somados a lista volta a começar com companhia aérea, e dessa vez está certo: até 2022 a Câmara lançava o voo <b>com</b> CNPJ. A resposta depende do ano porque o dado mudou de forma, e é por isso que o ano é uma partição e não um filtro solto no meio de um script.</p>
-  <div class="termos">
-    <span><b>partição</b>o dado fica em pastas por ano. Consultar um ano lê um ano, e reprocessar um ano reescreve um ano só.</span>
-  </div>
-</section>
-
 <!-- 14 -->
-<section class="slide" data-min="23" data-nota="O coração da aula. São quatro erros meus, não hipotéticos. Leia os quatro e depois o fragmento. Se estiver atrasado, corte o quarto.">
+<section class="slide" data-min="23" data-nota="O coração da aula. São quatro erros meus, não hipotéticos. Leia os quatro e depois o fragmento. Se estiver atrasado, corte o quarto. Primeira linha: qualidade.py relata quantas linhas cada regra acusou em vez de apagá-las. A regra errada apareceu como 53 mil acusações, não como 53 mil linhas sumidas — e foi por isso que eu vi.">
   <div class="rotulo">quatro erros meus, e o que pegou cada um</div>
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>o que aconteceu montando esta aula</span></div>
@@ -461,7 +466,7 @@ body.notas #notas{display:block}
       <div class="v">209079</div>
     </div>
   </div>
-  <div class="legenda frag">Treze linhas têm quebra de linha dentro de um campo entre aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a versão 0, e dá para voltar nela agora.</div>
+  <div class="legenda frag">No slide 8 o mesmo script deu outro número porque o arquivo mudou; aqui, porque mudou quem lê. Treze linhas têm quebra de linha dentro de um campo entre aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a versão 0, e dá para voltar nela agora.</div>
   <div class="termos">
     <span><b>Delta Lake</b>formato de tabela aberto por cima de arquivos Parquet. Guarda um registro de cada escrita num log ao lado dos dados.</span>
     <span><b>viagem no tempo</b>consultar a tabela como ela estava antes. <code>VERSION AS OF 0</code> lê o que foi escrito antes da correção.</span>
