@@ -118,11 +118,13 @@ Estava na pergunta.
 Esse é o par que sustenta a aula. Sem ele a comparação seria entre um script
 ingênuo e um pipeline pronto, que não é comparação nenhuma.
 
-**O que nenhum conserto de script alcança (slide 8)** são três perguntas de
-processo, não de código: de onde veio o número que você mandou no grupo mês
-passado, se a sua resposta mudou quando a Câmara republicou o CSV, e qual dos
-dois números está certo quando o colega roda o mesmo script. É daí que a tese
-cai como conclusão, em vez de ser afirmada antes da prova.
+**O que nenhum conserto de script alcança (slide 8)** não é dito, é mostrado:
+o mesmo `analise.py` sobre o `Ano-2025.csv` baixado em 04/09 e em 18/09 — 208.246
+linhas e TAM R$ 22,8 mi, depois 209.066 linhas e TAM R$ 16,4 mi. Mesma URL, mesmo
+script. É daí que a tese cai como conclusão, em vez de ser afirmada antes da
+prova. Os slides 9 e 10 seguem o mesmo idioma: o que está dentro dos R$ 116 mi
+da TAM (R$ 139,6 mi de passagem menos 22.071 devoluções) e um `grep chatgpt`
+(58 linhas, nove grafias, 57 com o documento-gaveta `000.000.000/0001-0`).
 
 **Resposta 3 (slides 11–13).** O pipeline. Daí em diante cada peça da
 arquitetura entra porque pegou um erro concreto, e

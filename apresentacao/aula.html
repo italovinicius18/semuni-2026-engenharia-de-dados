@@ -311,12 +311,22 @@ body.notas #notas{display:block}
 </section>
 
 <!-- 08 -->
-<section class="slide" data-min="12" data-nota="Aqui nasce engenharia de dados, e nao e por causa de dado sujo. Leia as tres perguntas devagar, uma pausa entre elas. Sao perguntas de processo, nao de codigo. A tese vem depois, como conclusao.">
-  <div class="rotulo">o que nenhum conserto de script resolve</div>
-  <p><b>De onde veio</b> aquele número que você mandou no grupo mês passado? O script foi editado quatro vezes desde então.</p>
-  <p><b>A Câmara republicou o CSV</b> com correções, como faz sempre. Sua resposta mudou? Você saberia dizer?</p>
-  <p><b>O colega rodou o mesmo script</b> e deu outro número. Qual dos dois está certo?</p>
-  <h2 class="frag" style="margin-top:30px">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
+<section class="slide justo" data-min="12" data-nota="Aconteceu de verdade, com este arquivo: baixado em 04/09 e de novo em 18/09. Leia as duas saidas sem comentar. A plateia ve a diferenca sozinha. Depois a tese, como conclusao.">
+  <div class="rotulo">o mesmo script, catorze dias depois</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>python analise.py</span></div>
+    <div class="corpo">
+<div><span class="p">$</span> python analise.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c"># Ano-2025.csv baixado em 04/09</span></div>
+<div>linhas: <span class="d">208.246</span></div>
+<div>TAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">22,8 mi</span></div>
+<div>&nbsp;</div>
+<div><span class="p">$</span> python analise.py&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="c"># o mesmo arquivo, mesma URL, baixado em 18/09</span></div>
+<div>linhas: <span class="v">209.066</span></div>
+<div>TAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="v">16,4 mi</span></div>
+    </div>
+  </div>
+  <div class="legenda frag">A Câmara republica o arquivo com correções. 820 linhas a mais, e a TAM perde R$ 6,4 milhões. O script não tem como saber qual dos dois arquivos produziu o número que você já mandou para alguém.</div>
+  <h2 class="frag" style="font-size:30px;margin-top:18px;max-width:30ch">Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.</h2>
   <div class="termos">
     <span><b>pipeline</b>o mesmo tratamento escrito como etapas fixas, que rodam sempre na mesma ordem e deixam rastro do que fizeram.</span>
     <span><b>reprodutível</b>rodar de novo amanhã, na mesma entrada, e obter exatamente o mesmo número — ou saber por que não.</span>
@@ -324,11 +334,18 @@ body.notas #notas{display:block}
 </section>
 
 <!-- 09 -->
-<section class="slide" data-min="14" data-nota="Estorno = devolução, valor líquido negativo. Se você soma tudo junto, o estorno abate o gasto de quem não gastou. A decisão de tirar da soma é legítima; escondê-la não é.">
-  <div class="rotulo">defeito que não é defeito</div>
-  <h2>56.912 linhas com valor negativo.</h2>
-  <p>São estornos: dinheiro devolvido. Somados junto com o resto, abatem o gasto de quem não gastou.</p>
-  <p class="frag">Apagar resolveria a soma e perderia a informação. Na silver eles viram uma coluna <code>eh_estorno</code>, ficam onde estão, e cada pergunta decide se conta com eles. A gold, que responde “quanto saiu”, conta sem.</p>
+<section class="slide" data-min="14" data-nota="O 116 e o numero do slide 4. Mostre que ele ja e uma subtracao: 139 de passagem menos 23 de devolucao. Estorno = dinheiro devolvido. Apagar as negativas resolve a soma e perde a informacao.">
+  <div class="rotulo">o que está dentro dos R$ 116 milhões</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>python — a TAM do slide 4, nos sete anos</span></div>
+    <div class="corpo">
+<div><span class="p">&gt;&gt;&gt;</span> tam = df[df.txtFornecedor == <span class="a">"TAM"</span>].vlrDocumento</div>
+<div><span class="p">&gt;&gt;&gt;</span> tam[tam &gt; <span class="v">0</span>].sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">139.601.370</span></div>
+<div><span class="p">&gt;&gt;&gt;</span> tam[tam &lt; <span class="v">0</span>].sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="v">-23.254.073</span>&nbsp;&nbsp;&nbsp;<span class="c"># 22.071 linhas</span></div>
+<div><span class="p">&gt;&gt;&gt;</span> tam.sum()&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;R$ <span class="d">116.347.297</span>&nbsp;&nbsp;&nbsp;<span class="c"># o slide 4</span></div>
+    </div>
+  </div>
+  <div class="legenda frag">São estornos: passagem devolvida, lançada como valor negativo na mesma coluna do gasto. 53.112 linhas assim nos sete anos. Apagar resolve a soma e perde a informação. Marcar, numa coluna a mais, guarda as duas — e cada pergunta decide se conta com eles.</div>
   <div class="termos">
     <span><b>estorno</b>devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto.</span>
     <span><b>glosa</b>a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa.</span>
@@ -336,21 +353,23 @@ body.notas #notas{display:block}
 </section>
 
 <!-- 10 -->
-<section class="slide" data-min="16" data-nota="Este é o caso que junta todos os defeitos numa linha só, e é recente o bastante para a plateia rir. Mesma assinatura, dois documentos, duas categorias, dois deputados.">
-  <div class="rotulo">uma assinatura de ChatGPT, dois universos</div>
-  <div class="dois">
-    <div class="col">
-      <div class="onde">2023</div>
-      <h3 style="font-family:var(--mono);font-size:26px">00000000000010</h3>
-      <p style="font-size:19px;margin-top:10px"><b>ChatGPT Plus Subscription</b><br>R$ 98,93, com R$ 56,06 de glosa<br>categoria: manutenção de escritório</p>
-    </div>
-    <div class="col">
-      <div class="onde">2025</div>
-      <h3 style="font-family:var(--mono);font-size:26px;color:var(--laranja)">62531071000178</h3>
-      <p style="font-size:19px;margin-top:10px"><b>chatGPT</b><br>R$ 999,90<br>categoria: manutenção de escritório</p>
+<section class="slide" data-min="16" data-nota="Um grep. 58 linhas, nove jeitos de escrever, e a coluna do documento: 57 iguais e uma diferente. O igual e a gaveta da Camara para o que nao tem nota; passa em qualquer validacao de CNPJ.">
+  <div class="rotulo">grep chatgpt</div>
+  <div class="janela">
+    <div class="barra"><i></i><i></i><i></i><span>Ano-2019.csv … Ano-2025.csv</span></div>
+    <div class="corpo denso">
+      <table>
+        <tr><th>FORNECEDOR</th><th>LINHAS</th><th>DOCUMENTO</th></tr>
+        <tr><td class="d">OpenAI, LLC</td><td>38</td><td>000.000.000/0001-0</td></tr>
+        <tr><td class="d">ChatGPT Plus Subscription</td><td>8</td><td>000.000.000/0001-0</td></tr>
+        <tr><td class="d">chat GPT</td><td>4</td><td>000.000.000/0001-0</td></tr>
+        <tr><td class="d">OpenAI</td><td>3</td><td>000.000.000/0001-0</td></tr>
+        <tr><td class="d">Chatgpt · CHATGPT · OpenAi · ChatGPT&nbsp;&nbsp;Plus Subscription</td><td>4</td><td>000.000.000/0001-0</td></tr>
+        <tr><td class="d">chatGPT</td><td>1</td><td class="v">625.310.710/0017-8</td></tr>
+      </table>
     </div>
   </div>
-  <p class="frag" style="margin-top:22px">O documento da esquerda tem 14 dígitos e passa em qualquer validação de CNPJ. Ele é uma gaveta interna da Câmara, e naquele mesmo ano a mesma assinatura também foi lançada como <b>assinatura de publicações</b>, por R$ 105,03.</p>
+  <div class="legenda frag">Nove grafias, um produto, R$ 10,2 mil em três anos. Cinquenta e sete linhas com o mesmo documento de catorze dígitos, que passa em qualquer validação de CNPJ e não é uma empresa: é a gaveta da Câmara para o que não tem nota fiscal. Agrupar por nome dá nove fornecedores; agrupar por documento dá um que não existe.</div>
   <div class="termos">
     <span><b>dígito verificador</b>os 2 últimos dígitos do CNPJ, calculados a partir dos outros 12. Pegam erro de digitação; não provam que a empresa existe.</span>
   </div>
