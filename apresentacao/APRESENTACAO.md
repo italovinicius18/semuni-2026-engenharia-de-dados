@@ -1,0 +1,12 @@
+Este md vai servir para eu escrever como eu quero que a apresentação seja feita para que eu submeta ao CLAUDE e ele possa me ajudar a criar uma apresentação de acordo com minhas expectativas. Aqui, vou detalhar os pontos principais que desejo abordar, o estilo visual que prefiro, e quaisquer elementos específicos que quero incluir na apresentação.
+
+1 - Título da Apresentação: "Engenharia e processamento de dados local focado em gastos políticos"
+
+2 - Estrutura da Apresentação:
+   - Introdução: Contextualização do tema e como podemos acessar os gastos policitcos, o foco aqui não expor nenhum politico e sim mostrar como podemos acessar os dados e como podemos transforma-los em informações relevantes, além de como o conhecimento sobre a parte negocial do dado é importante
+   - Metodologia: Explicação das técnicas de engenharia e processamento de dados utilizadas, quais a vantagens encima de um processo padraod e tranformação de dados em informações relevantes, por que precisamos de uma arqutetura deprocessamentos, camadas de dadso e como o lakehouse trtaz as vantagens de implmentanção, confiambilidade e cosnistencia de dados.
+   - Resultados: Apresentação dos principais achados e insights obtidos a partir da análise dos dados, como o processamento local de dadso acxontece e como ele seria migrado par aum contexto de cloud, quais as vantagens e desvantagens de cada abordagem, além de como a arquitetura de processamento local pode ser aplicada em diferentes contextos.
+   - Ver de maneira pra´tica no código como ele se comporta, o que é docker o que ele simula e como ele pode ser utilizado para criar um ambiente de processamento local eficiente, onde está o dado, como ele é armazendao, referenciado e processado além de demonstrar como o codigo livre ajuda nessa situação e como ele é utilizada batante nos contexto de cloud.
+   - Conclusão: Resumo dos pontos principais e como i9niciar no processo de engeharia de dados local, quais projetos são interessantes para um portfolio, o que é interessante ser estududado
+
+Aqui nesse caso o exemplo de gastos politicos é apenas um ponto de partida para ilustrar a aplicação das técnicas de engenharia e processamento de dados. O objetivo é mostrar como podemos transformar dados brutos em informações valiosas, independentemente do contexto específico, alem de mostrar formas masi otimizadas de processar dados massivos, formatos de dados e como frameworks de armazenamento e processamento podem ser utilizados para melhorar a eficiência e a escalabilidade do processamento de dados.
