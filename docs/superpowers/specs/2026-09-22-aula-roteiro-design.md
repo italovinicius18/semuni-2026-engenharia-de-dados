@@ -189,7 +189,7 @@ depende de internet.
 | 12 | `make pipeline` | terminal | inicia; ~2 min em 2 workers |
 | 13 | (rodando) | console do MinIO, `lake/bronze/ano_ref=…` | fala de 2 a 4 min |
 | 14 | `make historico`, `make teste` | terminal | 11 s de testes |
-| 15 | `make consultar Q='SELECT txtFornecedor, sum(vlrDocumento) t FROM delta.\`s3a://lake/bronze\` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'` e `make consultar` | terminal | 2 consultas |
+| 15 | `make consultar Q='SELECT txtFornecedor, CAST(sum(vlrDocumento) AS DECIMAL(18,2)) t FROM bronze WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'` e `make consultar Q='SELECT fornecedor, total FROM fornecedores WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3'` (as views `bronze` e `fornecedores` são registradas pelo `consulta.py`; sem crase, que a shell come) | terminal | 2 consultas |
 | 18 | `docker compose up -d --scale spark-worker=3` | Spark UI | 20 s |
 
 Rede de segurança: `apresentacao/demo.webm`, screencast de 3 a 4 minutos com

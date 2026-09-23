@@ -517,8 +517,8 @@ body.notas #notas{display:block}
   <div class="janela">
     <div class="barra"><i></i><i></i><i></i><span>spark-sql — container spark-master</span></div>
     <div class="corpo">
-<div><span class="p">spark-sql&gt;</span> SELECT txtFornecedor, sum(vlrDocumento) t</div>
-<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM delta.`s3a://lake/<b>bronze</b>` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
+<div><span class="p">spark-sql&gt;</span> SELECT txtFornecedor, CAST(sum(vlrDocumento) AS DECIMAL(18,2)) t</div>
+<div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FROM <b>bronze</b> WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;</div>
 <div><span class="v">TAM 16.402.463,26 &nbsp; GOL 6.052.550,88 &nbsp; AZUL 4.696.245,04</span></div>
 <div>&nbsp;</div>
 <div><span class="p">spark-sql&gt;</span> SELECT fornecedor, total</div>
@@ -528,7 +528,7 @@ body.notas #notas{display:block}
   </div>
   <div class="legenda frag">R$ 3,25 mi para a Facebook Serviços Online do Brasil em 2025. A soma por nome do script dá R$ 3,30 mi; a gold soma o reembolso e agrupa por CNPJ, e isso tira R$ 51 mil de nota não paga e uma linha homônima de outra empresa.</div>
   <div class="termos">
-    <span><b>SQL</b>a mesma pergunta do slide 5, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado.</span>
+    <span><b>SQL</b>a mesma pergunta do slide 5, escrita como consulta. <code>bronze</code> é a tabela do slide 12, registrada pelo nome. Quem lê não precisa abrir o script para saber o que foi perguntado.</span>
   </div>
 </section>
 

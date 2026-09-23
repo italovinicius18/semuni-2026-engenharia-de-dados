@@ -61,7 +61,7 @@ gold:
 ano:
 	$(NO_CLUSTER) rodar --camadas bronze,silver,gold --anos $(ANO)
 
-# consulta ad-hoc em SQL, boa para projetar:  make consultar Q='select ...'
+	@echo "make consultar Q='SELECT txtFornecedor, CAST(sum(vlrDocumento) AS DECIMAL(18,2)) t FROM bronze WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'"
 consultar: Q ?= SELECT fornecedor, total FROM fornecedores_total ORDER BY total DESC LIMIT 10
 consultar:
 	$(NO_CLUSTER) consultar "$(Q)"
@@ -103,7 +103,7 @@ demo:
 	@echo "make teste"
 	@echo "# slide 15 — a mesma pergunta nas duas pontas"
 	@echo "make consultar Q='SELECT txtFornecedor, sum(vlrDocumento) t FROM delta.\\`s3a://lake/bronze\\` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'"
-	@echo "make consultar"
+	@echo "make consultar Q='SELECT fornecedor, total FROM fornecedores WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3'"
 	@echo "# slide 18 — elasticidade: o worker 3 sobe, com o Spark UI em http://localhost:8080"
 	@echo "docker compose up -d --scale spark-worker=3"
 

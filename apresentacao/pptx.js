@@ -381,8 +381,8 @@ const A = C.ambar, K = C.kw, P = C.verde, D = C.tinta40;
   const s = novo("a mesma pergunta, nas duas pontas", "Rode as duas consultas ao vivo, na gold que acabou de ser escrita. Aponte que a de cima é o script do slide 5 em SQL. A frase sobre 3,30 e 3,25 responde antes que perguntem: a soma por nome chega perto, e a diferença tem nome.");
   const a = janela(s, M, 0.9, CW, 3.35, "spark-sql — container spark-master");
   codigo(s, a, [
-    [{ t: "spark-sql>", c: P }, { t: " SELECT txtFornecedor, sum(vlrDocumento) t" }],
-    [{ t: "           FROM delta.`s3a://lake/" }, { t: "bronze", b: true, c: C.laranja }, { t: "` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;" }],
+    [{ t: "spark-sql>", c: P }, { t: " SELECT txtFornecedor, CAST(sum(vlrDocumento) AS DECIMAL(18,2)) t" }],
+    [{ t: "           FROM " }, { t: "bronze", b: true, c: C.laranja }, { t: " WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;" }],
     [{ t: "TAM 16.402.463,26   GOL 6.052.550,88   AZUL 4.696.245,04", c: C.vermelho }],
     "",
     [{ t: "spark-sql>", c: P }, { t: " SELECT fornecedor, total" }],
@@ -390,7 +390,7 @@ const A = C.ambar, K = C.kw, P = C.verde, D = C.tinta40;
     [{ t: "FACEBOOK 3.251.951,87   PANTANAL 3.227.314,77   VIVO 1.591.715,84", c: C.verde }],
   ], 12.5);
   paragrafo(s, "R$ 3,25 mi para a Facebook Serviços Online do Brasil em 2025. A soma por nome do script dá R$ 3,30 mi; a gold soma o reembolso e agrupa por CNPJ, e isso tira R$ 51 mil de nota não paga e uma linha homônima de outra empresa.", 4.5, { w: 11.2, size: 16, h: 1.1 });
-  termos(s, [["SQL", "a mesma pergunta do slide 5, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado."]]);
+  termos(s, [["SQL", "a mesma pergunta do slide 5, escrita como consulta. bronze é a tabela do slide 12, registrada pelo nome. Quem lê não precisa abrir o script para saber o que foi perguntado."]]);
 }
 
 // =============================================================== 16 achado 1
