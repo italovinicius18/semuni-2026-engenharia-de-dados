@@ -91,7 +91,9 @@ apresentacao/node_modules: apresentacao/package.json
 	cd apresentacao && npm install --silent
 
 # a sequencia da demo ao vivo, na ordem dos slides 11 a 18. serve para colar no
-# terminal e para gravar o apresentacao/demo.webm de reserva
+# terminal e para gravar o apresentacao/demo.webm de reserva. as consultas usam
+# as views que o consulta.py registra (bronze, fornecedores): sem crase, que a
+# shell come; e com CAST para decimal, senao a soma sai como 1.64E7 na tela
 demo:
 	@echo "# slide 11 — Docker: o que ele simula"
 	@echo "docker compose ps"
@@ -102,7 +104,7 @@ demo:
 	@echo "make historico"
 	@echo "make teste"
 	@echo "# slide 15 — a mesma pergunta nas duas pontas"
-	@echo "make consultar Q='SELECT txtFornecedor, sum(vlrDocumento) t FROM delta.\\`s3a://lake/bronze\\` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'"
+	@echo "make consultar Q='SELECT txtFornecedor, CAST(sum(vlrDocumento) AS DECIMAL(18,2)) t FROM bronze WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'"
 	@echo "make consultar Q='SELECT fornecedor, total FROM fornecedores WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3'"
 	@echo "# slide 18 — elasticidade: o worker 3 sobe, com o Spark UI em http://localhost:8080"
 	@echo "docker compose up -d --scale spark-worker=3"
