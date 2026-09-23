@@ -21,10 +21,18 @@ Duas armadilhas que este script existe para evitar:
    1920x1080 — cada slide passava aqui com folga de sobra e mesmo assim perdia
    o rodape no projetor. Por isso existe `confere_palco`.
 
+5. Texto. A partir da versao de 22/09/2026 os slides seguem os padroes de
+   no-ai-slop (petergyang) e unslop (theclaymethod), adaptados no spec em
+   docs/superpowers/specs/2026-09-22-aula-roteiro-design.md. `confere_texto`
+   acusa contraste binario, travessao em dobro, palavra de inflacao e triade
+   de adjetivos. Falso positivo se marca no HTML com data-ok="motivo".
+
 Uso:  make conferir
 """
 import glob
+import html as _html
 import os
+import re
 import sys
 
 from playwright.sync_api import sync_playwright
@@ -106,6 +114,64 @@ def confere_palco(nav):
     return ruins
 
 
+# --- texto --------------------------------------------------------------------
+FONTES = os.path.join(os.path.dirname(__file__), "fontes", "slides.html")
+
+INFLACAO = ["fundamental", "essencial", "crucial", "pivotal", "poderoso", "poderosa",
+            "revolucionári", "game changer", "estudos mostram", "especialistas",
+            "o mercado", "incrível", "impressionante", "melhor do mundo"]
+# "nao e X, e Y" e "nao X. Y." no mesmo paragrafo; "X nao e Y: e Z"
+CONTRASTE = [re.compile(r"\bn[aã]o (?:é|e|está|era|estava)\b[^.;:]{2,60},\s*(?:é|e|está|era|estava)\b", re.I),
+             re.compile(r"\bn[aã]o\b[^.]{3,80}\.\s+(?:É|E|Está|Ele|Ela)\b\s+\w+[^.]{0,60}\."),
+             re.compile(r"\bn[aã]o é [^.:]{2,60}:\s*é\b", re.I)]
+TRIADE = re.compile(r"\b(\w{4,}), (\w{4,}),? e (\w{4,})\b")
+
+
+def _texto(trecho):
+    t = re.sub(r"<[^>]+>", " ", trecho)
+    return re.sub(r"\s+", " ", _html.unescape(t)).strip()
+
+
+def confere_texto():
+    """Acusa, por slide, o que os padroes de comunicacao do spec proibem."""
+    s = open(FONTES, encoding="utf-8").read()
+    partes = re.split(r"<!-- (\d\d) -->", s)
+    ruins = []
+    print("texto:")
+    for i in range(1, len(partes), 2):
+        n, corpo = partes[i], partes[i + 1]
+        # o glossario e definicao e nao entra nas regras de forma
+        sem_termos = re.sub(r'<div class="termos">.*?</div>', "", corpo, flags=re.S)
+        blocos = re.findall(r"<(?:p|div class=\"(?:legenda|fecho)[^\"]*\"|h[123]|td)[^>]*>(.*?)</(?:p|div|h[123]|td)>", sem_termos, re.S)
+        ok = dict(re.findall(r'data-ok="([^"]+)"', corpo))
+        achados = []
+        for b in blocos:
+            t = _texto(b)
+            if not t:
+                continue
+            for rx in CONTRASTE:
+                if rx.search(t):
+                    achados.append(f"contraste binario: “{t[:70]}”")
+                    break
+            for w in INFLACAO:
+                if re.search(r"\b" + w, t, re.I):
+                    achados.append(f"inflacao: “{w}” em “{t[:50]}”")
+            m = TRIADE.search(t)
+            if m and all(x.endswith(("a", "o", "as", "os", "es", "is", "el", "il", "ar", "or", "nte", "vel")) for x in m.groups()):
+                achados.append(f"triade: “{m.group(0)}”")
+        travessoes = _texto(sem_termos).count("—")
+        if travessoes > 1:
+            achados.append(f"travessao em dobro: {travessoes}")
+        if ok:
+            print(f"  slide {int(n):>2}  data-ok: " + "; ".join(ok))
+        for a in achados:
+            ruins.append(n)
+            print(f"  slide {int(n):>2}  <-- {a}")
+    if not ruins:
+        print("  nenhum achado")
+    return ruins
+
+
 def main():
     ruins = []
     with sync_playwright() as p:
@@ -144,8 +210,12 @@ def main():
         telas_ruins = confere_palco(nav)
         nav.close()
 
-    print(f"\n{len(ruins)} slide(s) com problema, {len(telas_ruins)} tela(s) com problema")
-    return 1 if (ruins or telas_ruins or erros) else 0
+    print()
+    texto_ruim = confere_texto()
+
+    print(f"\n{len(ruins)} slide(s) com problema, {len(telas_ruins)} tela(s) com problema, "
+          f"{len(texto_ruim)} achado(s) de texto")
+    return 1 if (ruins or telas_ruins or erros or texto_ruim) else 0
 
 
 if __name__ == "__main__":

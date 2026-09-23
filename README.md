@@ -66,21 +66,38 @@ camadas de Spark só quando vai usá-las.
 
 ## Apresentar
 
-O que se projeta é **`apresentacao/aula.html`**: arquivo único, 48 KB, abre no
+O que se projeta é **`apresentacao/aula.html`**: arquivo único, 52 KB, abre no
 navegador sem internet e sem servidor, com relógio de palco, fragmentos ao vivo e
-notas do apresentador.
+notas do apresentador. Para quem pedir PowerPoint existe **`apresentacao/aula.pptx`**,
+gerado por `make pptx` a partir de `apresentacao/pptx.js` com o mesmo conteúdo e as
+mesmas notas; os fragmentos não viajam para lá, e a nota diz onde era a pausa.
 
-Para quem pedir PowerPoint existe **`apresentacao/aula.pptx`**, gerado por
-`make pptx` a partir de `apresentacao/pptx.js` com o mesmo conteúdo, slide a
-slide, e as mesmas notas no campo de notas. Segue o que a Microsoft recomenda para
-um arquivo que abre em qualquer Office: 16:9, Calibri e Courier New (vêm com o
-Office, nada para instalar), título 32–48 pt, corpo 14–18 pt, margem de 0,6". O
-que não viaja para lá são os fragmentos — PowerPoint gerado por script não tem
-animação, então cada slide mostra tudo de uma vez, e a nota diz onde era a pausa.
-Os dois arquivos saem do mesmo texto; quando mudar o HTML, rode `make pptx` de
-novo e os dois voltam a bater.
+São 21 slides em cinco seções (introdução, metodologia, prática, resultados,
+conclusão), e o último mira o minuto 33. O roteiro que originou esta versão está em
+`apresentacao/APRESENTACAO.md`; o design, em
+`docs/superpowers/specs/2026-09-22-aula-roteiro-design.md`.
 
-São 20 slides nos dois, e o último mira o minuto 34.
+### A demo
+
+A seção prática roda o pipeline nos sete anos, ao vivo, enquanto você fala. A
+sequência de comandos, na ordem dos slides 11 a 18, sai de `make demo`. Tudo é
+local: `ingestao.baixar` pula o download quando o CSV já está em `dados/`, então
+nenhum passo depende de internet.
+
+Rede de segurança: `apresentacao/demo.webm`, um screencast de 3 a 4 minutos com a
+mesma sequência, gravado no seu laptop depois de o deck estar pronto. A nota de
+cada slide de demo diz em que minuto do vídeo aquele passo aparece. Se o deck mudar,
+regrave.
+
+Checklist de véspera:
+
+- [ ] `make subir` na noite anterior (baixa os jars se faltarem; falha aqui, não no palco)
+- [ ] `make pipeline` de manhã, para aquecer o cache e conferir os números
+- [ ] `make numeros` e `make conferir` verdes
+- [ ] MinIO (`localhost:9001`), Spark UI (`localhost:8080`) e terminal abertos em abas
+- [ ] fonte do terminal em 20 pt ou mais
+- [ ] `demo.webm` no mesmo diretório do `aula.html`
+- [ ] `aula.html` em tela cheia no slide 1, relógio zerado (`T`)
 
 Atalhos da versão HTML:
 
@@ -103,76 +120,42 @@ primeiro fragmento já revelado. Útil para ensaiar um trecho.
 
 ## O arco
 
-A aula defende uma tese: **o processo estruturado ganha do script ad-hoc não por
-errar menos, mas por errar num lugar onde dá para ver.**
+Cinco seções, na ordem do roteiro, com a cota parlamentar como exemplo dentro de
+cada uma. Nenhum deputado é nomeado em slide, nota ou demo: todo número é somado
+por fornecedor.
 
-A capa promete **três respostas para a mesma pergunta, e as duas primeiras
-erradas** — e o primeiro ato entrega as três, porque o caminho ad-hoc só
-convence se for mostrado inteiro, e não como espantalho.
+**Introdução (5 min, slides 1–4).** O dado e como acessá-lo; cinco palavras do
+domínio (lançamento, glosa, estorno, SIGEPA, raiz do CNPJ) e por que sem a quarta
+a soma por fornecedor põe companhia aérea no topo; a deriva do CNPJ ano a ano
+(1,5 % em 2019, 25,0 % em 2024), que é o argumento para arquitetura antes de
+qualquer ferramenta.
 
-**Resposta 1 (slides 3–4).** O script que todo mundo escreve: oito linhas de
-pandas, `groupby` no nome do fornecedor, `head(10)`, sobre o `Ano-2025.csv`. Roda
-até o fim e devolve um pódio em que **o quinto e o oitavo lugar são a mesma
-empresa** (`Facebook Serviços Online do Brasil Ltda.` e `FACEBOOK SERVIÇOS ONLINE
-DO BRASIL LTDA`). Nenhum aviso, nenhuma exceção. O primeiro ato inteiro fica em
-2025 de propósito: os números do slide 4 ao 6 são contínuos (TAM 16,40 → 17,40 mi
-depois do conserto), e os sete anos só entram no slide 7, como a revelação de que
-o chão andou.
+**Metodologia (9 min, slides 5–10).** O script pandas de oito linhas como linha de
+base; o mesmo script sobre o `Ano-2025.csv` de 04/09 e de 18/09 (208.246 → 209.066
+linhas, TAM R$ 22,8 → 16,4 mi) e o que ele não registra; camadas bronze, silver e
+gold com os números reais; formatos (CSV 74,5 MB → Parquet 5,3 MB; a mesma consulta
+137 → 8 ms; três colunas leem 1,0 de 5,1 MB); lakehouse com o `DESCRIBE HISTORY`
+real; Delta, Iceberg e Hudi numa tabela de fatos, como ponte para a pós.
 
-**Resposta 2 (slides 5–6).** O que de fato acontece depois: o analista vê o erro
-e conserta. Entra um dicionário de apelidos e uma normalização de texto, e **o
-conserto funciona** — AZUL tinha 50 grafias, VIVO 33, Facebook 4, e os R$ 3,3
-milhões do Facebook param de aparecer partidos em dois. A soma agora está certa.
-**E o pódio continua errado**, com TAM, GOL e AZUL em primeiro, segundo e
-terceiro. Nenhum dicionário de nomes resolveria: das 38.113 linhas de companhia
-aérea em 2025, **37.114 não têm CNPJ nenhum** — não são fornecedor, são SIGEPA,
-o sistema de passagens da própria Câmara. O defeito nunca esteve na grafia.
-Estava na pergunta.
+**Prática (9 min, slides 11–14).** Docker e o que ele simula (cinco containers, um
+cluster e um object storage); um caminho `s3a://lake/bronze/ano_ref=2023/…`
+decomposto; `make pipeline` rodando nos sete anos enquanto o slide de código aberto
+e nomes na nuvem é falado; `make historico` e os 21 testes quando termina.
 
-Esse é o par que sustenta a aula. Sem ele a comparação seria entre um script
-ingênuo e um pipeline pronto, que não é comparação nenhuma.
+**Resultados (8 min, slides 15–18).** A mesma pergunta no bronze e na gold, ao vivo;
+o que está dentro dos R$ 16,4 mi da TAM (R$ 22,8 mi de passagem, R$ −6,4 mi em 5.433
+devoluções); `grep chatgpt` (58 linhas, nove grafias, 57 com o documento-gaveta
+`000.000.000/0001-0`); local e nuvem, quando cada um faz sentido, com o worker 3
+subindo ao vivo.
 
-**O que nenhum conserto de script alcança (slide 8)** não é dito, é mostrado:
-o mesmo `analise.py` sobre o `Ano-2025.csv` baixado em 04/09 e em 18/09 — 208.246
-linhas e TAM R$ 22,8 mi, depois 209.066 linhas e TAM R$ 16,4 mi. Mesma URL, mesmo
-script. É daí que a tese cai como conclusão, em vez de ser afirmada antes da
-prova. Os slides 12 e 13 seguem o mesmo idioma: o que está dentro dos R$ 16,4 mi
-da TAM em 2025 (R$ 22,8 mi de passagem menos 5.433 devoluções) e um `grep chatgpt`
-(58 linhas, nove grafias, 57 com o documento-gaveta `000.000.000/0001-0`).
+**Conclusão (4 min, slides 19–21).** As quatro práticas de Joseph Machado (*Data
+Engineering Projects*, startdataengineering.com, junho de 2024) e onde cada uma está
+neste repositório; a escada de projetos dele, com esta aula no degrau 2; o que
+estudar; `make subir · make pipeline`.
 
-**Resposta 3 (slides 9–11).** O pipeline, e a resposta — com a honestidade de
-dizer que o script do slide 5 mais `df[df.txtCNPJCPF.notna()]` chega ao mesmo
-pódio. O pipeline não ganha pela resposta; ganha pelos slides 7, 14, 15 e 16.
-Depois da resposta vêm as regras que a sustentam (12, estorno; 13, o documento
-sentinela) e as que eu errei (14). Cada peça da arquitetura entra porque pegou
-um erro concreto, e
-todos os quatro são erros que eu cometi montando esta aula. O fecho é neutro:
-mapeia MinIO → S3/GCS/Blob e Spark → EMR/Dataproc/Databricks, e lista quando
-cada lado faz sentido, com quatro benefícios reais de cada. É o mesmo Apache
-Spark e o mesmo Delta Lake dos dois lados; o que muda é quem opera. Nenhum slide
-deprecia a nuvem — seria estranho num Seminário em Cloud, e seria falso.
-
-### O achado que sustenta a tese
-
-Lançamentos **sem CNPJ**, ano a ano:
-
-| 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
-|---|---|---|---|---|---|---|
-| 1,5% | 10,3% | 19,9% | 22,4% | 24,5% | **25,0%** | 18,1% |
-
-A Câmara foi movendo o registro do voo de "fornecedor com CNPJ" para "SIGEPA, sem
-CNPJ". Um script afinado em 2025 mente sobre 2019, e vice-versa — sem quebrar. É
-por isso que `ano_ref` é partição e não um filtro solto no meio do código.
-
-O mesmo vale para uma assinatura de ChatGPT: em 2023 ela entra com o documento
-`00000000000010` (gaveta interna da Câmara, 14 dígitos válidos) e em 2025 com o
-CNPJ real `62531071000178`. Agrupar por nome dá duas empresas; agrupar por
-documento sem tratar a sentinela dá uma empresa que não existe.
-
-A linguagem visual alterna duas coisas de propósito: **palco** para o raciocínio
-e os diagramas, montados peça por peça com os fragmentos; e **janela de
-terminal** para as telas de prova, que afunda no palco em vez de flutuar sobre
-ele.
+O texto dos slides segue os padrões de no-ai-slop e unslop adaptados na seção 3 do
+spec: sem contraste binário, sem fragmento dramático, sem inflação, sem agência
+falsa, um travessão por slide no máximo. `make conferir` acusa o que escapar.
 
 ## Os números
 
@@ -251,6 +234,7 @@ grafia que calhasse de vir na primeira partição, então a mesma empresa aparec
 - `slides.html` — os 20 slides; `data-nota` vira nota, `data-min` vira minuto-alvo
 - `rodape.html` — navegação, relógio, escala do palco 1280×720, notas
 - `pptx.js` — o mesmo conteúdo em PowerPoint; `make pptx` instala o `pptxgenjs` e gera `aula.pptx`
+- `numeros.py` — recalcula do `dados/` cada número dos slides e confere que `slides.html` ainda os diz; `make numeros`
 
 O tema é escuro, e a razão é o conteúdo: sete dos vinte slides são janela de
 terminal. No tema claro anterior elas eram retângulos pretos colados num papel

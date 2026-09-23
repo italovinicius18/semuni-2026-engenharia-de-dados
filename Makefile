@@ -16,7 +16,7 @@ NO_CLUSTER := docker compose exec -T \
 NO_LAPTOP  := S3_ENDPOINT=http://localhost:9000 PYTHONPATH=src $(PYTHON) -m pipeline
 
 .PHONY: preparar jars subir descer pipeline ingestao bronze silver gold ano \
-        consultar historico slides conferir pptx teste limpar
+        consultar historico slides conferir numeros pptx demo teste limpar
 
 preparar:
 	python3 -m venv .venv
@@ -77,6 +77,11 @@ slides:
 conferir:
 	$(PYTHON) apresentacao/conferir.py
 
+# recalcula do dados/ cada numero que os slides dizem. a Camara republica os
+# CSVs; um slide com numero que o dados/ nao produz mais e um slide errado
+numeros:
+	$(PYTHON) apresentacao/numeros.py
+
 # a mesma aula em PowerPoint, para quem pedir .pptx. o HTML continua sendo o
 # que se projeta; este e o arquivo do e-mail e do pendrive
 pptx: apresentacao/node_modules
@@ -84,6 +89,23 @@ pptx: apresentacao/node_modules
 
 apresentacao/node_modules: apresentacao/package.json
 	cd apresentacao && npm install --silent
+
+# a sequencia da demo ao vivo, na ordem dos slides 11 a 18. serve para colar no
+# terminal e para gravar o apresentacao/demo.webm de reserva
+demo:
+	@echo "# slide 11 — Docker: o que ele simula"
+	@echo "docker compose ps"
+	@echo "# slide 12 — onde o dado mora; comeca o pipeline nos sete anos (~2 min)"
+	@echo "make pipeline"
+	@echo "# slide 13 — enquanto roda: console do MinIO em http://localhost:9001, lake/bronze/ano_ref=..."
+	@echo "# slide 14 — o pipeline terminou"
+	@echo "make historico"
+	@echo "make teste"
+	@echo "# slide 15 — a mesma pergunta nas duas pontas"
+	@echo "make consultar Q='SELECT txtFornecedor, sum(vlrDocumento) t FROM delta.\\`s3a://lake/bronze\\` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3'"
+	@echo "make consultar"
+	@echo "# slide 18 — elasticidade: o worker 3 sobe, com o Spark UI em http://localhost:8080"
+	@echo "docker compose up -d --scale spark-worker=3"
 
 # os testes rodam no cluster pela mesma razao que o pipeline: e la que existe
 # uma SparkSession com o Delta no classpath

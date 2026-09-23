@@ -1,3 +1,5 @@
+> Roteiro que originou a versão de 22/09/2026 da aula. A partir daí a fonte da verdade é `fontes/slides.html`; o design está em `docs/superpowers/specs/2026-09-22-aula-roteiro-design.md`.
+
 Este md vai servir para eu escrever como eu quero que a apresentação seja feita para que eu submeta ao CLAUDE e ele possa me ajudar a criar uma apresentação de acordo com minhas expectativas. Aqui, vou detalhar os pontos principais que desejo abordar, o estilo visual que prefiro, e quaisquer elementos específicos que quero incluir na apresentação.
 
 1 - Título da Apresentação: "Engenharia e processamento de dados local focado em gastos políticos"

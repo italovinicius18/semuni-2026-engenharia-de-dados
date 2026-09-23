@@ -4,12 +4,14 @@
 // quem precisa de PowerPoint: a professora, o pendrive, o e-mail. Segue o
 // que a Microsoft recomenda para um deck que abre em qualquer Office:
 // 16:9, Calibri e Courier New (vem com o Office, nada para instalar),
-// titulo 32-40pt, corpo 14-18pt, margem de 0,6", notas do apresentador
+// titulo 32-48pt, corpo 14-18pt, margem de 0,6", notas do apresentador
 // no campo de notas e nao num quadro escondido no slide.
 //
 // O que nao viaja do HTML: os fragmentos. PowerPoint gerado por script nao
 // tem animacao, entao cada slide mostra tudo de uma vez. As notas dizem
 // onde fazer a pausa que o fragmento fazia.
+//
+// Versao de 22/09/2026: 21 slides sobre o roteiro de APRESENTACAO.md.
 //
 //   make pptx
 
@@ -28,11 +30,11 @@ const W = 13.333, H = 7.5, M = 0.6, CW = W - 2 * M;
 const pres = new pptxgen();
 pres.layout = "LAYOUT_WIDE";
 pres.author = "Ítalo Vinícius";
-pres.title = "Quem recebeu o dinheiro da cota parlamentar?";
+pres.title = "Engenharia e processamento de dados local focado em gastos políticos";
 pres.lang = "pt-BR";
 
 let n = 0;
-const TOTAL = 20;
+const TOTAL = 21;
 
 // ---------- pecas ----------------------------------------------------------
 function novo(rotulo, nota) {
@@ -56,13 +58,13 @@ function titulo(s, texto, opts = {}) {
 
 function paragrafo(s, runs, y, opts = {}) {
   const r = Array.isArray(runs) ? runs : [{ text: runs }];
-  s.addText(r.map(x => ({ text: x.text, options: { color: x.color ?? C.tinta60, bold: !!x.bold,
+  s.addText(r.map(x => ({ text: x.text, options: { color: x.color ?? C.tinta60, bold: !!x.bold, italic: !!x.italic,
       fontFace: x.mono ? MONO : SANS, fontSize: x.mono ? (opts.size ?? 16) - 2 : (opts.size ?? 16), breakLine: !!x.br } })),
     { x: opts.x ?? M, y, w: opts.w ?? 9.4, h: opts.h ?? 1, fontFace: SANS, fontSize: opts.size ?? 16,
       color: C.tinta60, margin: 0, valign: "top", paraSpaceAfter: 6, isTextBox: true });
 }
 
-// A janela de terminal e o motivo do deck: aparece em doze slides.
+// A janela de terminal e o motivo do deck.
 function janela(s, x, y, w, h, nome) {
   s.addShape(pres.ShapeType.roundRect, { x, y, w, h, fill: { color: C.fumaca }, line: { color: C.linha, width: 0.75 }, rectRadius: 0.08 });
   s.addShape(pres.ShapeType.rect, { x: x + 0.01, y: y + 0.01, w: w - 0.02, h: 0.42, fill: { color: "0C131C" }, line: { color: "0C131C", width: 0 } });
@@ -73,7 +75,6 @@ function janela(s, x, y, w, h, nome) {
   return { x: x + 0.28, y: y + 0.6, w: w - 0.56 };
 }
 
-// linhas de codigo: cada linha e uma lista de trechos {t, c}
 function codigo(s, area, linhas, size = 13) {
   const runs = [];
   linhas.forEach((l, i) => {
@@ -86,13 +87,14 @@ function codigo(s, area, linhas, size = 13) {
 }
 
 function tabela(s, area, cab, linhas, colW, opts = {}) {
-  const th = cab.map(t => ({ text: t, options: { fontFace: MONO, fontSize: 9, color: C.tinta40, charSpacing: 2, bold: false,
-    border: [{ type: "none" }, { type: "none" }, { type: "solid", pt: 0.5, color: C.linha }, { type: "none" }] } }));
-  const rows = [th, ...linhas.map(l => l.map(c => {
+  const borda = [{ type: "none" }, { type: "none" }, { type: "solid", pt: 0.5, color: C.linha }, { type: "none" }];
+  const rows = [];
+  if (cab) rows.push(cab.map(t => ({ text: t, options: { fontFace: MONO, fontSize: 9, color: C.tinta40, charSpacing: 2, border: borda } })));
+  linhas.forEach(l => rows.push(l.map(c => {
     const cel = typeof c === "string" ? { t: c } : c;
     return { text: cel.t, options: { fontFace: cel.sans ? SANS : MONO, fontSize: opts.size ?? 12.5, color: cel.c ?? C.tinta60,
-      bold: !!cel.b, border: [{ type: "none" }, { type: "none" }, { type: "solid", pt: 0.5, color: C.linha }, { type: "none" }] } };
-  }))];
+      bold: !!cel.b, border: borda } };
+  })));
   s.addTable(rows, { x: area.x, y: area.y, w: area.w, colW, rowH: opts.rowH ?? 0.34, fill: { color: C.fumaca },
     margin: [0.04, 0.08, 0.04, 0.08], valign: "middle", autoPage: false });
 }
@@ -112,113 +114,68 @@ function cartao(s, x, y, w, h) {
   s.addShape(pres.ShapeType.roundRect, { x, y, w, h, fill: { color: C.painel }, line: { color: C.grade, width: 0.75 }, rectRadius: 0.08 });
 }
 
+// tres ou quatro cartoes com rotulo mono, nome grande e descricao
+function cartoes(s, y, h, itens, opts = {}) {
+  const cols = opts.cols ?? itens.length, gap = 0.3;
+  const cw = (CW - (cols - 1) * gap) / cols;
+  itens.forEach(([k, nome, d], i) => {
+    const x = M + (i % cols) * (cw + gap), yy = y + Math.floor(i / cols) * (h + gap);
+    cartao(s, x, yy, cw, h);
+    s.addText(k, { x: x + 0.3, y: yy + 0.18, w: cw - 0.6, h: 0.25, fontFace: MONO, fontSize: 10, color: C.laranja, charSpacing: 3, margin: 0, isTextBox: true });
+    s.addText(nome, { x: x + 0.3, y: yy + 0.45, w: cw - 0.6, h: 0.55, fontFace: opts.mono ? MONO : SANS, fontSize: opts.size ?? 26, bold: true, color: C.tinta, margin: 0, isTextBox: true });
+    s.addText(d, { x: x + 0.3, y: yy + 1.08, w: cw - 0.6, h: h - 1.2, fontFace: SANS, fontSize: 14, color: C.tinta60, margin: 0, valign: "top", isTextBox: true });
+  });
+}
+
+const A = C.ambar, K = C.kw, P = C.verde, D = C.tinta40;
+
 // =============================================================== 01 capa
 {
-  const s = novo(null, "Não se apresente: a professora já leu a minibio. Comece pela pergunta. Diga que você vai responder três vezes e errar duas.");
-  s.addText("SEMUNI 2026  ·  SEMINÁRIO EM CLOUD", { x: M, y: 2.0, w: CW, h: 0.3, fontFace: MONO, fontSize: 12, color: C.laranja, charSpacing: 3, margin: 0, isTextBox: true });
-  s.addText("Quem recebeu o dinheiro da cota parlamentar?", { x: M, y: 2.4, w: 10.5, h: 1.9, fontFace: SANS, fontSize: 48, bold: true, color: C.tinta, margin: 0, valign: "top", isTextBox: true });
-  paragrafo(s, "Sete anos de nota fiscal, 1,56 milhão de linhas, domínio público. Vou responder três vezes nos próximos 35 minutos. As duas primeiras respostas estão erradas, e nenhuma delas dá erro.", 4.45, { w: 9.2, size: 18, h: 1.2 });
-  s.addText("Ítalo Vinícius  ·  23 de setembro de 2026", { x: M, y: 6.1, w: 8, h: 0.3, fontFace: MONO, fontSize: 11, color: C.tinta40, margin: 0, isTextBox: true });
+  const s = novo(null, "Não se apresente: a professora leu a minibio. Diga o título e o que a plateia leva embora: um repositório que roda no laptop dela, com o mesmo software que roda na nuvem.");
+  s.addText("SEMUNI 2026  ·  SEMINÁRIO EM CLOUD", { x: M, y: 1.7, w: CW, h: 0.3, fontFace: MONO, fontSize: 12, color: C.laranja, charSpacing: 3, margin: 0, isTextBox: true });
+  s.addText("Engenharia e processamento de dados local focado em gastos políticos", { x: M, y: 2.1, w: 11.2, h: 2.2, fontFace: SANS, fontSize: 44, bold: true, color: C.tinta, margin: 0, valign: "top", isTextBox: true });
+  paragrafo(s, "Sete anos de nota fiscal da Câmara, 1,56 milhão de linhas, processados num laptop com o mesmo software que roda na nuvem.", 4.5, { w: 9.6, size: 18, h: 0.9 });
+  s.addText("Ítalo Vinícius  ·  23 de setembro de 2026", { x: M, y: 5.9, w: 8, h: 0.3, fontFace: MONO, fontSize: 11, color: C.tinta40, margin: 0, isTextBox: true });
 }
 
 // =============================================================== 02 o dado
 {
-  const s = novo("o dado", "CEAP = Cota para o Exercício da Atividade Parlamentar. Verba mensal, prestação de contas, publicação obrigatória. Não é vazamento: é transparência ativa. Sete arquivos, um por ano.");
-  titulo(s, "Uma nota fiscal por linha, sete arquivos.");
-  paragrafo(s, "A CEAP é a verba mensal de cada deputado. Ele gasta, presta contas, e a Câmara publica o CSV inteiro — um por ano, desde bem antes de 2019.", 1.75, { w: 9.6, size: 18, h: 1 });
+  const s = novo("o dado, e como acessá-lo", "CEAP = Cota para o Exercício da Atividade Parlamentar. Verba mensal, prestação de contas, publicação obrigatória. Diga a regra da aula uma vez e não volte nela: nenhum deputado aparece.");
+  titulo(s, "Uma nota fiscal por linha, um arquivo por ano.");
+  paragrafo(s, [{ text: "A " }, { text: "CEAP", bold: true, color: C.tinta }, { text: " é a verba mensal de cada deputado. Ele gasta, presta contas, e a Câmara publica o CSV inteiro no portal de dados abertos (camara.leg.br/cotas). Publicar é obrigação legal." }], 1.75, { w: 10, size: 18, h: 1.1 });
   const stats = [["7", "arquivos, Ano-2019 a Ano-2025"], ["538 MB", "de CSV"], ["32", "colunas"], ["1.560.019", "lançamentos"]];
   const cw = (CW - 3 * 0.3) / 4;
   stats.forEach(([v, l], i) => {
     const x = M + i * (cw + 0.3);
-    cartao(s, x, 3.1, cw, 1.7);
-    s.addText(v, { x: x + 0.25, y: 3.3, w: cw - 0.5, h: 0.75, fontFace: MONO, fontSize: 30, bold: true, color: C.tinta, margin: 0, valign: "middle", isTextBox: true });
-    s.addText(l, { x: x + 0.25, y: 4.05, w: cw - 0.5, h: 0.5, fontFace: SANS, fontSize: 13, color: C.tinta60, margin: 0, valign: "top", isTextBox: true });
+    cartao(s, x, 3.0, cw, 1.6);
+    s.addText(v, { x: x + 0.25, y: 3.15, w: cw - 0.5, h: 0.75, fontFace: MONO, fontSize: 30, bold: true, color: C.tinta, margin: 0, valign: "middle", isTextBox: true });
+    s.addText(l, { x: x + 0.25, y: 3.9, w: cw - 0.5, h: 0.5, fontFace: SANS, fontSize: 13, color: C.tinta60, margin: 0, valign: "top", isTextBox: true });
   });
+  paragrafo(s, [{ text: "Regra desta aula: nenhum deputado aparece. ", bold: true, color: C.tinta }, { text: "Todo número é somado por fornecedor. O assunto é o dado e o que se faz com ele." }], 4.9, { w: 11, size: 16, h: 0.8 });
   termos(s, [["CEAP", "Cota para o Exercício da Atividade Parlamentar: a verba mensal que cada deputado gasta e presta contas. Publicar é obrigação legal, não gentileza."],
-             ["lançamento", "uma linha do arquivo — uma despesa reembolsada, com fornecedor, valor, data e categoria."]]);
+             ["lançamento", "uma linha do arquivo: uma despesa reembolsada, com fornecedor, valor, data e categoria."]]);
 }
 
-// =============================================================== 03 o script
+// =============================================================== 03 cinco palavras
 {
-  const s = novo("o jeito que a gente começa", "Mostre o script sem ironia. Esta é a forma correta de começar uma análise: é barata, é rápida, e responde. O problema aparece depois, e não é culpa de quem escreveu.");
-  const a = janela(s, M, 0.9, CW, 3.55, "analise.py");
-  codigo(s, a, [
-    [{ t: "import", c: C.kw }, { t: " pandas " }, { t: "as", c: C.kw }, { t: " pd" }],
-    "",
-    [{ t: "df = pd.read_csv(" }, { t: '"Ano-2025.csv"', c: C.ambar }, { t: ", sep=" }, { t: '";"', c: C.ambar }, { t: ", encoding=" }, { t: '"utf-8"', c: C.ambar }, { t: ")" }],
-    "",
-    [{ t: "top = (df.groupby(" }, { t: '"txtFornecedor"', c: C.ambar }, { t: ")[" }, { t: '"vlrDocumento"', c: C.ambar }, { t: "]" }],
-    "         .sum()",
-    [{ t: "         .sort_values(ascending=" }, { t: "False", c: C.kw }, { t: ")" }],
-    [{ t: "         .head(" }, { t: "10", c: C.vermelho }, { t: "))" }],
-    "",
-    [{ t: "print", c: C.kw }, { t: "(top)" }],
-  ]);
-  paragrafo(s, "Oito linhas, 40 segundos, nenhuma dependência além do pandas. Eu escrevo assim, você escreve assim, e na maior parte das vezes está tudo bem.", 4.7, { w: 9.6, size: 17, h: 0.9 });
-  termos(s, [["ad-hoc", "feito sob demanda, para responder uma pergunta uma vez. Não é xingamento: é a forma certa de começar."],
-             ["pandas", "biblioteca de Python que carrega a tabela inteira na memória e deixa agrupar e somar numa linha."]]);
+  const s = novo("o que cada linha significa", "A tabela é o glossário lido em voz alta, uma única vez na aula. Quem não é da área precisa das cinco palavras; quem é, precisa saber que o SIGEPA existe. A legenda mostra o que acontece sem a quarta linha.");
+  titulo(s, "Cinco palavras antes de qualquer código.", { size: 28, h: 0.6 });
+  const a = janela(s, M, 1.5, CW, 2.75, "o domínio, em cinco linhas");
+  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, null, [
+    [{ t: "lançamento", b: true }, { t: "uma despesa reembolsada: fornecedor, valor, data, categoria", sans: true }],
+    [{ t: "glosa", b: true }, { t: "a parte da nota que a Câmara recusou pagar", sans: true }],
+    [{ t: "estorno", b: true }, { t: "dinheiro devolvido; entra negativo, na mesma coluna do gasto", sans: true }],
+    [{ t: "SIGEPA", b: true }, { t: "passagem emitida pelo sistema da Câmara; a companhia aérea aparece como fornecedor, sem CNPJ", sans: true }],
+    [{ t: "raiz do CNPJ", b: true }, { t: "os 8 primeiros dígitos identificam a empresa; os 4 seguintes, a filial", sans: true }],
+  ], [2.4, a.w - 2.4], { rowH: 0.4, size: 14 });
+  paragrafo(s, "Sem a quarta linha, a soma por fornecedor de 2025 põe TAM, GOL e AZUL no topo. Das 38.113 linhas de companhia aérea naquele ano, 37.114 não têm CNPJ: são bilhetes do SIGEPA, e a pergunta “quem o deputado contratou” tem que deixá-los de fora.", 4.5, { w: 11.2, size: 16, h: 1.2 });
+  termos(s, [["regra de negócio", "a decisão de contar ou não uma linha, escrita num lugar onde dá para ler e testar."]]);
 }
 
-// =============================================================== 04 a saida
+// =============================================================== 04 a deriva
 {
-  const s = novo("a saída", "Deixe a tabela na tela em silêncio. Espere alguém na plateia ver sozinho. Só então fale. Se ninguém vir, aponte para a linha 5 e a linha 8.");
-  const a = janela(s, M, 0.9, 8.3, 4.1, "python analise.py");
-  const v = C.vermelho;
-  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["FORNECEDOR", "TOTAL"], [
-    [{ t: "TAM", b: true }, "R$ 16.402.463"], [{ t: "GOL", b: true }, "R$ 6.052.551"], [{ t: "AZUL", b: true }, "R$ 4.696.245"],
-    [{ t: "PANTANAL VEÍCULOS LTDA", b: true }, "R$ 3.230.363"],
-    [{ t: "Facebook Serviços Online do Brasil Ltda.", b: true, c: v }, { t: "R$ 2.237.052", c: v }],
-    [{ t: "HPE AUTOMOTORES DO BRASIL LTDA", b: true }, "R$ 1.475.070"], [{ t: "SUPREMA MOBILIDADE LTDA", b: true }, "R$ 1.430.533"],
-    [{ t: "FACEBOOK SERVIÇOS ONLINE DO BRASIL LTDA", b: true, c: v }, { t: "R$ 1.064.974", c: v }],
-  ], [5.2, a.w - 5.2], { rowH: 0.36 });
-  s.addText("ERRADO", { x: 9.35, y: 1.6, w: 3.3, h: 1.0, fontFace: MONO, fontSize: 36, bold: true, color: C.laranja,
-    align: "center", valign: "middle", charSpacing: 6, rotate: 352, line: { color: C.laranja, width: 3 }, margin: 0, isTextBox: true });
-  paragrafo(s, "Quinto e oitavo lugar são a mesma empresa, escrita de dois jeitos. O script rodou até o fim, sem aviso nenhum.", 5.3, { w: 9.6, size: 17, h: 0.9 });
-}
-
-// =============================================================== 05 o conserto
-{
-  const s = novo("e aí você conserta, porque é isso que a gente faz", "Sem ironia nenhuma: este script é bom. O analista viu o erro do slide anterior e consertou. Leia o dicionário em voz alta, e depois a legenda. O ponto é que FUNCIONOU.");
-  const a = janela(s, M, 0.9, CW, 3.6, "analise.py — três semanas depois");
-  const A = C.ambar, K = C.kw;
-  codigo(s, a, [
-    "APELIDO = {",
-    [{ t: "    " }, { t: '"TAM"', c: A }, { t: ": " }, { t: '"TAM"', c: A }, { t: ",  " }, { t: '"LATAM"', c: A }, { t: ": " }, { t: '"TAM"', c: A }, { t: ",  " }, { t: '"GOL"', c: A }, { t: ": " }, { t: '"GOL"', c: A }, { t: "," }],
-    [{ t: "    " }, { t: '"AZUL"', c: A }, { t: ": " }, { t: '"AZUL"', c: A }, { t: ",  " }, { t: '"TELEFONICA"', c: A }, { t: ": " }, { t: '"VIVO"', c: A }, { t: ",  " }, { t: '"VIVO"', c: A }, { t: ": " }, { t: '"VIVO"', c: A }, { t: "," }],
-    "}",
-    "",
-    [{ t: "def", c: K }, { t: " limpar(nome):" }],
-    [{ t: "    n = re.sub(" }, { t: 'r"[^A-Z0-9 ]"', c: A }, { t: ", " }, { t: '" "', c: A }, { t: ", " }, { t: "str", c: K }, { t: "(nome).upper())" }],
-    [{ t: "    " }, { t: "for", c: K }, { t: " chave, apelido " }, { t: "in", c: K }, { t: " APELIDO.items():" }],
-    [{ t: "        " }, { t: "if", c: K }, { t: " re.search(" }, { t: 'rf"\\b{chave}\\b"', c: A }, { t: ", n): " }, { t: "return", c: K }, { t: " apelido" }],
-    [{ t: "    " }, { t: "return", c: K }, { t: " " }, { t: '" "', c: A }, { t: ".join(n.split())" }],
-  ], 12.5);
-  paragrafo(s, [{ text: "E " }, { text: "funciona", bold: true, color: C.tinta }, { text: ". AZUL tinha 50 grafias, VIVO 33, Facebook 4 — e os R$ 3,3 milhões do Facebook param de aparecer partidos em dois. De 22.024 fornecedores distintos para 21.414." }], 4.75, { w: 10.4, size: 16, h: 0.9 });
-  termos(s, [["normalizar", "reduzir grafias diferentes da mesma coisa a uma forma única, para poder somar. É o primeiro conserto que todo mundo faz."]]);
-}
-
-// =============================================================== 06 soma certa, resposta errada
-{
-  const s = novo("a soma certa, a resposta errada", "O golpe da aula. A soma agora está CERTA e o pódio continua ERRADO, e as duas coisas não se contradizem. Espere a plateia procurar o erro antes de ler os parágrafos.");
-  const a = janela(s, M, 0.9, CW, 2.95, "python analise.py — 2025, já com o conserto");
-  const v = C.vermelho, g = C.verde;
-  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["FORNECEDOR", "TOTAL", ""], [
-    [{ t: "TAM", b: true }, "R$ 17.403.240", { t: "ainda em primeiro", c: v }],
-    [{ t: "GOL", b: true }, "R$ 6.337.713", { t: "e em segundo", c: v }],
-    [{ t: "AZUL", b: true }, "R$ 5.038.621", { t: "e em terceiro", c: v }],
-    [{ t: "FACEBOOK", b: true }, "R$ 3.303.431", { t: "agora inteiro", c: g }],
-    [{ t: "PANTANAL VEÍCULOS", b: true }, "R$ 3.246.762", { t: "ok", c: g }],
-  ], [4.2, 3.2, a.w - 7.4], { rowH: 0.33 });
-  paragrafo(s, [{ text: "Companhia aérea não é fornecedora de deputado. É o " }, { text: "SIGEPA", bold: true, color: C.tinta }, { text: ", o sistema de passagens da própria Câmara: o bilhete sai por lá e a companhia cai na planilha. " }, { text: "Das 38.113 linhas de aérea em 2025, 37.114 não têm CNPJ.", bold: true, color: C.tinta }], 4.05, { w: 10.4, size: 16, h: 1.0 });
-  paragrafo(s, "Nenhum dicionário de nomes ia descobrir isso, porque o defeito não estava na grafia. Estava na pergunta.", 5.15, { w: 10.4, size: 16, h: 0.7 });
-  termos(s, [["SIGEPA", "Sistema de Gestão de Passagens Aéreas da Câmara. O bilhete sai por ele, e quem cai na planilha é a companhia aérea."]]);
-}
-
-// =============================================================== 07 a deriva
-{
-  const s = novo("e o dado não fica parado", "Este é o slide central da aula e o mais difícil de improvisar. Vá devagar. A coluna da direita sobe 16 vezes em cinco anos. Nada no script mudou.");
-  titulo(s, "Lançamentos sem CNPJ, ano a ano.", { size: 28, h: 0.6 });
-  const a = janela(s, M, 1.5, 7.9, 3.75, "python analise.py — os sete anos, linhas sem CNPJ");
+  const s = novo("o dado muda de forma: lançamentos sem CNPJ, ano a ano", "Vá devagar. A coluna da direita sobe 16 vezes em cinco anos e o script de 2019 continuou igual. É o argumento para arquitetura, antes de qualquer ferramenta.");
+  const a = janela(s, M, 0.9, 7.9, 3.75, "python analise.py — os sete anos, linhas sem CNPJ");
   tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["ANO", "LANÇAMENTOS", "SEM CNPJ", "%"], [
     [{ t: "2019", b: true }, "289.830", "4.448", { t: "1,5%", c: C.verde }],
     [{ t: "2020", b: true }, "167.132", "17.234", "10,3%"],
@@ -228,162 +185,110 @@ function cartao(s, x, y, w, h) {
     [{ t: "2024", b: true }, "232.925", "58.164", { t: "25,0%", c: C.vermelho }],
     [{ t: "2025", b: true }, "209.066", "37.934", "18,1%"],
   ], [1.4, 2.4, 2.0, a.w - 5.8], { rowH: 0.33 });
-  paragrafo(s, "A Câmara foi movendo o voo de “fornecedor com CNPJ” para “SIGEPA, sem CNPJ”. Quem escreveu o script em 2019 não escreveu nada errado. O chão é que andou.", 1.55, { x: 8.9, w: 3.85, size: 16, h: 3.5 });
+  paragrafo(s, "A Câmara mudou como registra o voo: até 2022 a passagem entrava com CNPJ, depois passou pelo SIGEPA, sem. O script de 2019 continuou igual, e a resposta dele mudou sem aviso.", 0.95, { x: 8.9, w: 3.85, size: 16, h: 3.5 });
   termos(s, [["CNPJ", "o documento da empresa, 14 dígitos. Sem ele, saber quem recebeu depende de confiar no nome que alguém digitou."]]);
 }
 
-// =============================================================== 08 catorze dias depois
+// =============================================================== 05 linha de base
 {
-  const s = novo("o mesmo script, catorze dias depois", "Aconteceu de verdade, com este arquivo: baixado em 04/09 e de novo em 18/09. Leia as duas saídas sem comentar. A plateia vê a diferença sozinha. Depois a tese, como conclusão.");
-  const a = janela(s, M, 0.9, 7.3, 2.9, "python analise.py");
-  const P = C.verde, K = C.tinta40;
+  const s = novo("o processo padrão: um script", "Mostre o script sem ironia. É assim que uma análise começa e, para uma pergunta feita uma vez, basta. Tudo o que vem depois é comparado com estas oito linhas.");
+  const a = janela(s, M, 0.9, CW, 3.55, "analise.py");
   codigo(s, a, [
-    [{ t: "$", c: P }, { t: " python analise.py   " }, { t: "# Ano-2025.csv baixado em 04/09", c: K }],
+    [{ t: "import", c: K }, { t: " pandas " }, { t: "as", c: K }, { t: " pd" }],
+    "",
+    [{ t: "df = pd.read_csv(" }, { t: '"Ano-2025.csv"', c: A }, { t: ", sep=" }, { t: '";"', c: A }, { t: ", encoding=" }, { t: '"utf-8"', c: A }, { t: ")" }],
+    "",
+    [{ t: "top = (df.groupby(" }, { t: '"txtFornecedor"', c: A }, { t: ")[" }, { t: '"vlrDocumento"', c: A }, { t: "]" }],
+    "         .sum()",
+    [{ t: "         .sort_values(ascending=" }, { t: "False", c: K }, { t: ")" }],
+    [{ t: "         .head(" }, { t: "10", c: C.vermelho }, { t: "))" }],
+    "",
+    [{ t: "print", c: K }, { t: "(top)" }],
+  ]);
+  paragrafo(s, "Oito linhas e 40 segundos. É assim que uma análise começa, e para uma pergunta feita uma vez isso basta. As seções seguintes comparam tudo com este script.", 4.7, { w: 10, size: 17, h: 0.9 });
+  termos(s, [["pandas", "biblioteca de Python que carrega a tabela inteira na memória e deixa agrupar e somar numa linha."]]);
+}
+
+// =============================================================== 06 catorze dias depois
+{
+  const s = novo("o mesmo script, catorze dias depois", "Aconteceu com este arquivo: baixado em 04/09 e de novo em 18/09. Leia as duas saídas sem comentar; a plateia vê a diferença. Depois o parágrafo final, que é onde a palavra arquitetura entra na aula.");
+  const a = janela(s, M, 0.9, 7.3, 2.9, "python analise.py");
+  codigo(s, a, [
+    [{ t: "$", c: P }, { t: " python analise.py   " }, { t: "# Ano-2025.csv baixado em 04/09", c: D }],
     [{ t: "linhas: " }, { t: "208.246", b: true }],
     [{ t: "TAM       R$ " }, { t: "22,8 mi", b: true }],
     "",
-    [{ t: "$", c: P }, { t: " python analise.py   " }, { t: "# mesmo arquivo, mesma URL, 18/09", c: K }],
+    [{ t: "$", c: P }, { t: " python analise.py   " }, { t: "# mesmo arquivo, mesma URL, 18/09", c: D }],
     [{ t: "linhas: " }, { t: "209.066", b: true, c: C.vermelho }],
     [{ t: "TAM       R$ " }, { t: "16,4 mi", b: true, c: C.vermelho }],
   ], 13);
-  paragrafo(s, "A Câmara republica o arquivo com correções. 820 linhas a mais, e a TAM perde R$ 6,4 milhões. O script não tem como saber qual dos dois arquivos produziu o número que você já mandou para alguém.", 0.95, { x: 8.3, w: 4.45, size: 15, h: 2.9 });
-  s.addText("Um pipeline não erra menos que um script. Ele erra num lugar onde dá para ver.", { x: M, y: 4.05, w: 11, h: 1.3, fontFace: SANS, fontSize: 30, bold: true, color: C.tinta, margin: 0, valign: "top", isTextBox: true });
+  paragrafo(s, "A Câmara republica o arquivo com correções. 820 linhas a mais, e a TAM perde R$ 6,4 milhões. O script não registra qual arquivo produziu qual número, nem quando rodou, nem com qual regra.", 0.95, { x: 8.3, w: 4.45, size: 15, h: 2.9 });
+  paragrafo(s, [{ text: "Arquitetura de processamento", bold: true, color: C.tinta }, { text: " é o nome do que falta aqui: etapas fixas, cada uma gravada, com rastro do que leu e do que escreveu." }], 4.1, { w: 11, size: 18, h: 1 });
   termos(s, [["pipeline", "o mesmo tratamento escrito como etapas fixas, que rodam sempre na mesma ordem e deixam rastro do que fizeram."],
-             ["reprodutível", "rodar de novo amanhã, na mesma entrada, e obter exatamente o mesmo número — ou saber por que não."]]);
+             ["reprodutível", "rodar de novo amanhã, na mesma entrada, e obter exatamente o mesmo número, ou saber por que não."]]);
 }
 
-// =============================================================== 09 medalhao
+// =============================================================== 07 camadas
 {
-  const s = novo("onde o conserto vai morar", "Agora a estrutura, e só agora. Construa o desenho no ritmo da fala: o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora.");
-  const cam = [["CAMADA 1", "bronze", "Como a Câmara publicou. Tudo texto, nada consertado. 1.560.019 linhas."],
-               ["CAMADA 2", "silver", "Tipos certos e sete colunas de defeito marcado. Nenhuma linha some."],
-               ["CAMADA 3", "gold", "Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ."]];
-  const cw = (CW - 2 * 0.35) / 3;
-  cam.forEach(([k, nome, d], i) => {
-    const x = M + i * (cw + 0.35);
-    cartao(s, x, 0.95, cw, 2.35);
-    s.addText(k, { x: x + 0.3, y: 1.15, w: cw - 0.6, h: 0.25, fontFace: MONO, fontSize: 10, color: C.laranja, charSpacing: 3, margin: 0, isTextBox: true });
-    s.addText(nome, { x: x + 0.3, y: 1.42, w: cw - 0.6, h: 0.55, fontFace: SANS, fontSize: 28, bold: true, color: C.tinta, margin: 0, isTextBox: true });
-    s.addText(d, { x: x + 0.3, y: 2.05, w: cw - 0.6, h: 1.1, fontFace: SANS, fontSize: 14, color: C.tinta60, margin: 0, valign: "top", isTextBox: true });
-  });
-  paragrafo(s, "Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo — e a Câmara republica os CSVs com correções, então o arquivo de hoje não é o de ontem.", 3.6, { w: 11.2, size: 16, h: 1.2 });
+  const s = novo("camadas: onde cada decisão fica gravada", "Construa o desenho no ritmo da fala: o CSV, depois o armazenamento, depois as três tabelas. O bronze existe porque a sua regra vai estar errada uma hora, e porque o arquivo de origem muda.");
+  cartoes(s, 0.95, 2.35, [["CAMADA 1", "bronze", "Como a Câmara publicou. Tudo texto, nada consertado. 1.560.019 linhas."],
+                          ["CAMADA 2", "silver", "Tipos certos e sete colunas de defeito marcado. Nenhuma linha some."],
+                          ["CAMADA 3", "gold", "Uma tabela por pergunta. 55.672 empresas, somadas pela raiz do CNPJ."]]);
+  paragrafo(s, [{ text: "Guardar o bronze cru custa 5 GB e parece desperdício até a primeira vez que a regra de limpeza está errada. Aí ele é o que permite refazer sem pedir o arquivo de novo. E a Câmara " }, { text: "republica os CSVs com correções", bold: true, color: C.tinta }, { text: ", então o arquivo de hoje não é o de ontem." }], 3.6, { w: 11.2, size: 16, h: 1.2 });
   termos(s, [["raiz do CNPJ", "os 8 primeiros dígitos, que identificam a empresa. Os 4 seguintes são a filial e os 2 últimos, os verificadores. É por ela que 55.672 empresas se somam."],
              ["chave natural", "identificador que já existe no dado do mundo real, em vez de um número inventado na hora de guardar."],
              ["camada", "um estágio do pipeline que lê do lake e escreve no lake. Como cada uma fica gravada, dá para refazer só ela."],
-             ["medalhão", "o nome deste arranjo em três camadas. É convenção de nomes, não tecnologia: nada instala “medalhão”."]], { size: 10.5 });
+             ["medalhão", "o nome deste arranjo em três camadas. É uma convenção de nomes: nada instala “medalhão”."]], { size: 10.5 });
 }
 
-// =============================================================== 10 duas pontas
+// =============================================================== 08 formatos
 {
-  const s = novo("a mesma pergunta, nas duas pontas", "A mesma pergunta nas duas pontas. Rode ao vivo se a internet deixar; o screencast é o plano B. Aponte que a de cima é o script do slide 3, só que em SQL.");
-  const a = janela(s, M, 0.9, CW, 3.85, "spark-sql — container spark-master");
-  const P = C.verde;
-  codigo(s, a, [
-    [{ t: "spark-sql>", c: P }, { t: " SELECT txtFornecedor, sum(vlrDocumento) t" }],
-    [{ t: "           FROM delta.`s3a://lake/" }, { t: "bronze", b: true, c: C.laranja }, { t: "` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;" }],
-    [{ t: "TAM 16.402.463,26   GOL 6.052.550,88   AZUL 4.696.245,04", c: C.vermelho }],
-    "",
-    [{ t: "spark-sql>", c: P }, { t: " SELECT fornecedor, total" }],
-    [{ t: "           FROM " }, { t: "fornecedores", b: true, c: C.laranja }, { t: " WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3;" }],
-    [{ t: "FACEBOOK 3.251.951,87   PANTANAL 3.227.314,77   VIVO 1.591.715,84", c: C.verde }],
-  ], 12.5);
-  paragrafo(s, "Mesmo arquivo, mesma pergunta, nenhum nome repetido entre as duas listas.", 5.0, { w: 10, size: 17, h: 0.6 });
-  termos(s, [["SQL", "a mesma pergunta do slide 3, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado."],
-             ["s3a://", "o jeito do Spark falar com armazenamento de objetos. Entre o MinIO daqui e o S3 da AWS muda o endereço, não a consulta."]]);
+  const s = novo("formatos e processamento massivo", "Três números medidos em 22/09 com DuckDB sobre o Ano-2025.csv, no laptop; apresentacao/numeros.py recalcula. O tempo varia de máquina para máquina; a proporção não. Colunar, compressão e partição são o que faz massivo caber.");
+  cartoes(s, 0.95, 2.3, [["TAMANHO", "74,5 → 5,3 MB", "o mesmo ano em CSV e em Parquet com zstd"],
+                         ["TEMPO", "137 → 8 ms", "a mesma consulta, DuckDB, no laptop"],
+                         ["LEITURA", "1,0 de 5,1 MB", "o que uma consulta de três colunas lê do arquivo"]], { mono: true, size: 24 });
+  paragrafo(s, "Colunar: a consulta lê só as colunas que pede. Compressão: repetição vira bytes a menos. Partição por ano: 2023 mora numa pasta, e reprocessar 2023 reescreve uma pasta. Com os três, sete anos cabem num laptop, e o mesmo código vale quando o dado cresce.", 3.55, { w: 11.2, size: 16, h: 1.3 });
+  termos(s, [["Parquet", "formato de arquivo colunar e comprimido, aberto. É o que fica no disco por baixo de quase todo lake."],
+             ["colunar", "guarda cada coluna junta, em vez de cada linha. Somar uma coluna lê uma coluna."],
+             ["partição", "o dado fica em pastas por ano. Consultar um ano lê um ano, e reprocessar um ano reescreve um ano só."]]);
 }
 
-// =============================================================== 11 a resposta
+// =============================================================== 09 lakehouse
 {
-  const s = novo("a resposta, em 2025", "Clímax. Silêncio antes de falar. E seja honesto: o pandas chega ao mesmo pódio, e é preciso dizer isso antes que alguém pergunte. O que ele não tem são os próximos slides. Nos sete anos a lista muda, e o motivo é o slide 7.");
-  s.addText("R$ 3,25 mi", { x: M, y: 0.8, w: CW, h: 1.5, fontFace: MONO, fontSize: 72, bold: true, color: C.verde, margin: 0, valign: "middle", isTextBox: true });
-  s.addText("FACEBOOK SERVIÇOS ONLINE DO BRASIL", { x: M, y: 2.35, w: CW, h: 0.4, fontFace: MONO, fontSize: 18, color: C.tinta60, charSpacing: 3, margin: 0, isTextBox: true });
-  paragrafo(s, [{ text: "O script do slide 5, com uma linha a mais — " }, { text: "df[df.txtCNPJCPF.notna()]", mono: true, color: C.tinta }, { text: " —, chega ao mesmo pódio. Ele dá R$ 3,30 mi e a gold 3,25 por duas razões que dá para nomear: ele soma a nota e a gold soma o reembolso; ele agrupa por nome e a gold por CNPJ, o que deixa de fora uma linha homônima de outra empresa." }], 3.05, { w: 11.2, size: 15, h: 1.3 });
-  paragrafo(s, [{ text: "Nos sete anos a lista volta a começar com companhia aérea — até 2022 o voo entrava " }, { text: "com", bold: true, color: C.tinta }, { text: " CNPJ. A regra não mudou; o dado mudou de forma. Por isso o ano é uma partição, e não um filtro solto no meio de um script." }], 4.45, { w: 11.2, size: 15, h: 1.1 });
-  termos(s, [["partição", "o dado fica em pastas por ano. Consultar um ano lê um ano, e reprocessar um ano reescreve um ano só."]]);
-}
-
-// =============================================================== 12 estorno
-{
-  const s = novo("o que está dentro dos R$ 16,4 milhões", "O 16,4 é o número do slide 4. Mostre que ele já é uma subtração: 22,8 de passagem menos 6,4 de devolução. Os 22,8 são o mesmo número do slide 8, e é provável que as 820 linhas novas sejam devoluções — mas o arquivo de 04/09 não está guardado. Se perguntarem, diga que é provável e não medido.");
-  const a = janela(s, M, 0.9, CW, 2.5, "python — a TAM do slide 4");
-  const P = C.verde, K = C.tinta40;
-  codigo(s, a, [
-    [{ t: ">>>", c: P }, { t: " tam = df[df.txtFornecedor == " }, { t: '"TAM"', c: C.ambar }, { t: "].vlrDocumento" }],
-    [{ t: ">>>", c: P }, { t: " tam[tam > 0].sum()                 R$ " }, { t: "22.787.293", b: true }],
-    [{ t: ">>>", c: P }, { t: " tam[tam < 0].sum()                 R$ " }, { t: "-6.384.830", b: true, c: C.vermelho }, { t: "    # 5.433 linhas", c: K }],
-    [{ t: ">>>", c: P }, { t: " tam.sum()                          R$ " }, { t: "16.402.463", b: true }, { t: "    # o slide 4", c: K }],
-  ], 13);
-  paragrafo(s, "São estornos: passagem devolvida, lançada como valor negativo na mesma coluna do gasto. 7.197 linhas assim em 2025, 53.112 nos sete anos. Apagar resolve a soma e perde a informação. Marcar, numa coluna a mais, guarda as duas — e cada pergunta decide se conta com eles.", 3.65, { w: 11, size: 16, h: 1.4 });
-  termos(s, [["estorno", "devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto."],
-             ["glosa", "a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa."]]);
-}
-
-// =============================================================== 13 grep chatgpt
-{
-  const s = novo("grep chatgpt", "Um grep. 58 linhas, nove jeitos de escrever, e a coluna do documento: 57 iguais e uma diferente. O igual é a gaveta da Câmara para o que não tem nota; passa em qualquer validação de CNPJ.");
-  const a = janela(s, M, 0.9, CW, 3.25, "Ano-2019.csv … Ano-2025.csv");
-  const S = "000.000.000/0001-0";
-  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["FORNECEDOR", "LINHAS", "DOCUMENTO"], [
-    [{ t: "OpenAI, LLC", b: true }, "38", S], [{ t: "ChatGPT Plus Subscription", b: true }, "8", S],
-    [{ t: "chat GPT", b: true }, "4", S], [{ t: "OpenAI", b: true }, "3", S],
-    [{ t: "Chatgpt · CHATGPT · OpenAi · ChatGPT  Plus Subscription", b: true }, "4", S],
-    [{ t: "chatGPT", b: true }, "1", { t: "625.310.710/0017-8", c: C.vermelho }],
-  ], [7.2, 1.4, a.w - 8.6], { rowH: 0.33 });
-  paragrafo(s, "Nove grafias, um produto, R$ 10,2 mil em três anos. Cinquenta e sete linhas com o mesmo documento de catorze dígitos, que passa em qualquer validação de CNPJ e não é uma empresa: é a gaveta da Câmara para o que não tem nota fiscal. Agrupar por nome dá nove fornecedores; agrupar por documento dá um que não existe.", 4.4, { w: 11.2, size: 15, h: 1.3 });
-  termos(s, [["dígito verificador", "os 2 últimos dígitos do CNPJ, calculados a partir dos outros 12. Pegam erro de digitação; não provam que a empresa existe."]]);
-}
-
-// =============================================================== 14 quatro erros
-{
-  const s = novo("quatro erros meus, e o que pegou cada um", "O coração da aula. São quatro erros meus, não hipotéticos. Leia os quatro e depois a legenda. Se estiver atrasado, corte o quarto. Primeira linha: qualidade.py relata quantas linhas cada regra acusou em vez de apagá-las. A regra errada apareceu como 53 mil acusações, não como 53 mil linhas sumidas — e foi por isso que eu vi.");
-  const a = janela(s, M, 0.9, CW, 2.75, "o que aconteceu montando esta aula");
-  const g = C.verde;
-  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["O ERRO", "O QUE PEGOU"], [
-    [{ t: "regra de glosa acusou 53.112 linhas boas", sans: true, c: C.tinta }, { t: "o relatório conta, não filtra", c: g }],
-    [{ t: "a mesma empresa com nome diferente a cada execução", sans: true, c: C.tinta }, { t: "rodar duas vezes e comparar", c: g }],
-    [{ t: "soma saindo como 4.99577E7 na tela", sans: true, c: C.tinta }, { t: "tipo decimal na gold", c: g }],
-    [{ t: "R$ 15,1 mi de um fornecedor que não existe", sans: true, c: C.vermelho, b: true }, { t: "consultar a gold antes de crer", c: g }],
-  ], [7.0, a.w - 7.0], { rowH: 0.38, size: 14 });
-  paragrafo(s, [{ text: "O quarto ia para este slide. Ramal, celular funcional e Correios compartilham a raiz " }, { text: "00000000", mono: true, color: C.tinta }, { text: ", viraram uma empresa só e apareceram em quarto lugar. Os catorze dígitos batem, inclusive os verificadores. Formato válido e significado válido são coisas diferentes." }], 3.95, { w: 11.2, size: 16, h: 1.4 });
-}
-
-// =============================================================== 15 o erro continua consultavel
-{
-  const s = novo("o erro continua consultável", "Aconteceu de verdade: DuckDB contou 209.066 e Spark contou 209.079, porque multiLine é true num e false no outro. A v0 guardou o erro. Consulte ao vivo.");
+  const s = novo("lakehouse: a tabela por cima dos arquivos", "Aconteceu de verdade: DuckDB contou 209.066 e Spark contou 209.079, porque multiLine é true num e false no outro. A v0 guardou o erro. Consulte ao vivo se der tempo; se não, a tabela basta.");
   const a = janela(s, M, 0.9, CW, 2.95, "spark-sql — DESCRIBE HISTORY");
   tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["VERSÃO", "OPERAÇÃO", "LINHAS", "O QUE ERA"], [
-    [{ t: "0", b: true }, "WRITE", { t: "209.079", c: C.vermelho }, "sem multiLine — 13 linhas partidas"],
-    [{ t: "1", b: true }, "WRITE", { t: "209.066", c: C.verde }, "com multiLine — correto"],
+    [{ t: "0", b: true }, "WRITE", { t: "209.079", c: C.vermelho }, "sem multiLine: 13 linhas partidas"],
+    [{ t: "1", b: true }, "WRITE", { t: "209.066", c: C.verde }, "com multiLine: correto"],
   ], [1.4, 1.8, 1.6, a.w - 4.8], { rowH: 0.34 });
   codigo(s, { x: a.x, y: a.y + 1.05, w: a.w }, [
-    [{ t: "spark-sql>", c: C.verde }, { t: " SELECT count(*) FROM delta.`s3a://lake/bronze` " }, { t: "VERSION AS OF 0", b: true }, { t: ";" }],
+    [{ t: "spark-sql>", c: P }, { t: " SELECT count(*) FROM delta.`s3a://lake/bronze` " }, { t: "VERSION AS OF 0", b: true }, { t: ";" }],
     [{ t: "209079", c: C.vermelho }],
   ], 13);
-  paragrafo(s, "No slide 8 o mesmo script deu outro número porque o arquivo mudou; aqui, porque mudou quem lê. Treze linhas têm quebra de linha dentro de um campo entre aspas, e dois motores honestos discordam sobre isso por padrão. O que a tabela Delta acrescenta é que a contagem errada não foi sobrescrita: ela virou a versão 0, e dá para voltar nela agora.", 4.1, { w: 11.2, size: 15, h: 1.5 });
-  termos(s, [["Delta Lake", "formato de tabela aberto por cima de arquivos Parquet. Guarda um registro de cada escrita num log ao lado dos dados."],
-             ["viagem no tempo", "consultar a tabela como ela estava antes. VERSION AS OF 0 lê o que foi escrito antes da correção."]]);
+  paragrafo(s, "Um lakehouse é uma tabela aberta escrita por cima de arquivos Parquet num object storage. O Delta Lake grava, ao lado dos dados, um log com cada escrita: uma versão por vez, inteira ou nada. Confiabilidade é isso. Consistência é o resto do log: a contagem errada continua na versão 0 e dá para consultar agora.", 4.05, { w: 11.2, size: 15, h: 1.4 });
+  termos(s, [["lakehouse", "arquivos abertos num object storage, com uma camada de tabela por cima que dá transação, esquema e histórico."],
+             ["Delta Lake", "formato de tabela aberto por cima de arquivos Parquet. Guarda um registro de cada escrita num log ao lado dos dados."],
+             ["transação", "uma escrita que entra inteira ou não entra. Quem lê nunca vê metade."],
+             ["viagem no tempo", "consultar a tabela como ela estava antes. VERSION AS OF 0 lê o que foi escrito antes da correção."]], { size: 10.5 });
 }
 
-// =============================================================== 16 testes
+// =============================================================== 10 delta, iceberg, hudi
 {
-  const s = novo("o que impede a volta", "Slide curto. O ponto: dois destes testes existem porque os bugs aconteceram. Teste em engenharia de dados é sobre a regra, não sobre o framework.");
-  titulo(s, "21 testes, e dois deles têm nome de cicatriz.", { size: 28, h: 0.6 });
-  const a = janela(s, M, 1.5, CW, 2.35, "pytest /opt/testes");
-  const g = C.verde;
-  codigo(s, a, [
-    [{ t: "PASSED", c: g }, { t: "  test_estorno_nao_conta_como_glosa_maior" }],
-    [{ t: "PASSED", c: g }, { t: "  test_raiz_zerada_nao_e_empresa" }],
-    [{ t: "PASSED", c: g }, { t: "  test_raiz_de_verdade_nao_e_confundida" }],
-    [{ t: "...", c: C.tinta40 }],
-    [{ t: "21 passed", c: g, b: true }, { t: " in 11.09s" }],
-  ], 13);
-  paragrafo(s, "Rodam sem MinIO e sem cluster, numa SparkSession local, em 11 segundos. O que eles testam não é o Spark: é se a regra de negócio ainda significa o que eu quis dizer.", 4.1, { w: 10.6, size: 16, h: 1 });
-  termos(s, [["SparkSession", "o objeto que representa a conexão com o Spark. O teste sobe uma local, sem cluster e sem MinIO."]]);
+  const s = novo("três formatos de tabela aberta", "Só fato de documentação de cada projeto; nenhum adjetivo. Se perguntarem qual é o melhor: depende do motor que já está na sua casa. A última frase é a ponte para a pós; é a sua pesquisa, diga em uma frase e siga.");
+  const a = janela(s, M, 0.9, CW, 2.75, "o mesmo problema, três respostas");
+  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["FORMATO", "QUEM MANTÉM", "COMO GUARDA O HISTÓRICO", "ONDE É O PADRÃO"], [
+    [{ t: "Delta Lake", b: true }, { t: "Linux Foundation; nasceu na Databricks", sans: true }, { t: "_delta_log: um JSON por escrita, checkpoints em Parquet", sans: true }, { t: "Databricks; Spark", sans: true }],
+    [{ t: "Apache Iceberg", b: true }, { t: "Apache Software Foundation; nasceu na Netflix", sans: true }, { t: "árvore de metadados: metadata.json, manifest list, manifests", sans: true }, { t: "Snowflake, Athena, BigQuery, Trino", sans: true }],
+    [{ t: "Apache Hudi", b: true }, { t: "Apache Software Foundation; nasceu na Uber", sans: true }, { t: "timeline em .hoodie/; tabelas copy-on-write ou merge-on-read", sans: true }, { t: "Amazon EMR; cargas com upsert", sans: true }],
+  ], [2.0, 3.1, 4.0, a.w - 9.1], { rowH: 0.55, size: 13 });
+  paragrafo(s, "Os três resolvem o mesmo problema: transação e histórico sobre arquivos que não sabem o que é uma tabela. Este repositório usa Delta porque o Spark que roda aqui já o carrega. Comparar os três em carga real (TPC-DS) é a minha pesquisa, e é por aí que se entra na pós-graduação.", 3.9, { w: 11.2, size: 16, h: 1.3 });
+  termos(s, [["Iceberg", "formato de tabela aberto da Apache, com metadados em árvore; nasceu na Netflix."],
+             ["Hudi", "formato de tabela aberto da Apache, feito para atualização linha a linha; nasceu na Uber."]]);
 }
 
-// =============================================================== 17 arquitetura
+// =============================================================== 11 docker
 {
-  const s = novo("processamento separado do armazenamento", "Agora o desenho completo. O worker 3 está tracejado porque vai subir de verdade: docker compose up -d --scale spark-worker=3, com o Spark UI aberto noutra aba.");
+  const s = novo("Docker: o que ele simula aqui", "Antes de falar, docker compose ps no terminal: cinco containers. O worker 3 está tracejado porque vai subir de verdade no slide 18. Docker aqui simula dois serviços de nuvem: um cluster de processamento e um object storage.");
   const rot = (x, y, w, t) => s.addText(t, { x, y, w, h: 0.25, fontFace: MONO, fontSize: 9.5, color: C.laranja, charSpacing: 2, margin: 0, isTextBox: true });
   const caixa = (x, y, w, h, nome, sub, opt = {}) => {
     s.addShape(pres.ShapeType.roundRect, { x, y, w, h, fill: { color: opt.oco ? C.papel : C.painel },
@@ -391,32 +296,51 @@ function cartao(s, x, y, w, h) {
     s.addText(nome, { x: x + 0.12, y: y + 0.08, w: w - 0.24, h: 0.32, fontFace: MONO, fontSize: 12, bold: true, color: opt.oco ? C.laranja : C.tinta, margin: 0, valign: "middle", isTextBox: true });
     if (sub) s.addText(sub, { x: x + 0.12, y: y + 0.4, w: w - 0.24, h: 0.3, fontFace: MONO, fontSize: 8.5, color: C.tinta40, charSpacing: 1, margin: 0, isTextBox: true });
   };
-  // dois blocos tracejados: compute a esquerda, storage a direita
-  s.addShape(pres.ShapeType.rect, { x: M, y: 1.15, w: 6.6, h: 3.3, fill: { color: "141D2A" }, line: { color: C.grade, width: 1, dashType: "dash" } });
-  s.addShape(pres.ShapeType.rect, { x: 8.1, y: 1.15, w: 4.63, h: 3.3, fill: { color: "141D2A" }, line: { color: C.grade, width: 1, dashType: "dash" } });
-  rot(M + 0.2, 1.25, 6, "PROCESSAMENTO · CONTAINERS spark");
-  rot(8.3, 1.25, 4.3, "ARMAZENAMENTO · CONTAINER minio");
-  caixa(2.6, 1.65, 2.6, 0.78, "spark-master", "REPARTE O TRABALHO");
-  caixa(0.85, 3.2, 1.9, 0.9, "worker 1", "2 CORES · 2 GB");
-  caixa(2.95, 3.2, 1.9, 0.9, "worker 2", "2 CORES · 2 GB");
-  caixa(5.05, 3.2, 1.9, 0.9, "worker 3", "SOBE AO VIVO", { oco: true });
-  [1.8, 3.9, 6.0].forEach(x => s.addShape(pres.ShapeType.line, { x: 3.9, y: 2.43, w: x - 3.9, h: 0.77, line: { color: C.kw, width: 1, endArrowType: "triangle" }, flipH: x < 3.9 }));
-  caixa(8.35, 1.65, 4.1, 0.78, "MinIO", "BUCKET lake");
-  [["bronze", "1.560.019 LINHAS"], ["silver", "DEFEITOS MARCADOS"], ["gold", "55.672 EMPRESAS"]].forEach(([nm, sb], i) =>
-    caixa(8.35 + i * 1.4, 3.2, 1.3, 0.9, nm, sb));
-  // a ligacao entre os dois blocos
-  s.addShape(pres.ShapeType.line, { x: 7.2, y: 2.85, w: 0.9, h: 0, line: { color: C.laranja, width: 2, beginArrowType: "triangle", endArrowType: "triangle" } });
-  s.addText("s3a://", { x: 7.0, y: 2.35, w: 1.3, h: 0.35, fontFace: MONO, fontSize: 12, bold: true, color: C.laranja, align: "center", margin: 0, isTextBox: true });
-  s.addText("A MESMA API DO AMAZON S3", { x: 6.6, y: 3.0, w: 2.1, h: 0.5, fontFace: MONO, fontSize: 8, color: C.tinta40, align: "center", charSpacing: 1, margin: 0, isTextBox: true });
-  paragrafo(s, [{ text: "o Spark não guarda o dado. derrube os três containers dele e o lake continua inteiro.", color: C.verde }], 4.65, { w: CW, size: 16, h: 0.4 });
-  s.addText("NA NUVEM ISSO SE CHAMA “COMPUTE E STORAGE SEPARADOS”, E É O QUE DEIXA O DESENHO PORTÁVEL", { x: M, y: 5.05, w: CW, h: 0.3, fontFace: MONO, fontSize: 10, color: C.laranja, charSpacing: 1, margin: 0, isTextBox: true });
-  termos(s, [["compute e storage separados", "quem processa e quem guarda são serviços distintos. Escalar um não obriga a escalar o outro."],
+  s.addShape(pres.ShapeType.rect, { x: M, y: 1.0, w: 6.6, h: 3.2, fill: { color: "141D2A" }, line: { color: C.grade, width: 1, dashType: "dash" } });
+  s.addShape(pres.ShapeType.rect, { x: 8.1, y: 1.0, w: 4.63, h: 3.2, fill: { color: "141D2A" }, line: { color: C.grade, width: 1, dashType: "dash" } });
+  rot(M + 0.2, 1.1, 6, "PROCESSAMENTO · CONTAINERS spark");
+  rot(8.3, 1.1, 4.3, "ARMAZENAMENTO · CONTAINER minio");
+  caixa(2.6, 1.5, 2.6, 0.78, "spark-master", "REPARTE O TRABALHO");
+  caixa(0.85, 3.0, 1.9, 0.9, "worker 1", "2 CORES · 2 GB");
+  caixa(2.95, 3.0, 1.9, 0.9, "worker 2", "2 CORES · 2 GB");
+  caixa(5.05, 3.0, 1.9, 0.9, "worker 3", "SOBE NO SLIDE 18", { oco: true });
+  [1.8, 3.9, 6.0].forEach(x => s.addShape(pres.ShapeType.line, { x: 3.9, y: 2.28, w: x - 3.9, h: 0.72, line: { color: C.kw, width: 1, endArrowType: "triangle" }, flipH: x < 3.9 }));
+  caixa(8.35, 1.5, 4.1, 0.78, "MinIO", "BUCKET lake");
+  [["bronze", "1.560.019 LINHAS"], ["silver", "DEFEITOS MARCADOS"], ["gold", "55.672 EMPRESAS"]].forEach(([nm, sb], i) => caixa(8.35 + i * 1.4, 3.0, 1.3, 0.9, nm, sb));
+  s.addShape(pres.ShapeType.line, { x: 7.2, y: 2.6, w: 0.9, h: 0, line: { color: C.laranja, width: 2, beginArrowType: "triangle", endArrowType: "triangle" } });
+  s.addText("s3a://", { x: 7.0, y: 2.1, w: 1.3, h: 0.35, fontFace: MONO, fontSize: 12, bold: true, color: C.laranja, align: "center", margin: 0, isTextBox: true });
+  s.addText("A MESMA API DO AMAZON S3", { x: 6.6, y: 2.75, w: 2.1, h: 0.5, fontFace: MONO, fontSize: 8, color: C.tinta40, align: "center", charSpacing: 1, margin: 0, isTextBox: true });
+  paragrafo(s, [{ text: "cinco containers no laptop simulam o que na nuvem são dois serviços: um cluster de processamento e um object storage.", color: C.verde }], 4.4, { w: CW, size: 16, h: 0.75 });
+  s.addText("DOCKER COMPOSE DOWN DERRUBA O PROCESSAMENTO; O LAKE CONTINUA NO VOLUME. O SPARK NÃO GUARDA DADO.", { x: M, y: 5.15, w: CW, h: 0.3, fontFace: MONO, fontSize: 10, color: C.laranja, charSpacing: 1, margin: 0, isTextBox: true });
+  termos(s, [["container", "um processo isolado, subido a partir de uma imagem (a receita congelada: sistema, dependências, configuração). Cinco deles formam este ambiente."],
+             ["volume", "disco que sobrevive ao container. O bucket do MinIO mora num volume; derrubar o stack não apaga o lake."]]);
+}
+
+// =============================================================== 12 onde o dado mora
+{
+  const s = novo("onde o dado mora, e como é referenciado", "Leia o caminho de cima para baixo, uma peça por vez. Depois rode make pipeline e deixe rodando: são ~2 minutos nos sete anos. O próximo slide é falado por cima da execução.");
+  const a = janela(s, M, 0.9, CW, 3.4, "um caminho, decomposto");
+  codigo(s, a, [
+    [{ t: "s3a://lake/bronze/ano_ref=2023/part-00000-….parquet", c: A }],
+    "",
+    [{ t: "s3a://         ", b: true }, { t: "protocolo: o Spark falando com object storage", c: D }],
+    [{ t: "lake           ", b: true }, { t: "bucket; o endpoint é minio:9000 aqui e s3.amazonaws.com lá", c: D }],
+    [{ t: "bronze         ", b: true }, { t: "a tabela; ao lado dela, _delta_log/", c: D }],
+    [{ t: "ano_ref=2023   ", b: true }, { t: "a partição: um ano, uma pasta", c: D }],
+    [{ t: "part-….parquet ", b: true }, { t: "o arquivo colunar", c: D }],
+    "",
+    [{ t: "spark-sql>", c: P }, { t: " SELECT count(*) FROM delta.`s3a://lake/bronze` WHERE ano_ref = " }, { t: "2023", c: C.vermelho }, { t: ";" }],
+    [{ t: "232745", c: A }, { t: "   # leu a pasta de 2023; as outras seis ficaram fechadas", c: D }],
+  ], 12.5);
+  paragrafo(s, [{ text: "Referenciar é isto: endpoint, bucket, tabela, partição, arquivo. Processar é o Spark abrir só a pasta pedida e só as colunas pedidas. " }, { text: "make pipeline", bold: true, color: C.tinta, mono: true }, { text: " começa agora e escreve as três tabelas nos sete anos." }], 4.5, { w: 11.2, size: 16, h: 1.0 });
+  termos(s, [["s3a://", "o jeito do Spark falar com armazenamento de objetos. Entre o MinIO daqui e o S3 da AWS muda o endereço, não a consulta."],
+             ["endpoint", "o endereço do serviço de armazenamento. É a linha de configuração que muda entre rodar aqui e rodar na AWS."],
              ["object storage", "guarda o arquivo inteiro endereçado por um nome, em vez de blocos como um disco. É o que MinIO e S3 fazem."]]);
 }
 
-// =============================================================== 18 o nome na nuvem
+// =============================================================== 13 codigo aberto, nomes na nuvem
 {
-  const s = novo("o mesmo desenho, com o nome que ele tem na nuvem", "Tom neutro. É o mesmo software rodando em dois lugares, e o código não muda. Não deprecie nenhum lado: estamos num Seminário em Cloud e a comparação é honesta.");
+  const s = novo("enquanto roda: código aberto, e os nomes na nuvem", "Fala de 2 a 4 minutos, por cima do pipeline rodando. Abra o console do MinIO (localhost:9001) e mostre lake/bronze/ano_ref=… enchendo. Roteiro: (1) cada container é um projeto de código aberto; (2) os serviços gerenciados da nuvem rodam esses mesmos projetos: EMR e Dataproc rodam Apache Spark, a Databricks criou o Delta, o MinIO implementa a API do S3; (3) o que muda é quem opera. Tom neutro: nenhum lado é melhor.");
   const linha = (y, rotulo, aqui, la, legenda) => {
     s.addText(rotulo, { x: M, y, w: 3, h: 0.25, fontFace: MONO, fontSize: 9.5, color: C.laranja, charSpacing: 2, margin: 0, isTextBox: true });
     cartao(s, M, y + 0.35, 4.3, 1.25);
@@ -429,34 +353,125 @@ function cartao(s, x, y, w, h) {
   };
   linha(0.95, "PROCESSAMENTO", "Apache Spark", "EMR · Dataproc · Databricks · Synapse", "O MESMO APACHE SPARK, OPERADO POR OUTRA PESSOA");
   linha(2.95, "ARMAZENAMENTO", "MinIO", "Amazon S3 · Google Cloud Storage · Azure Blob", "A MESMA API. VOCÊ TROCA UMA LINHA DE CONFIGURAÇÃO.");
-  paragrafo(s, [{ text: "Delta Lake é o mesmo formato dos dois lados. Ele é aberto, e não muda quando você paga.", color: C.verde }], 5.0, { w: CW, size: 16, h: 0.45 });
-  termos(s, [["endpoint", "o endereço do serviço de armazenamento. É a linha de configuração que muda entre rodar aqui e rodar na AWS."],
-             ["elasticidade", "pedir máquina quando precisa e devolver depois. O worker 3 do slide anterior sobe ao vivo; na nuvem são 200, e o código é o mesmo."]]);
+  paragrafo(s, [{ text: "MinIO, Spark, Delta e Docker são código aberto. Os serviços gerenciados rodam esses mesmos projetos; muda quem opera.", color: C.verde }], 5.0, { w: CW, size: 16, h: 0.75 });
+  termos(s, [["compute e storage separados", "quem processa e quem guarda são serviços distintos. Escalar um não obriga a escalar o outro."],
+             ["elasticidade", "pedir máquina quando precisa e devolver depois. O worker 3 sobe ao vivo no slide 18; na nuvem são 200, e o código é o mesmo."]]);
 }
 
-// =============================================================== 19 quando cada um faz sentido
+// =============================================================== 14 o pipeline terminou
 {
-  const s = novo("quando cada um faz sentido", "Os dois lados têm bolinha verde. A escolha é de contexto, não de virtude. Se alguém perguntar qual é o melhor, a resposta é: depende do que está na coluna da direita.");
+  const s = novo("o pipeline terminou: uma versão por escrita, e 21 testes em 11 segundos", "O pipeline terminou. make historico mostra uma versão por escrita em cada tabela; make teste roda em 11 s. Dois testes têm nome de bug que aconteceu aqui: o estorno contado como glosa e a raiz zerada tratada como empresa.");
+  const a = janela(s, M, 0.9, CW, 2.75, "make historico · make teste");
+  codigo(s, a, [
+    [{ t: "bronze", c: D }, { t: "  v1 WRITE   " }, { t: "silver", c: D }, { t: "  v1 WRITE   " }, { t: "gold", c: D }, { t: "  v1 WRITE" }],
+    "",
+    [{ t: "PASSED", c: P }, { t: "  test_estorno_nao_conta_como_glosa_maior" }],
+    [{ t: "PASSED", c: P }, { t: "  test_raiz_zerada_nao_e_empresa" }],
+    [{ t: "PASSED", c: P }, { t: "  test_raiz_de_verdade_nao_e_confundida" }],
+    [{ t: "...", c: D }],
+    [{ t: "21 passed", c: P, b: true }, { t: " in 11.09s" }],
+  ], 13);
+  paragrafo(s, "Os testes rodam sem cluster e sem MinIO, numa SparkSession local. Eles testam a regra de negócio, e dois deles existem porque o bug aconteceu: o estorno contado como glosa, e a raiz zerada tratada como empresa.", 3.95, { w: 11, size: 16, h: 1.1 });
+  termos(s, [["SparkSession", "o objeto que representa a conexão com o Spark. O teste sobe uma local, sem cluster e sem MinIO."],
+             ["CI", "integração contínua: os testes rodam sozinhos a cada mudança no repositório, antes de alguém confiar nela."]]);
+}
+
+// =============================================================== 15 duas pontas
+{
+  const s = novo("a mesma pergunta, nas duas pontas", "Rode as duas consultas ao vivo, na gold que acabou de ser escrita. Aponte que a de cima é o script do slide 5 em SQL. A frase sobre 3,30 e 3,25 responde antes que perguntem: a soma por nome chega perto, e a diferença tem nome.");
+  const a = janela(s, M, 0.9, CW, 3.35, "spark-sql — container spark-master");
+  codigo(s, a, [
+    [{ t: "spark-sql>", c: P }, { t: " SELECT txtFornecedor, sum(vlrDocumento) t" }],
+    [{ t: "           FROM delta.`s3a://lake/" }, { t: "bronze", b: true, c: C.laranja }, { t: "` WHERE numAno=2025 GROUP BY 1 ORDER BY 2 DESC LIMIT 3;" }],
+    [{ t: "TAM 16.402.463,26   GOL 6.052.550,88   AZUL 4.696.245,04", c: C.vermelho }],
+    "",
+    [{ t: "spark-sql>", c: P }, { t: " SELECT fornecedor, total" }],
+    [{ t: "           FROM " }, { t: "fornecedores", b: true, c: C.laranja }, { t: " WHERE ano_ref=2025 ORDER BY total DESC LIMIT 3;" }],
+    [{ t: "FACEBOOK 3.251.951,87   PANTANAL 3.227.314,77   VIVO 1.591.715,84", c: C.verde }],
+  ], 12.5);
+  paragrafo(s, "R$ 3,25 mi para a Facebook Serviços Online do Brasil em 2025. A soma por nome do script dá R$ 3,30 mi; a gold soma o reembolso e agrupa por CNPJ, e isso tira R$ 51 mil de nota não paga e uma linha homônima de outra empresa.", 4.5, { w: 11.2, size: 16, h: 1.1 });
+  termos(s, [["SQL", "a mesma pergunta do slide 5, escrita como consulta. Quem lê não precisa abrir o script para saber o que foi perguntado."]]);
+}
+
+// =============================================================== 16 achado 1
+{
+  const s = novo("achado 1: o que está dentro dos R$ 16,4 milhões", "O 16,4 é o número que a bronze devolveu no slide anterior. Mostre que ele já é uma subtração: 22,8 de passagem menos 6,4 de devolução. Os 22,8 batem com o arquivo de 04/09 do slide 6, e é provável que as 820 linhas novas sejam devoluções; o arquivo de 04/09 não foi guardado, então diga provável, não medido.");
+  const a = janela(s, M, 0.9, CW, 2.5, "python — a TAM de 2025");
+  codigo(s, a, [
+    [{ t: ">>>", c: P }, { t: " tam = df[df.txtFornecedor == " }, { t: '"TAM"', c: A }, { t: "].vlrDocumento" }],
+    [{ t: ">>>", c: P }, { t: " tam[tam > 0].sum()                 R$ " }, { t: "22.787.293", b: true }],
+    [{ t: ">>>", c: P }, { t: " tam[tam < 0].sum()                 R$ " }, { t: "-6.384.830", b: true, c: C.vermelho }, { t: "    # 5.433 linhas", c: D }],
+    [{ t: ">>>", c: P }, { t: " tam.sum()                          R$ " }, { t: "16.402.463", b: true }, { t: "    # a bronze do slide 15", c: D }],
+  ], 13);
+  paragrafo(s, "São estornos: passagem devolvida, lançada como valor negativo na mesma coluna do gasto. 7.197 linhas assim em 2025, 53.112 nos sete anos. Apagar resolve a soma e perde a informação. Marcar, numa coluna a mais, guarda as duas, e cada pergunta decide se conta com eles.", 3.65, { w: 11, size: 16, h: 1.4 });
+  termos(s, [["estorno", "devolução de dinheiro já reembolsado. Entra como valor negativo, na mesma coluna do gasto."],
+             ["glosa", "a parte da nota que a Câmara recusou pagar. O que saiu de verdade é o valor do documento menos a glosa."]]);
+}
+
+// =============================================================== 17 achado 2
+{
+  const s = novo("achado 2: grep chatgpt", "Um grep. 58 linhas, nove jeitos de escrever, e a coluna do documento: 57 iguais e uma diferente. O igual é a gaveta da Câmara para o que não tem nota; passa em qualquer validação de CNPJ. É o exemplo de formato válido com significado inválido.");
+  const a = janela(s, M, 0.9, CW, 3.25, "Ano-2019.csv … Ano-2025.csv");
+  const S = "000.000.000/0001-0";
+  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["FORNECEDOR", "LINHAS", "DOCUMENTO"], [
+    [{ t: "OpenAI, LLC", b: true }, "38", S], [{ t: "ChatGPT Plus Subscription", b: true }, "8", S],
+    [{ t: "chat GPT", b: true }, "4", S], [{ t: "OpenAI", b: true }, "3", S],
+    [{ t: "Chatgpt · CHATGPT · OpenAi · ChatGPT  Plus Subscription", b: true }, "4", S],
+    [{ t: "chatGPT", b: true }, "1", { t: "625.310.710/0017-8", c: C.vermelho }],
+  ], [7.2, 1.4, a.w - 8.6], { rowH: 0.33 });
+  paragrafo(s, "Nove grafias, um produto, R$ 10,2 mil em três anos. Cinquenta e sete linhas com o mesmo documento de catorze dígitos, que passa em qualquer validação de CNPJ e é a gaveta da Câmara para o que não tem nota fiscal. Agrupar por nome dá nove fornecedores; agrupar por documento dá um que não existe.", 4.4, { w: 11.2, size: 15, h: 1.3 });
+  termos(s, [["dígito verificador", "os 2 últimos dígitos do CNPJ, calculados a partir dos outros 12. Pegam erro de digitação; não provam que a empresa existe."]]);
+}
+
+// =============================================================== 18 local e nuvem
+{
+  const s = novo("local e nuvem: quando cada um faz sentido", "Os dois lados têm bolinha verde. A escolha é de contexto. Agora o worker 3: docker compose up -d --scale spark-worker=3 com o Spark UI em localhost:8080 aberto. Se não subir em 30 s, o desenho do slide 11 já contou a história; siga.");
   const col = (x, rotulo, itens) => {
-    cartao(s, x, 0.95, (CW - 0.4) / 2, 3.9);
+    cartao(s, x, 0.95, (CW - 0.4) / 2, 3.7);
     s.addText(rotulo, { x: x + 0.35, y: 1.15, w: 5, h: 0.3, fontFace: MONO, fontSize: 11, color: C.laranja, charSpacing: 3, margin: 0, isTextBox: true });
     s.addText("Bom quando…", { x: x + 0.35, y: 1.5, w: 5, h: 0.45, fontFace: SANS, fontSize: 22, bold: true, color: C.tinta, margin: 0, isTextBox: true });
     s.addText(itens.map((t, i) => ({ text: t, options: { bullet: { code: "25CF" }, color: C.tinta60, breakLine: i < itens.length - 1 } })),
-      { x: x + 0.35, y: 2.1, w: (CW - 0.4) / 2 - 0.7, h: 2.6, fontFace: SANS, fontSize: 15, color: C.tinta60, margin: 0, valign: "top", paraSpaceAfter: 8, isTextBox: true });
+      { x: x + 0.35, y: 2.1, w: (CW - 0.4) / 2 - 0.7, h: 2.4, fontFace: SANS, fontSize: 15, color: C.tinta60, margin: 0, valign: "top", paraSpaceAfter: 8, isTextBox: true });
   };
   col(M, "NO SEU DOCKER", ["você está aprendendo e quer quebrar sem medo", "o dado cabe confortavelmente numa máquina", "o ciclo curto importa: subiu, errou, refez em minutos", "o dado não pode sair da sua rede"]);
   col(M + (CW - 0.4) / 2 + 0.4, "NA NUVEM", ["o dado não cabe mais numa máquina só", "você precisa de 200 máquinas por 20 minutos", "o time é pequeno e o plantão não pode ser você", "outras equipes precisam do mesmo dado, com governança"]);
-  paragrafo(s, "É o mesmo Apache Spark e o mesmo Delta Lake dos dois lados. O que muda é quem opera a infraestrutura.", 5.1, { w: CW, size: 16, h: 0.5 });
+  paragrafo(s, "É o mesmo Apache Spark e o mesmo Delta Lake dos dois lados; muda quem opera a infraestrutura. O mesmo desenho serve para os dados do TSE, do DataSUS e do INEP: troca o CSV e as regras de negócio.", 4.9, { w: CW, size: 16, h: 0.8 });
   termos(s, [["governança", "quem pode ler o quê, quem mudou a tabela e quando. Vira problema no dia em que o dado deixa de ser só seu."]]);
 }
 
-// =============================================================== 20 fecho
+// =============================================================== 19 como iniciar
 {
-  const s = novo("para levar para casa", "Fecho curto. O repositório sobe em dois comandos. Depois abra para as perguntas — são 10 minutos.");
-  s.addText("O script do slide 3 continua certo. Ele só precisava de um lugar para morar.", { x: M, y: 1.0, w: 10.5, h: 1.9, fontFace: SANS, fontSize: 36, bold: true, color: C.tinta, margin: 0, valign: "top", isTextBox: true });
-  paragrafo(s, "Tudo que você viu é software aberto — MinIO, Apache Spark, Delta Lake, Docker — e um CSV público da Câmara. Roda no seu laptop hoje e sobe na nuvem no dia em que o dado crescer, sem reescrever a regra.", 3.1, { w: 10.5, size: 18, h: 1.3 });
+  const s = novo("como iniciar: quatro práticas, e onde elas estão aqui", "As quatro práticas são do Joseph Machado, Data Engineering Projects, startdataengineering.com, junho de 2024. Aponte onde cada uma está neste repositório; é a resposta para “como eu começo”.");
+  cartoes(s, 0.9, 1.75, [["PRÁTICA 1", "versionamento", "git desde o primeiro commit. Cada número dos slides tem o commit que o produziu."],
+                         ["PRÁTICA 2", "organização de código", "src/pipeline/ com uma camada por módulo, config em arquivo, um Makefile que diz o que existe."],
+                         ["PRÁTICA 3", "testes e qualidade", "testes/ com 21 casos e qualidade.py, que relata o que cada regra acusou em vez de apagar linhas."],
+                         ["PRÁTICA 4", "ferramentas em demanda", "Spark, Delta Lake, MinIO (API do S3), Docker. Os mesmos nomes das vagas e dos serviços de nuvem."]], { cols: 2, size: 22 });
+  paragrafo(s, [{ text: "As quatro vêm de Joseph Machado, " }, { text: "Data Engineering Projects", italic: true }, { text: " (startdataengineering.com, junho de 2024). Um repositório que cumpre as quatro é um portfólio." }], 5.15, { w: CW, size: 16, h: 0.6 });
+  termos(s, [["portfólio", "repositórios públicos que mostram como você trabalha, não só o que você sabe. É o que um recrutador de dados abre primeiro."]]);
+}
+
+// =============================================================== 20 portfolio
+{
+  const s = novo("portfólio: a escada, e o que estudar", "A escada é a do Machado, do mais simples ao mais complexo. Esta aula é o degrau 2. A lista do que estudar é curta de propósito; o resto vem quando o projeto pedir.");
+  const a = janela(s, M, 0.9, CW, 3.0, "startdataengineering.com/post/data-engineering-projects");
+  tabela(s, { x: a.x, y: a.y - 0.15, w: a.w }, ["DEGRAU", "PROJETO", "STACK"], [
+    [{ t: "1", b: true }, { t: "pipeline batch simples", sans: true }, "DuckDB, Python"],
+    [{ t: "2", b: true }, { t: "batch com orquestração e object storage  ← esta aula, com dado brasileiro", sans: true, c: C.verde }, "Spark, Airflow, MinIO"],
+    [{ t: "3", b: true }, { t: "transformação testada", sans: true }, "dbt, DuckDB"],
+    [{ t: "4", b: true }, { t: "captura de mudança em tempo real", sans: true }, "Debezium, Kafka"],
+    [{ t: "5", b: true }, { t: "fluxo contínuo", sans: true }, "Flink, Kafka, Grafana"],
+  ], [1.3, 7.2, a.w - 8.5], { rowH: 0.36, size: 13 });
+  paragrafo(s, "O que estudar, na ordem: SQL, um motor (Spark ou DuckDB), formatos colunares, Docker, object storage, e uma nuvem até você saber o que está pagando.", 4.2, { w: 11.2, size: 17, h: 0.9 });
+  termos(s, [["orquestração", "quem decide a ordem e a hora em que cada etapa roda, e o que fazer quando uma falha. Aqui é o Makefile; em produção, Airflow ou parecido."]]);
+}
+
+// =============================================================== 21 fecho
+{
+  const s = novo("para levar para casa", "Fecho curto. O repositório sobe em dois comandos. Quando o link público existir, ponha aqui. Depois abra para as perguntas: são 10 minutos.");
+  s.addText("Roda no seu laptop hoje. Sobe na nuvem no dia em que o dado crescer.", { x: M, y: 1.0, w: 10.5, h: 1.9, fontFace: SANS, fontSize: 36, bold: true, color: C.tinta, margin: 0, valign: "top", isTextBox: true });
+  paragrafo(s, "Tudo que você viu é software aberto: MinIO, Apache Spark, Delta Lake, Docker. O CSV é público. O repositório sobe em dois comandos, e as regras de negócio ficam onde dá para ler e testar.", 3.1, { w: 10.5, size: 18, h: 1.3 });
   const a = janela(s, M, 4.7, 6.2, 1.3, "no repositório");
-  codigo(s, a, [[{ t: "$", c: C.verde }, { t: " make subir" }, { t: "     ·     ", c: C.tinta40 }, { t: "$", c: C.verde }, { t: " make pipeline" }]], 14);
+  codigo(s, a, [[{ t: "$", c: P }, { t: " make subir" }, { t: "     ·     ", c: D }, { t: "$", c: P }, { t: " make pipeline" }]], 14);
 }
 
 if (n !== TOTAL) throw new Error(`esperava ${TOTAL} slides, saíram ${n}`);
