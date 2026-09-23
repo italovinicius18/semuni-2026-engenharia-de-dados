@@ -467,11 +467,12 @@ const A = C.ambar, K = C.kw, P = C.verde, D = C.tinta40;
 
 // =============================================================== 21 fecho
 {
-  const s = novo("para levar para casa", "Fecho curto. O repositório sobe em dois comandos. Quando o link público existir, ponha aqui. Depois abra para as perguntas: são 10 minutos.");
+  const s = novo("para levar para casa", "Fecho curto. O repositório sobe em dois comandos e o link está na tela. Depois abra para as perguntas: são 10 minutos.");
   s.addText("Roda no seu laptop hoje. Sobe na nuvem no dia em que o dado crescer.", { x: M, y: 1.0, w: 10.5, h: 1.9, fontFace: SANS, fontSize: 36, bold: true, color: C.tinta, margin: 0, valign: "top", isTextBox: true });
   paragrafo(s, "Tudo que você viu é software aberto: MinIO, Apache Spark, Delta Lake, Docker. O CSV é público. O repositório sobe em dois comandos, e as regras de negócio ficam onde dá para ler e testar.", 3.1, { w: 10.5, size: 18, h: 1.3 });
   const a = janela(s, M, 4.7, 6.2, 1.3, "no repositório");
   codigo(s, a, [[{ t: "$", c: P }, { t: " make subir" }, { t: "     ·     ", c: D }, { t: "$", c: P }, { t: " make pipeline" }]], 14);
+  s.addText("github.com/italovinicius18/semuni-2026-engenharia-de-dados", { x: M, y: 6.15, w: 9, h: 0.35, fontFace: MONO, fontSize: 13, color: C.laranja, margin: 0, isTextBox: true });
 }
 
 if (n !== TOTAL) throw new Error(`esperava ${TOTAL} slides, saíram ${n}`);
